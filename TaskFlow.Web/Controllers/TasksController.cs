@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskFlow.Web.Models;
+
 
 namespace TaskFlow.Web.Controllers;
 
@@ -16,8 +18,18 @@ public class TasksController : Controller
         return View();
     }
 
+    [HttpGet]
     public IActionResult Create()
     {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult Create(TaskItem task)
+    {
+        Console.WriteLine(task.Title);
+        Console.WriteLine(task.Description);
+        Console.WriteLine(task.IsCompleted);
         return View();
     }
 }
