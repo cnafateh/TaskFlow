@@ -25,11 +25,19 @@ public class TasksController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Create(TaskItem task)
     {
+        if (!ModelState.IsValid)
+        {
+            return View(task);
+        }
+
         Console.WriteLine(task.Title);
         Console.WriteLine(task.Description);
         Console.WriteLine(task.IsCompleted);
-        return View();
+        Console.WriteLine(task.DueDate);
+
+        return RedirectToAction(nameof(Index));
     }
 }
