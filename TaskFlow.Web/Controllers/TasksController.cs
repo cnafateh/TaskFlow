@@ -95,4 +95,37 @@ public class TasksController : Controller{
 
         return RedirectToAction(nameof(Index));
     }
+
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        TaskItem? task =
+            await _context.Tasks.FindAsync(id);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        return View(task);
+    }
+
+
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        TaskItem? task = await _context.Tasks.FindAsync(id);
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        _context.Tasks.Remove(task);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
 }

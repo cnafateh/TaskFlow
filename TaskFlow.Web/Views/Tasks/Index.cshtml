@@ -29,6 +29,11 @@
            asp-route-id="@task.Id">
             Edit
         </a>
+        <a asp-controller="Tasks"
+           asp-action="Delete"
+           asp-route-id="@task.Id">
+            Delete
+        </a>
     </div>
 
     <hr />
