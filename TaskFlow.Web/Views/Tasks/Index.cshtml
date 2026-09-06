@@ -1,13 +1,29 @@
-﻿@{
+﻿@model List<TaskFlow.Web.Models.TaskItem>
+
+@{
     ViewData["Title"] = "Tasks";
 }
 
 <h1>Tasks</h1>
 
-<p>My first ASP.NET Core MVC page.</p>
-
 <a asp-controller="Tasks"
-   asp-action="Details"
-   asp-route-id="5">
-    Open Task #5
+   asp-action="Create">
+    Create New Task
 </a>
+
+<hr />
+
+@foreach (var task in Model)
+{
+    <div>
+        <h3>@task.Title</h3>
+
+        <p>@task.Description</p>
+
+        <p>Due: @task.DueDate.ToShortDateString()</p>
+
+        <p>Completed: @task.IsCompleted</p>
+    </div>
+
+    <hr />
+}

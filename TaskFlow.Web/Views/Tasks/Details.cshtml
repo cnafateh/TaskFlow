@@ -1,7 +1,20 @@
-﻿@{
+﻿@model TaskFlow.Web.Models.TaskItem
+
+@{
     ViewData["Title"] = "Task Details";
 }
 
 <h1>Task Details</h1>
 
-<p>Task ID: @ViewBag.TaskId</p>
+<h2>@Model.Title</h2>
+
+<p>@Model.Description</p>
+
+<p>Due Date: @Model.DueDate.ToShortDateString()</p>
+
+<p>Completed: @Model.IsCompleted</p>
+
+<a asp-controller="Tasks"
+   asp-action="Index">
+    Back to Tasks
+</a>

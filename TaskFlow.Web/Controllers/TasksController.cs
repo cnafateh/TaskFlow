@@ -1,21 +1,37 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TaskFlow.Web.Data;
 using TaskFlow.Web.Models;
 
 
 namespace TaskFlow.Web.Controllers;
 
-public class TasksController : Controller
-{
-    public IActionResult Index()
+public class TasksController : Controller{
+
+    private readonly AppDbContext _context;
+
+    public TasksController(AppDbContext context)
     {
-        return View();
+        _context = context;
     }
 
-    public IActionResult Details(int id)
+    public async Task<IActionResult> Index()
     {
-        ViewBag.TaskId = id;
+        List<TaskItem> tasks = await _context.Tasks.ToListAsync();
 
-        return View();
+        return View(tasks);
+    }
+
+    public async Task<IActionResult> Details(int id)
+    {
+        TaskItem? task = await _context.Tasks.FindAsync(id);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        return View(task);
     }
 
     [HttpGet]
@@ -26,17 +42,16 @@ public class TasksController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(TaskItem task)
+    public async Task<IActionResult> Create(TaskItem task)
     {
         if (!ModelState.IsValid)
         {
             return View(task);
         }
 
-        Console.WriteLine(task.Title);
-        Console.WriteLine(task.Description);
-        Console.WriteLine(task.IsCompleted);
-        Console.WriteLine(task.DueDate);
+        _context.Tasks.Add(task);
+
+        await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
     }
