@@ -1,0 +1,43 @@
+﻿@model TaskFlow.Web.Models.TaskItem
+
+@{
+    ViewData["Title"] = "Edit Task";
+}
+
+<h1>Edit Task @Model.Id</h1>
+
+<form asp-controller="Tasks"
+      asp-action="Edit"
+      method="post">
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input asp-for="Id" type="hidden" />
+
+    <div>
+        <label asp-for="Title"></label>
+        <input asp-for="Title" />
+        <span asp-validation-for="Title"></span>
+    </div>
+
+    <div>
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description"></textarea>
+        <span asp-validation-for="Description"></span>
+    </div>
+
+    <div>
+        <label asp-for="IsCompleted"></label>
+        <input asp-for="IsCompleted" />
+    </div>
+
+    <div>
+        <label asp-for="DueDate"></label>
+        <input asp-for="DueDate" />
+    </div>
+
+    <button type="submit">
+        Save Changes
+    </button>
+
+</form>

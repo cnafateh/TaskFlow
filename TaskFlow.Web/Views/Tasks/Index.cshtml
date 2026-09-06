@@ -23,6 +23,12 @@
         <p>Due: @task.DueDate.ToShortDateString()</p>
 
         <p>Completed: @task.IsCompleted</p>
+
+        <a asp-controller="Tasks"
+           asp-action="Edit"
+           asp-route-id="@task.Id">
+            Edit
+        </a>
     </div>
 
     <hr />

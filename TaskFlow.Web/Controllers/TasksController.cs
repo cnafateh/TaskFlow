@@ -55,4 +55,44 @@ public class TasksController : Controller{
 
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        TaskItem? task = await _context.Tasks.FindAsync(id);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        return View(task);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(TaskItem task)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(task);
+        }
+
+        TaskItem? existingTask =
+            await _context.Tasks.FindAsync(task.Id);
+
+        if (existingTask == null)
+        {
+            return NotFound();
+        }
+
+        existingTask.Title = task.Title;
+        existingTask.Description = task.Description;
+        existingTask.IsCompleted = task.IsCompleted;
+        existingTask.DueDate = task.DueDate;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
 }
