@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
 using TaskFlow.Web.Models;
+using TaskFlow.Web.Services;
 
 
 namespace TaskFlow.Web.Controllers;
@@ -9,22 +10,27 @@ namespace TaskFlow.Web.Controllers;
 public class TasksController : Controller{
 
     private readonly AppDbContext _context;
+    private readonly ITaskService _taskService;
 
-    public TasksController(AppDbContext context)
+    public TasksController(
+    AppDbContext context,
+    ITaskService taskService)
     {
         _context = context;
+        _taskService = taskService;
     }
+
 
     public async Task<IActionResult> Index()
     {
-        List<TaskItem> tasks = await _context.Tasks.ToListAsync();
+        List<TaskItem> tasks = await _taskService.GetAllAsync();
 
         return View(tasks);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        TaskItem? task = await _context.Tasks.FindAsync(id);
+        TaskItem? task = await _taskService.GetByIdAsync(id);
 
         if (task == null)
         {
@@ -49,9 +55,7 @@ public class TasksController : Controller{
             return View(task);
         }
 
-        _context.Tasks.Add(task);
-
-        await _context.SaveChangesAsync();
+        await _taskService.CreateAsync(task);
 
         return RedirectToAction(nameof(Index));
     }
