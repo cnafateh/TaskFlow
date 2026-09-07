@@ -20,4 +20,8 @@ public class TaskItem
     public bool IsCompleted { get; set; }
     [DataType(DataType.Date)]
     public DateTime DueDate { get; set; }
+
+    public int? ProjectId { get; set; }
+
+    public Project? Project { get; set; }
 }
