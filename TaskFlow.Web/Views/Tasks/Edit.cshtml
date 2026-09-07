@@ -1,5 +1,4 @@
-﻿@model TaskFlow.Web.Models.TaskItem
-
+﻿@model TaskFlow.Web.ViewModels.Tasks.EditTaskViewModel
 @{
     ViewData["Title"] = "Edit Task";
 }
@@ -34,6 +33,7 @@
     <div>
         <label asp-for="DueDate"></label>
         <input asp-for="DueDate" />
+        <span asp-validation-for="DueDate"></span>
     </div>
 
     <button type="submit">

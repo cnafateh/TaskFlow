@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
+using TaskFlow.Web.ViewModels.Tasks;
+
 
 namespace TaskFlow.Web.Controllers;
 
@@ -42,12 +44,20 @@ public class TasksController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(TaskItem task)
+    public async Task<IActionResult> Create(CreateTaskViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            return View(task);
+            return View(model);
         }
+
+        TaskItem task = new TaskItem
+        {
+            Title = model.Title,
+            Description = model.Description,
+            DueDate = model.DueDate,
+            IsCompleted = false
+        };
 
         await _taskService.CreateAsync(task);
 
@@ -65,17 +75,35 @@ public class TasksController : Controller
             return NotFound();
         }
 
-        return View(task);
+        EditTaskViewModel model = new EditTaskViewModel
+        {
+            Id = id,
+            Title = task.Title,
+            Description = task.Description,
+            DueDate = task.DueDate,
+            IsCompleted = task.IsCompleted
+        };
+
+        return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(TaskItem task)
+    public async Task<IActionResult> Edit(EditTaskViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            return View(task);
+            return View(model);
         }
+
+        TaskItem task = new TaskItem
+        {
+            Id= model.Id,
+            Title = model.Title,
+            Description = model.Description,
+            DueDate = model.DueDate,
+            IsCompleted = model.IsCompleted
+        };
 
         bool updated =
             await _taskService.UpdateAsync(task);
@@ -99,16 +127,24 @@ public class TasksController : Controller
             return NotFound();
         }
 
-        return View(task);
+        DeleteTaskViewModel model = new DeleteTaskViewModel 
+        { 
+            Id = id,
+            Title = task.Title,
+            Description= task.Description,
+        };
+
+        return View(model);
     }
 
     [HttpPost]
     [ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(
+    DeleteTaskViewModel model)
     {
         bool deleted =
-            await _taskService.DeleteAsync(id);
+            await _taskService.DeleteAsync(model.Id);
 
         if (!deleted)
         {

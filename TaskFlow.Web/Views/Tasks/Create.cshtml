@@ -1,4 +1,4 @@
-﻿@model TaskFlow.Web.Models.TaskItem
+﻿@model TaskFlow.Web.ViewModels.Tasks.CreateTaskViewModel
 
 @{
     ViewData["Title"] = "Create Task";
@@ -26,13 +26,9 @@
     </div>
 
     <div>
-        <label asp-for="IsCompleted"></label>
-        <input asp-for="IsCompleted" />
-    </div>
-
-    <div>
         <label asp-for="DueDate"></label>
         <input asp-for="DueDate" />
+        <span asp-validation-for="DueDate"></span>
     </div>
 
     <button type="submit">
