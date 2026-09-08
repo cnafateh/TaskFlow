@@ -15,12 +15,18 @@ public class TaskService : ITaskService
 
     public async Task<List<TaskItem>> GetAllAsync()
     {
-        return await _context.Tasks.ToListAsync();
+        return await _context.Tasks
+        .Include(task => task.Project)
+        .AsNoTracking()
+        .ToListAsync();
     }
 
     public async Task<TaskItem?> GetByIdAsync(int id)
     {
-        return await _context.Tasks.FindAsync(id);
+        return await _context.Tasks
+        .Include(task => task.Project)
+        .AsNoTracking()
+        .FirstOrDefaultAsync(task => task.Id == id);
     }
 
     public async Task CreateAsync(TaskItem task)
@@ -44,6 +50,7 @@ public class TaskService : ITaskService
         existingTask.Description = task.Description;
         existingTask.IsCompleted = task.IsCompleted;
         existingTask.DueDate = task.DueDate;
+        existingTask.ProjectId = task.ProjectId;
 
         await _context.SaveChangesAsync();
 

@@ -36,6 +36,17 @@
         <span asp-validation-for="DueDate"></span>
     </div>
 
+    <div>
+        <label asp-for="ProjectId"></label>
+
+        <select asp-for="ProjectId"
+                asp-items="Model.Projects">
+            <option value="">Select a project</option>
+        </select>
+
+        <span asp-validation-for="ProjectId"></span>
+    </div>
+
     <button type="submit">
         Save Changes
     </button>

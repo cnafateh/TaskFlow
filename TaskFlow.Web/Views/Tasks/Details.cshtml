@@ -14,6 +14,11 @@
 
 <p>Completed: @Model.IsCompleted</p>
 
+<p>
+    Project:
+    @(Model.Project?.Name ?? "Unassigned")
+</p>
+
 <a asp-controller="Tasks"
    asp-action="Index">
     Back to Tasks

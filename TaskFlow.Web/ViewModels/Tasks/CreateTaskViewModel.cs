@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TaskFlow.Web.ViewModels.Tasks;
 
@@ -17,4 +18,11 @@ public class CreateTaskViewModel
 
     [DataType(DataType.Date)]
     public DateTime DueDate { get; set; }
+
+
+    [Range(1, int.MaxValue, ErrorMessage = "Please select a project.")]
+    public int ProjectId { get; set; }
+
+    public List<SelectListItem> Projects { get; set; }
+    = new List<SelectListItem>();
 }

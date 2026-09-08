@@ -2,6 +2,7 @@
 using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 
 namespace TaskFlow.Web.Controllers;
@@ -9,10 +10,12 @@ namespace TaskFlow.Web.Controllers;
 public class TasksController : Controller
 {
     private readonly ITaskService _taskService;
+    private readonly IProjectService _projectService;
 
-    public TasksController(ITaskService taskService)
+    public TasksController(ITaskService taskService, IProjectService projectService)
     {
         _taskService = taskService;
+        _projectService = projectService;
     }
 
     public async Task<IActionResult> Index()
@@ -37,9 +40,14 @@ public class TasksController : Controller
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return View();
+        CreateTaskViewModel model = new CreateTaskViewModel
+        {
+            Projects = await GetProjectOptionsAsync()
+        };
+
+        return View(model);
     }
 
     [HttpPost]
@@ -48,6 +56,7 @@ public class TasksController : Controller
     {
         if (!ModelState.IsValid)
         {
+            model.Projects = await GetProjectOptionsAsync();
             return View(model);
         }
 
@@ -56,7 +65,8 @@ public class TasksController : Controller
             Title = model.Title,
             Description = model.Description,
             DueDate = model.DueDate,
-            IsCompleted = false
+            IsCompleted = false,
+            ProjectId = model.ProjectId,
         };
 
         await _taskService.CreateAsync(task);
@@ -81,7 +91,9 @@ public class TasksController : Controller
             Title = task.Title,
             Description = task.Description,
             DueDate = task.DueDate,
-            IsCompleted = task.IsCompleted
+            IsCompleted = task.IsCompleted,
+            ProjectId = task.ProjectId ?? 0,
+            Projects = await GetProjectOptionsAsync()
         };
 
         return View(model);
@@ -93,6 +105,7 @@ public class TasksController : Controller
     {
         if (!ModelState.IsValid)
         {
+            model.Projects = await GetProjectOptionsAsync();
             return View(model);
         }
 
@@ -102,7 +115,8 @@ public class TasksController : Controller
             Title = model.Title,
             Description = model.Description,
             DueDate = model.DueDate,
-            IsCompleted = model.IsCompleted
+            IsCompleted = model.IsCompleted,
+            ProjectId = model.ProjectId,
         };
 
         bool updated =
@@ -152,5 +166,19 @@ public class TasksController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task<List<SelectListItem>> GetProjectOptionsAsync()
+    {
+        List<Project> projects =
+            await _projectService.GetAllAsync();
+
+        return projects
+            .Select(project => new SelectListItem
+            {
+                Value = project.Id.ToString(),
+                Text = project.Name
+            })
+            .ToList();
     }
 }

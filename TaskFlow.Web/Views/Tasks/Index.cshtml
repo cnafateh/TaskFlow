@@ -24,6 +24,11 @@
 
         <p>Completed: @task.IsCompleted</p>
 
+        <p>
+            Project:
+            @(task.Project?.Name ?? "Unassigned")
+        </p>
+
         <a asp-controller="Tasks"
            asp-action="Details"
            asp-route-id="@task.Id">
