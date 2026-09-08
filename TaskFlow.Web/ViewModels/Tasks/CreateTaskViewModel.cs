@@ -25,4 +25,10 @@ public class CreateTaskViewModel
 
     public List<SelectListItem> Projects { get; set; }
     = new List<SelectListItem>();
+
+    [Range(1, int.MaxValue, ErrorMessage = "Please select a category.")]
+    public int CategoryId { get; set; }
+
+    public List<SelectListItem> Categories { get; set; }
+        = new List<SelectListItem>();
 }

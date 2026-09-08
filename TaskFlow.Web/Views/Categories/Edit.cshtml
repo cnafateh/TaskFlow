@@ -1,0 +1,26 @@
+﻿@model TaskFlow.Web.ViewModels.Categories.EditCategoryViewModel
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<h1>Edit Category @Model.Id</h1>
+
+<form asp-controller="Categories"
+      asp-action="Edit"
+      method="post">
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input asp-for="Id" type="hidden" />
+
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <button type="submit">
+        Save Changes
+    </button>
+
+</form>

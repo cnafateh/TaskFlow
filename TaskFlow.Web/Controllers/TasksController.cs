@@ -11,11 +11,13 @@ public class TasksController : Controller
 {
     private readonly ITaskService _taskService;
     private readonly IProjectService _projectService;
+    private readonly ICategoryService _categoryService;
 
-    public TasksController(ITaskService taskService, IProjectService projectService)
+    public TasksController(ITaskService taskService, IProjectService projectService, ICategoryService categoryService)
     {
         _taskService = taskService;
         _projectService = projectService;
+        _categoryService = categoryService;
     }
 
     public async Task<IActionResult> Index()
@@ -44,7 +46,8 @@ public class TasksController : Controller
     {
         CreateTaskViewModel model = new CreateTaskViewModel
         {
-            Projects = await GetProjectOptionsAsync()
+            Projects = await GetProjectOptionsAsync(),
+            Categories = await GetCategoryOptionsAsync()
         };
 
         return View(model);
@@ -57,6 +60,8 @@ public class TasksController : Controller
         if (!ModelState.IsValid)
         {
             model.Projects = await GetProjectOptionsAsync();
+            model.Categories = await GetCategoryOptionsAsync();
+
             return View(model);
         }
 
@@ -67,6 +72,7 @@ public class TasksController : Controller
             DueDate = model.DueDate,
             IsCompleted = false,
             ProjectId = model.ProjectId,
+            CategoryId = model.CategoryId,
         };
 
         await _taskService.CreateAsync(task);
@@ -93,7 +99,9 @@ public class TasksController : Controller
             DueDate = task.DueDate,
             IsCompleted = task.IsCompleted,
             ProjectId = task.ProjectId,
-            Projects = await GetProjectOptionsAsync()
+            Projects = await GetProjectOptionsAsync(),
+            CategoryId = task.CategoryId,
+            Categories = await GetCategoryOptionsAsync()
         };
 
         return View(model);
@@ -106,6 +114,8 @@ public class TasksController : Controller
         if (!ModelState.IsValid)
         {
             model.Projects = await GetProjectOptionsAsync();
+            model.Categories = await GetCategoryOptionsAsync();
+
             return View(model);
         }
 
@@ -117,6 +127,7 @@ public class TasksController : Controller
             DueDate = model.DueDate,
             IsCompleted = model.IsCompleted,
             ProjectId = model.ProjectId,
+            CategoryId = model.CategoryId,
         };
 
         bool updated =
@@ -178,6 +189,20 @@ public class TasksController : Controller
             {
                 Value = project.Id.ToString(),
                 Text = project.Name
+            })
+            .ToList();
+    }
+
+    private async Task<List<SelectListItem>> GetCategoryOptionsAsync()
+    {
+        List<Category> categories =
+            await _categoryService.GetAllAsync();
+
+        return categories
+            .Select(category => new SelectListItem
+            {
+                Value = category.Id.ToString(),
+                Text = category.Name
             })
             .ToList();
     }

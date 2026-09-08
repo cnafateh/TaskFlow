@@ -1,0 +1,26 @@
+﻿@model TaskFlow.Web.ViewModels.Categories.CreateCategoryViewModel
+
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<h1>Create New Category</h1>
+
+<form asp-controller="Categories"
+      asp-action="Create"
+      method="post">
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <button type="submit">
+        Create
+    </button>
+
+</form>

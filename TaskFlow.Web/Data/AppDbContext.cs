@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
 
     public DbSet<TaskItem> Tasks { get; set; }
     public DbSet<Project> Project {  get; set; }
+    public DbSet<Category> Categories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,5 +23,11 @@ public class AppDbContext : DbContext
             .WithMany(project => project.Tasks)
             .HasForeignKey(task => task.ProjectId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TaskItem>()
+            .HasOne(task => task.Category)
+            .WithMany(category => category.Tasks)
+            .HasForeignKey(task => task.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -17,6 +17,7 @@ public class TaskService : ITaskService
     {
         return await _context.Tasks
         .Include(task => task.Project)
+        .Include(task => task.Category)
         .AsNoTracking()
         .ToListAsync();
     }
@@ -25,6 +26,7 @@ public class TaskService : ITaskService
     {
         return await _context.Tasks
         .Include(task => task.Project)
+        .Include(task => task.Category)
         .AsNoTracking()
         .FirstOrDefaultAsync(task => task.Id == id);
     }
@@ -51,6 +53,7 @@ public class TaskService : ITaskService
         existingTask.IsCompleted = task.IsCompleted;
         existingTask.DueDate = task.DueDate;
         existingTask.ProjectId = task.ProjectId;
+        existingTask.CategoryId = task.CategoryId;
 
         await _context.SaveChangesAsync();
 

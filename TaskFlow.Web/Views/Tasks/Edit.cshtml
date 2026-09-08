@@ -47,6 +47,17 @@
         <span asp-validation-for="ProjectId"></span>
     </div>
 
+    <div>
+        <label asp-for="CategoryId"></label>
+
+        <select asp-for="CategoryId"
+                asp-items="Model.Categories">
+            <option value="">Select a category</option>
+        </select>
+
+        <span asp-validation-for="CategoryId"></span>
+    </div>
+
     <button type="submit">
         Save Changes
     </button>
