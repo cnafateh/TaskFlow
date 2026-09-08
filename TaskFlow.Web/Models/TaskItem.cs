@@ -21,7 +21,7 @@ public class TaskItem
     [DataType(DataType.Date)]
     public DateTime DueDate { get; set; }
 
-    public int? ProjectId { get; set; }
+    public int ProjectId { get; set; }
 
-    public Project? Project { get; set; }
+    public Project Project { get; set; } = null!;
 }

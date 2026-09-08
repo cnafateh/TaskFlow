@@ -92,7 +92,7 @@ public class TasksController : Controller
             Description = task.Description,
             DueDate = task.DueDate,
             IsCompleted = task.IsCompleted,
-            ProjectId = task.ProjectId ?? 0,
+            ProjectId = task.ProjectId,
             Projects = await GetProjectOptionsAsync()
         };
 
