@@ -1,8 +1,92 @@
-﻿@model List<TaskFlow.Web.Models.TaskItem>
+﻿@model TaskFlow.Web.ViewModels.Tasks.TaskIndexViewModel
 
 @{
     ViewData["Title"] = "Tasks";
 }
+<form asp-controller="Tasks"
+      asp-action="Index"
+      method="get">
+
+    <div>
+        <label asp-for="Search"></label>
+        <input asp-for="Search"
+               placeholder="Search tasks..." />
+    </div>
+
+    <div>
+        <label>Project</label>
+
+        <select asp-for="ProjectId"
+                asp-items="Model.Projects">
+            <option value="">All Projects</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Category</label>
+
+        <select asp-for="CategoryId"
+                asp-items="Model.Categories">
+            <option value="">All Categories</option>
+        </select>
+    </div>
+
+    <div>
+        <label asp-for="Priority"></label>
+
+        <select asp-for="Priority"
+                asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()">
+            <option value="">All Priorities</option>
+        </select>
+    </div>
+
+    <div>
+        <label asp-for="Status"></label>
+
+        <select asp-for="Status"
+                asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskStatus>()">
+            <option value="">All Statuses</option>
+        </select>
+    </div>
+
+    <div>
+        <label asp-for="SortBy">Sort</label>
+
+        <select asp-for="SortBy">
+            <option value="">Due Date - Earliest</option>
+
+            <option value="dueDateDesc">
+                Due Date - Latest
+            </option>
+
+            <option value="title">
+                Title A-Z
+            </option>
+
+            <option value="titleDesc">
+                Title Z-A
+            </option>
+
+            <option value="createdAt">
+                Created - Oldest
+            </option>
+
+            <option value="createdAtDesc">
+                Created - Newest
+            </option>
+        </select>
+    </div>
+
+    <button type="submit">
+        Apply
+    </button>
+
+    <a asp-controller="Tasks"
+       asp-action="Index">
+        Reset
+    </a>
+
+</form>
 
 <h1>Tasks</h1>
 
@@ -13,8 +97,14 @@
 
 <hr />
 
-@foreach (var task in Model)
+@foreach (var task in Model.Tasks)
 {
+
+    @if (Model.Tasks.Count == 0)
+    {
+        <p>No tasks found.</p>
+    }
+
     <div>
         <h3>@task.Title</h3>
 

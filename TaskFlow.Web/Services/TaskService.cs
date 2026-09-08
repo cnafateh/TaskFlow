@@ -78,4 +78,68 @@ public class TaskService : ITaskService
 
         return true;
     }
+
+    public async Task<List<TaskItem>> GetFilteredAsync(TaskFilter filter)
+    {
+        IQueryable<TaskItem> query = _context.Tasks
+            .Include(task => task.Project)
+            .Include(task => task.Category)
+            .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            string search = filter.Search.Trim();
+
+            query = query.Where(task =>
+                task.Title.Contains(search) ||
+                task.Description.Contains(search));
+        }
+
+        if (filter.ProjectId.HasValue)
+        {
+            query = query.Where(task =>
+                task.ProjectId == filter.ProjectId.Value);
+        }
+
+        if (filter.CategoryId.HasValue)
+        {
+            query = query.Where(task =>
+                task.CategoryId == filter.CategoryId.Value);
+        }
+
+        if (filter.Priority.HasValue)
+        {
+            query = query.Where(task =>
+                task.Priority == filter.Priority.Value);
+        }
+
+        if (filter.Status.HasValue)
+        {
+            query = query.Where(task =>
+                task.Status == filter.Status.Value);
+        }
+
+        query = filter.SortBy switch
+        {
+            "title" =>
+                query.OrderBy(task => task.Title),
+
+            "titleDesc" =>
+                query.OrderByDescending(task => task.Title),
+
+            "dueDateDesc" =>
+                query.OrderByDescending(task => task.DueDate),
+
+            "createdAt" =>
+                query.OrderBy(task => task.CreatedAt),
+
+            "createdAtDesc" =>
+                query.OrderByDescending(task => task.CreatedAt),
+
+            _ =>
+                query.OrderBy(task => task.DueDate)
+        };
+
+        return await query.ToListAsync();
+    }
 }

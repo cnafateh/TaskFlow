@@ -20,12 +20,28 @@ public class TasksController : Controller
         _categoryService = categoryService;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(TaskIndexViewModel model)
     {
-        List<TaskItem> tasks =
-            await _taskService.GetAllAsync();
+        TaskFilter filter = new TaskFilter
+        {
+            Search = model.Search,
+            ProjectId = model.ProjectId,
+            CategoryId = model.CategoryId,
+            Priority = model.Priority,
+            Status = model.Status,
+            SortBy = model.SortBy
+        };
 
-        return View(tasks);
+        model.Tasks =
+            await _taskService.GetFilteredAsync(filter);
+
+        model.Projects =
+            await GetProjectOptionsAsync();
+
+        model.Categories =
+            await GetCategoryOptionsAsync();
+
+        return View(model);
     }
 
     public async Task<IActionResult> Details(int id)
