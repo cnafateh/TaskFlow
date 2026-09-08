@@ -26,6 +26,16 @@
     </div>
 
     <div>
+        <label asp-for="Priority"></label>
+
+        <select asp-for="Priority"
+                asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()">
+        </select>
+
+        <span asp-validation-for="Priority"></span>
+    </div>
+
+    <div>
         <label asp-for="DueDate"></label>
         <input asp-for="DueDate" />
         <span asp-validation-for="DueDate"></span>

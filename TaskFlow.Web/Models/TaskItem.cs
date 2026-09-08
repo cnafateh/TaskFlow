@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TaskFlow.Web.Models.Enums;
 
 namespace TaskFlow.Web.Models;
 
@@ -28,4 +29,11 @@ public class TaskItem
     public int CategoryId { get; set; }
 
     public Category Category { get; set; } = null!;
+
+
+    public TaskPriority Priority { get; set; }
+    = TaskPriority.Medium;
+
+    public Enums.TaskStatus Status { get; set; }
+        = Enums.TaskStatus.Todo;
 }

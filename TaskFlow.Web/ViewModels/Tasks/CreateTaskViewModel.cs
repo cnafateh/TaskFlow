@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+using TaskFlow.Web.Models.Enums;
 
 namespace TaskFlow.Web.ViewModels.Tasks;
 
@@ -31,4 +32,7 @@ public class CreateTaskViewModel
 
     public List<SelectListItem> Categories { get; set; }
         = new List<SelectListItem>();
+
+    public TaskPriority Priority { get; set; }
+        = TaskPriority.Medium;
 }

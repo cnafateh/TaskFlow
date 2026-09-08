@@ -73,6 +73,8 @@ public class TasksController : Controller
             IsCompleted = false,
             ProjectId = model.ProjectId,
             CategoryId = model.CategoryId,
+            Priority = model.Priority,
+            Status = Models.Enums.TaskStatus.Todo
         };
 
         await _taskService.CreateAsync(task);
@@ -101,7 +103,9 @@ public class TasksController : Controller
             ProjectId = task.ProjectId,
             Projects = await GetProjectOptionsAsync(),
             CategoryId = task.CategoryId,
-            Categories = await GetCategoryOptionsAsync()
+            Categories = await GetCategoryOptionsAsync(),
+            Priority = task.Priority,
+            Status = task.Status,
         };
 
         return View(model);
@@ -128,6 +132,8 @@ public class TasksController : Controller
             IsCompleted = model.IsCompleted,
             ProjectId = model.ProjectId,
             CategoryId = model.CategoryId,
+            Priority = model.Priority,
+            Status = model.Status,
         };
 
         bool updated =
