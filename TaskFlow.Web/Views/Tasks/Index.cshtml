@@ -25,6 +25,11 @@
         <p>Completed: @task.IsCompleted</p>
 
         <a asp-controller="Tasks"
+           asp-action="Details"
+           asp-route-id="@task.Id">
+            Detail
+        </a>
+        <a asp-controller="Tasks"
            asp-action="Edit"
            asp-route-id="@task.Id">
             Edit

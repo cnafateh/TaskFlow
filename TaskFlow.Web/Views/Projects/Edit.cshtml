@@ -1,0 +1,32 @@
+﻿@model TaskFlow.Web.ViewModels.Projects.EditProjectViewModel
+@{
+    ViewData["Title"] = "Edit Project";
+}
+
+<h1>Edit Project @Model.Id</h1>
+
+<form asp-controller="Projects"
+      asp-action="Edit"
+      method="post">
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input asp-for="Id" type="hidden" />
+
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div>
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description"></textarea>
+        <span asp-validation-for="Description"></span>
+    </div>
+
+    <button type="submit">
+        Save Changes
+    </button>
+
+</form>

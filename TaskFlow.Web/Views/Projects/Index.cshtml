@@ -1,0 +1,41 @@
+﻿@model List<TaskFlow.Web.Models.Project>
+
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<h1>Projects</h1>
+
+<a asp-controller="Projects"
+   asp-action="Create">
+    Create New Project
+</a>
+
+<hr />
+
+@foreach (var project in Model)
+{
+    <div>
+        <h3>@project.Name</h3>
+
+        <p>@project.Description</p>
+
+        <a asp-controller="Projects"
+           asp-action="Details"
+           asp-route-id="@project.Id">
+            Detail
+        </a>
+        <a asp-controller="Projects"
+           asp-action="Edit"
+           asp-route-id="@project.Id">
+            Edit
+        </a>
+        <a asp-controller="Projects"
+           asp-action="Delete"
+           asp-route-id="@project.Id">
+            Delete
+        </a>
+    </div>
+
+    <hr />
+}

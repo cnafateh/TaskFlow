@@ -1,0 +1,32 @@
+﻿@model TaskFlow.Web.ViewModels.Projects.CreateProjectViewModel
+
+@{
+    ViewData["Title"] = "Create Project";
+}
+
+<h1>Create New Project</h1>
+
+<form asp-controller="Projects"
+      asp-action="Create"
+      method="post">
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+
+    <div>
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div>
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description"></textarea>
+        <span asp-validation-for="Description"></span>
+    </div>
+
+    <button type="submit">
+        Create
+    </button>
+
+</form>
