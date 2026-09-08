@@ -51,10 +51,14 @@ public class TaskService : ITaskService
         existingTask.Title = task.Title;
         existingTask.Description = task.Description;
         existingTask.DueDate = task.DueDate;
+
         existingTask.ProjectId = task.ProjectId;
         existingTask.CategoryId = task.CategoryId;
+
         existingTask.Priority = task.Priority;
         existingTask.Status = task.Status;
+
+        existingTask.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 

@@ -20,6 +20,23 @@
     Project:
     @(Model.Project?.Name)
 </p>
+<p>
+    category:
+    @(Model.Category?.Name)
+</p>
+
+<p>
+    <strong>Created:</strong>
+    @Model.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+</p>
+
+@if (Model.UpdatedAt.HasValue)
+{
+    <p>
+        <strong>Last Updated:</strong>
+        @Model.UpdatedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+    </p>
+}
 
 <a asp-controller="Tasks"
    asp-action="Index">

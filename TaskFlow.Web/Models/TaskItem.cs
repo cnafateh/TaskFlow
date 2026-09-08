@@ -35,4 +35,8 @@ public class TaskItem
 
     public Enums.TaskStatus Status { get; set; }
         = Enums.TaskStatus.Todo;
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public DateTime? UpdatedAt { get; set; }
 }
