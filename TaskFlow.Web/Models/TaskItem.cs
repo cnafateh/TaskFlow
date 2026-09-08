@@ -18,7 +18,6 @@ public class TaskItem
         ErrorMessage = "Description cannot be longer than 500 characters.")]
     public string Description { get; set; } = "";
 
-    public bool IsCompleted { get; set; }
     [DataType(DataType.Date)]
     public DateTime DueDate { get; set; }
 
