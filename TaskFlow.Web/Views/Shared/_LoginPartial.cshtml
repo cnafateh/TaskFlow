@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using TaskFlow.Web.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li>
+            <span>Hello @User.Identity?.Name</span>
+        </li>
+
+        <li>
+            <form asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                  method="post">
+
+                <button type="submit">
+                    Logout
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li>
+            <a asp-area="Identity"
+               asp-page="/Account/Register">
+                Register
+            </a>
+        </li>
+
+        <li>
+            <a asp-area="Identity"
+               asp-page="/Account/Login">
+                Login
+            </a>
+        </li>
+    }
+</ul>
