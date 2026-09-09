@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskFlow.Web.Data;
 
@@ -10,9 +11,11 @@ using TaskFlow.Web.Data;
 namespace TaskFlow.Web.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260909094236_AddProjectOwnership")]
+    partial class AddProjectOwnership
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -224,12 +227,7 @@ namespace TaskFlow.Web.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Categories");
                 });
@@ -360,16 +358,6 @@ namespace TaskFlow.Web.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TaskFlow.Web.Models.Category", b =>
-                {
-                    b.HasOne("TaskFlow.Web.Models.ApplicationUser", "User")
-                        .WithMany("Categories")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TaskFlow.Web.Models.Project", b =>
                 {
                     b.HasOne("TaskFlow.Web.Models.ApplicationUser", "User")
@@ -401,8 +389,6 @@ namespace TaskFlow.Web.Migrations
 
             modelBuilder.Entity("TaskFlow.Web.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Categories");
-
                     b.Navigation("Projects");
                 });
 

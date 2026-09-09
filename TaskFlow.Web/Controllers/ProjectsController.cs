@@ -1,152 +1,221 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Projects;
-using Microsoft.AspNetCore.Authorization;
 
-namespace TaskFlow.Web.Controllers
+namespace TaskFlow.Web.Controllers;
+
+[Authorize]
+public class ProjectsController : Controller
 {
-    [Authorize]
-    public class ProjectsController : Controller
+    private readonly IProjectService _projectService;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public ProjectsController(
+        IProjectService projectService,
+        UserManager<ApplicationUser> userManager)
     {
-        private readonly IProjectService _projectService;
+        _projectService = projectService;
+        _userManager = userManager;
+    }
 
-        public ProjectsController(IProjectService projectService)
+    public async Task<IActionResult> Index()
+    {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
         {
-            _projectService = projectService;
+            return Unauthorized();
         }
 
-        public async Task<IActionResult> Index()
-        {
-            List<Project> projects =
-                await _projectService.GetAllAsync();
+        List<Project> projects =
+            await _projectService.GetAllAsync(userId);
 
-            return View(projects);
+        return View(projects);
+    }
+
+    public async Task<IActionResult> Details(int id)
+    {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
         }
 
-        public async Task<IActionResult> Details(int id)
+        Project? project =
+            await _projectService.GetByIdAsync(id, userId);
+
+        if (project == null)
         {
-            Project? project =
-                await _projectService.GetByIdAsync(id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            return View(project);
+            return NotFound();
         }
 
-        [HttpGet]
-        public IActionResult Create()
+        return View(project);
+    }
+
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(
+        CreateProjectViewModel model)
+    {
+        if (!ModelState.IsValid)
         {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateProjectViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            Project project = new Project
-            {
-                Name = model.Name,
-                Description = model.Description,
-            };
-
-            await _projectService.CreateAsync(project);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            Project? project =
-                await _projectService.GetByIdAsync(id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            EditProjectViewModel model = new EditProjectViewModel
-            {
-                Id = id,
-                Name = project.Name,
-                Description = project.Description,
-            };
-
             return View(model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(EditProjectViewModel model)
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            Project project = new Project
-            {
-                Id = model.Id,
-                Name = model.Name,
-                Description = model.Description,
-            };
-
-            bool updated =
-                await _projectService.UpdateAsync(project);
-
-            if (!updated)
-            {
-                return NotFound();
-            }
-
-            return RedirectToAction(nameof(Index));
+            return Unauthorized();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
+        Project project = new Project
         {
-            Project? project =
-                await _projectService.GetByIdAsync(id);
+            Name = model.Name,
+            Description = model.Description,
+            UserId = userId
+        };
 
-            if (project == null)
-            {
-                return NotFound();
-            }
+        await _projectService.CreateAsync(project);
 
-            DeleteProjectViewModel model = new DeleteProjectViewModel
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        Project? project =
+            await _projectService.GetByIdAsync(id, userId);
+
+        if (project == null)
+        {
+            return NotFound();
+        }
+
+        EditProjectViewModel model =
+            new EditProjectViewModel
             {
-                Id = id,
+                Id = project.Id,
                 Name = project.Name,
-                Description = project.Description,
+                Description = project.Description
             };
 
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+        EditProjectViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
             return View(model);
         }
 
-        [HttpPost]
-        [ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        Project project = new Project
+        {
+            Id = model.Id,
+            Name = model.Name,
+            Description = model.Description
+        };
+
+        bool updated =
+            await _projectService.UpdateAsync(
+                project,
+                userId);
+
+        if (!updated)
+        {
+            return NotFound();
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        Project? project =
+            await _projectService.GetByIdAsync(
+                id,
+                userId);
+
+        if (project == null)
+        {
+            return NotFound();
+        }
+
+        DeleteProjectViewModel model =
+            new DeleteProjectViewModel
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description
+            };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(
         DeleteProjectViewModel model)
+    {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
         {
-            bool deleted =
-                await _projectService.DeleteAsync(model.Id);
-
-            if (!deleted)
-            {
-                return NotFound();
-            }
-
-            return RedirectToAction(nameof(Index));
+            return Unauthorized();
         }
+
+        bool deleted =
+            await _projectService.DeleteAsync(
+                model.Id,
+                userId);
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    private string? GetCurrentUserId()
+    {
+        return _userManager.GetUserId(User);
     }
 }

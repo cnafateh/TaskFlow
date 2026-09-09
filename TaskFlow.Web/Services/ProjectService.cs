@@ -13,14 +13,23 @@ namespace TaskFlow.Web.Services
             _context = context;
         }
 
-        public async Task<List<Project>> GetAllAsync()
+        public async Task<List<Project>> GetAllAsync(string userId)
         {
-            return await _context.Project.ToListAsync();
+            return await _context.Project
+                .Where(project => project.UserId == userId)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        public async Task<Project?> GetByIdAsync(int id) 
+        public async Task<Project?> GetByIdAsync(
+            int id,
+            string userId)
         {
-            return await _context.Project.FindAsync(id);
+            return await _context.Project
+                .AsNoTracking()
+                .FirstOrDefaultAsync(project =>
+                    project.Id == id &&
+                    project.UserId == userId);
         }
 
         public async Task CreateAsync(Project project)
@@ -30,10 +39,15 @@ namespace TaskFlow.Web.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateAsync(Project project)
+        public async Task<bool> UpdateAsync(
+            Project project,
+            string userId)
         {
             Project? existingProject =
-                await _context.Project.FindAsync(project.Id);
+                await _context.Project
+                    .FirstOrDefaultAsync(p =>
+                        p.Id == project.Id &&
+                        p.UserId == userId);
 
             if (existingProject == null)
             {
@@ -48,9 +62,16 @@ namespace TaskFlow.Web.Services
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(
+            int id,
+            string userId)
         {
-            Project? project = await _context.Project.FindAsync(id);
+            Project? project =
+                await _context.Project
+                    .FirstOrDefaultAsync(p =>
+                        p.Id == id &&
+                        p.UserId == userId);
+
             if (project == null)
             {
                 return false;

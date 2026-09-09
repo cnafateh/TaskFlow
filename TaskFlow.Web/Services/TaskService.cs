@@ -22,28 +22,86 @@ public class TaskService : ITaskService
         .ToListAsync();
     }
 
-    public async Task<TaskItem?> GetByIdAsync(int id)
+    public async Task<TaskItem?> GetByIdAsync(
+    int id,
+    string userId)
     {
         return await _context.Tasks
-        .Include(task => task.Project)
-        .Include(task => task.Category)
-        .AsNoTracking()
-        .FirstOrDefaultAsync(task => task.Id == id);
+            .Include(task => task.Project)
+            .Include(task => task.Category)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(task =>
+                task.Id == id &&
+                task.Project.UserId == userId);
     }
 
-    public async Task CreateAsync(TaskItem task)
+    public async Task<bool> CreateAsync(
+    TaskItem task,
+    string userId)
     {
+        bool projectExists =
+            await _context.Project
+                .AnyAsync(project =>
+                    project.Id == task.ProjectId &&
+                    project.UserId == userId);
+
+        if (!projectExists)
+        {
+            return false;
+        }
+
+        bool categoryExists =
+            await _context.Categories
+                .AnyAsync(category =>
+                    category.Id == task.CategoryId &&
+                    category.UserId == userId);
+
+        if (!categoryExists)
+        {
+            return false;
+        }
+
         _context.Tasks.Add(task);
 
         await _context.SaveChangesAsync();
+
+        return true;
     }
 
-    public async Task<bool> UpdateAsync(TaskItem task)
+    public async Task<bool> UpdateAsync(
+    TaskItem task,
+    string userId)
     {
         TaskItem? existingTask =
-            await _context.Tasks.FindAsync(task.Id);
+            await _context.Tasks
+                .FirstOrDefaultAsync(existing =>
+                    existing.Id == task.Id &&
+                    existing.Project.UserId == userId);
 
         if (existingTask == null)
+        {
+            return false;
+        }
+
+
+        bool projectExists =
+            await _context.Project
+                .AnyAsync(project =>
+                    project.Id == task.ProjectId &&
+                    project.UserId == userId);
+
+        if (!projectExists)
+        {
+            return false;
+        }
+
+        bool categoryExists =
+            await _context.Categories
+            .AnyAsync(category =>
+            category.Id == task.CategoryId &&
+            category.UserId == userId);
+
+        if (!categoryExists)
         {
             return false;
         }
@@ -65,9 +123,16 @@ public class TaskService : ITaskService
         return true;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(
+    int id,
+    string userId)
     {
-        TaskItem? task = await _context.Tasks.FindAsync(id);
+        TaskItem? task =
+            await _context.Tasks
+                .FirstOrDefaultAsync(task =>
+                    task.Id == id &&
+                    task.Project.UserId == userId);
+
         if (task == null)
         {
             return false;
@@ -79,11 +144,14 @@ public class TaskService : ITaskService
         return true;
     }
 
-    public async Task<PagedResult<TaskItem>> GetFilteredAsync(TaskFilter filter)
+    public async Task<PagedResult<TaskItem>> GetFilteredAsync(
+    TaskFilter filter,
+    string userId)
     {
         IQueryable<TaskItem> query = _context.Tasks
             .Include(task => task.Project)
             .Include(task => task.Category)
+            .Where(task => task.Project.UserId == userId)
             .AsNoTracking();
 
         // Search

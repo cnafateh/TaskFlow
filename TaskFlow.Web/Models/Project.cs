@@ -19,4 +19,9 @@ public class Project
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public ICollection<TaskItem> Tasks { get; set; }
     = new List<TaskItem>();
+
+
+    public string? UserId { get; set; }
+
+    public ApplicationUser? User { get; set; }
 }

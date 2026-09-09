@@ -4,10 +4,15 @@ namespace TaskFlow.Web.Services;
 
 public interface ITaskService
 {
-    Task<List<TaskItem>> GetAllAsync();
-    Task<TaskItem?> GetByIdAsync(int id);
-    Task CreateAsync(TaskItem task);
-    Task<bool> UpdateAsync(TaskItem task);
-    Task<bool> DeleteAsync(int id);
-    Task<PagedResult<TaskItem>> GetFilteredAsync(TaskFilter filter);
+    Task<TaskItem?> GetByIdAsync(int id, string userId);
+
+    Task<bool> CreateAsync(TaskItem task, string userId);
+
+    Task<bool> UpdateAsync(TaskItem task, string userId);
+
+    Task<bool> DeleteAsync(int id, string userId);
+
+    Task<PagedResult<TaskItem>> GetFilteredAsync(
+        TaskFilter filter,
+        string userId);
 }

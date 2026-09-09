@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
 
 
 namespace TaskFlow.Web.Controllers;
@@ -14,16 +15,33 @@ public class TasksController : Controller
     private readonly ITaskService _taskService;
     private readonly IProjectService _projectService;
     private readonly ICategoryService _categoryService;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public TasksController(ITaskService taskService, IProjectService projectService, ICategoryService categoryService)
+    private string? GetCurrentUserId()
+    {
+        return _userManager.GetUserId(User);
+    }
+    public TasksController(
+    ITaskService taskService,
+    IProjectService projectService,
+    ICategoryService categoryService,
+    UserManager<ApplicationUser> userManager)
     {
         _taskService = taskService;
         _projectService = projectService;
         _categoryService = categoryService;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index(TaskIndexViewModel model)
     {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         TaskFilter filter = new TaskFilter
         {
             Search = model.Search,
@@ -36,7 +54,7 @@ public class TasksController : Controller
         };
 
         PagedResult<TaskItem> result =
-            await _taskService.GetFilteredAsync(filter);
+            await _taskService.GetFilteredAsync(filter, userId);
 
         model.Tasks = result.Items;
         model.TotalPages = result.TotalPages;
@@ -54,8 +72,15 @@ public class TasksController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         TaskItem? task =
-            await _taskService.GetByIdAsync(id);
+            await _taskService.GetByIdAsync(id, userId);
 
         if (task == null)
         {
@@ -100,7 +125,20 @@ public class TasksController : Controller
             Status = Models.Enums.TaskStatus.Todo
         };
 
-        await _taskService.CreateAsync(task);
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        bool created =
+            await _taskService.CreateAsync(task, userId);
+
+        if (!created)
+        {
+            return BadRequest();
+        }
 
         return RedirectToAction(nameof(Index));
     }
@@ -108,8 +146,15 @@ public class TasksController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         TaskItem? task =
-            await _taskService.GetByIdAsync(id);
+            await _taskService.GetByIdAsync(id, userId);
 
         if (task == null)
         {
@@ -118,7 +163,7 @@ public class TasksController : Controller
 
         EditTaskViewModel model = new EditTaskViewModel
         {
-            Id = id,
+            Id = task.Id,
             Title = task.Title,
             Description = task.Description,
             DueDate = task.DueDate,
@@ -127,7 +172,7 @@ public class TasksController : Controller
             CategoryId = task.CategoryId,
             Categories = await GetCategoryOptionsAsync(),
             Priority = task.Priority,
-            Status = task.Status,
+            Status = task.Status
         };
 
         return View(model);
@@ -137,6 +182,13 @@ public class TasksController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditTaskViewModel model)
     {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         if (!ModelState.IsValid)
         {
             model.Projects = await GetProjectOptionsAsync();
@@ -147,18 +199,18 @@ public class TasksController : Controller
 
         TaskItem task = new TaskItem
         {
-            Id= model.Id,
+            Id = model.Id,
             Title = model.Title,
             Description = model.Description,
             DueDate = model.DueDate,
             ProjectId = model.ProjectId,
             CategoryId = model.CategoryId,
             Priority = model.Priority,
-            Status = model.Status,
+            Status = model.Status
         };
 
         bool updated =
-            await _taskService.UpdateAsync(task);
+            await _taskService.UpdateAsync(task, userId);
 
         if (!updated)
         {
@@ -171,19 +223,26 @@ public class TasksController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         TaskItem? task =
-            await _taskService.GetByIdAsync(id);
+            await _taskService.GetByIdAsync(id, userId);
 
         if (task == null)
         {
             return NotFound();
         }
 
-        DeleteTaskViewModel model = new DeleteTaskViewModel 
-        { 
-            Id = id,
+        DeleteTaskViewModel model = new DeleteTaskViewModel
+        {
+            Id = task.Id,
             Title = task.Title,
-            Description= task.Description,
+            Description = task.Description
         };
 
         return View(model);
@@ -195,8 +254,15 @@ public class TasksController : Controller
     public async Task<IActionResult> DeleteConfirmed(
     DeleteTaskViewModel model)
     {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
         bool deleted =
-            await _taskService.DeleteAsync(model.Id);
+            await _taskService.DeleteAsync(model.Id, userId);
 
         if (!deleted)
         {
@@ -208,8 +274,15 @@ public class TasksController : Controller
 
     private async Task<List<SelectListItem>> GetProjectOptionsAsync()
     {
+        string? userId = _userManager.GetUserId(User);
+
+        if (userId == null)
+        {
+            return new List<SelectListItem>();
+        }
+
         List<Project> projects =
-            await _projectService.GetAllAsync();
+            await _projectService.GetAllAsync(userId);
 
         return projects
             .Select(project => new SelectListItem
@@ -220,10 +293,18 @@ public class TasksController : Controller
             .ToList();
     }
 
-    private async Task<List<SelectListItem>> GetCategoryOptionsAsync()
+    private async Task<List<SelectListItem>>
+    GetCategoryOptionsAsync()
     {
+        string? userId = GetCurrentUserId();
+
+        if (userId == null)
+        {
+            return new List<SelectListItem>();
+        }
+
         List<Category> categories =
-            await _categoryService.GetAllAsync();
+            await _categoryService.GetAllAsync(userId);
 
         return categories
             .Select(category => new SelectListItem

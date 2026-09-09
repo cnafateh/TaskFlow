@@ -1,14 +1,26 @@
 ﻿using TaskFlow.Web.Models;
 
-namespace TaskFlow.Web.Services
+namespace TaskFlow.Web.Services;
+
+public interface ICategoryService
 {
-    public interface ICategoryService
-    {
-        Task<List<Category>> GetAllAsync();
-        Task<Category?> GetByIdAsync(int id);
-        Task CreateAsync(Category category);
-        Task<bool> UpdateAsync(Category category);
-        Task<bool> DeleteAsync(int id);
-        Task<bool> HasTasksAsync(int categoryId);
-    }
+    Task<List<Category>> GetAllAsync(string userId);
+
+    Task<Category?> GetByIdAsync(
+        int id,
+        string userId);
+
+    Task CreateAsync(Category category);
+
+    Task<bool> UpdateAsync(
+        Category category,
+        string userId);
+
+    Task<bool> DeleteAsync(
+        int id,
+        string userId);
+
+    Task<bool> HasTasksAsync(
+        int categoryId,
+        string userId);
 }
