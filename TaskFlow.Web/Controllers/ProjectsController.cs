@@ -2,9 +2,11 @@
 using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Projects;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskFlow.Web.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly IProjectService _projectService;

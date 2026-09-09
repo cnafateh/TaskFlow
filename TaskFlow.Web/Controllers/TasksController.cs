@@ -3,10 +3,12 @@ using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace TaskFlow.Web.Controllers;
 
+[Authorize]
 public class TasksController : Controller
 {
     private readonly ITaskService _taskService;

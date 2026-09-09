@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Web.Models;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Categories;
 
 namespace TaskFlow.Web.Controllers
 {
+    [Authorize]
     public class CategoriesController : Controller
         {
             private readonly ICategoryService _categoryService;
