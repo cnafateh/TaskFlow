@@ -9,5 +9,5 @@ public interface ITaskService
     Task CreateAsync(TaskItem task);
     Task<bool> UpdateAsync(TaskItem task);
     Task<bool> DeleteAsync(int id);
-    Task<List<TaskItem>> GetFilteredAsync(TaskFilter filter);
+    Task<PagedResult<TaskItem>> GetFilteredAsync(TaskFilter filter);
 }

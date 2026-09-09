@@ -29,11 +29,17 @@ public class TasksController : Controller
             CategoryId = model.CategoryId,
             Priority = model.Priority,
             Status = model.Status,
-            SortBy = model.SortBy
+            SortBy = model.SortBy,
+            Page = model.Page,
         };
 
-        model.Tasks =
+        PagedResult<TaskItem> result =
             await _taskService.GetFilteredAsync(filter);
+
+        model.Tasks = result.Items;
+        model.TotalPages = result.TotalPages;
+        model.TotalCount = result.TotalCount;
+        model.Page = result.Page;
 
         model.Projects =
             await GetProjectOptionsAsync();

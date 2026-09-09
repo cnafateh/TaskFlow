@@ -26,4 +26,10 @@ public class TaskIndexViewModel
 
     public List<SelectListItem> Categories { get; set; }
         = new List<SelectListItem>();
+
+    public int Page { get; set; } = 1;
+
+    public int TotalPages { get; set; }
+
+    public int TotalCount { get; set; }
 }

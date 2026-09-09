@@ -3,12 +3,23 @@
 @{
     ViewData["Title"] = "Tasks";
 }
+
+<h1>Tasks</h1>
+
+<a asp-controller="Tasks"
+   asp-action="Create">
+    Create New Task
+</a>
+
+<hr />
+
 <form asp-controller="Tasks"
       asp-action="Index"
       method="get">
 
     <div>
         <label asp-for="Search"></label>
+
         <input asp-for="Search"
                placeholder="Search tasks..." />
     </div>
@@ -18,7 +29,11 @@
 
         <select asp-for="ProjectId"
                 asp-items="Model.Projects">
-            <option value="">All Projects</option>
+
+            <option value="">
+                All Projects
+            </option>
+
         </select>
     </div>
 
@@ -27,7 +42,11 @@
 
         <select asp-for="CategoryId"
                 asp-items="Model.Categories">
-            <option value="">All Categories</option>
+
+            <option value="">
+                All Categories
+            </option>
+
         </select>
     </div>
 
@@ -36,7 +55,11 @@
 
         <select asp-for="Priority"
                 asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()">
-            <option value="">All Priorities</option>
+
+            <option value="">
+                All Priorities
+            </option>
+
         </select>
     </div>
 
@@ -45,15 +68,24 @@
 
         <select asp-for="Status"
                 asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskStatus>()">
-            <option value="">All Statuses</option>
+
+            <option value="">
+                All Statuses
+            </option>
+
         </select>
     </div>
 
     <div>
-        <label asp-for="SortBy">Sort</label>
+        <label asp-for="SortBy">
+            Sort
+        </label>
 
         <select asp-for="SortBy">
-            <option value="">Due Date - Earliest</option>
+
+            <option value="">
+                Due Date - Earliest
+            </option>
 
             <option value="dueDateDesc">
                 Due Date - Latest
@@ -74,6 +106,7 @@
             <option value="createdAtDesc">
                 Created - Newest
             </option>
+
         </select>
     </div>
 
@@ -88,55 +121,139 @@
 
 </form>
 
-<h1>Tasks</h1>
-
-<a asp-controller="Tasks"
-   asp-action="Create">
-    Create New Task
-</a>
-
 <hr />
 
-@foreach (var task in Model.Tasks)
+<p>
+    Total tasks: @Model.TotalCount
+</p>
+
+@if (Model.Tasks.Count == 0)
 {
-
-    @if (Model.Tasks.Count == 0)
+    <p>No tasks found.</p>
+}
+else
+{
+    @foreach (var task in Model.Tasks)
     {
-        <p>No tasks found.</p>
+        <div>
+
+            <h3>
+                @task.Title
+            </h3>
+
+            <p>
+                @task.Description
+            </p>
+
+            <p>
+                Project:
+                @task.Project?.Name
+            </p>
+
+            <p>
+                Category:
+                @task.Category?.Name
+            </p>
+
+            <p>
+                Priority:
+                @task.Priority
+            </p>
+
+            <p>
+                Status:
+                @task.Status
+            </p>
+
+            <p>
+                Due:
+                @task.DueDate.ToShortDateString()
+            </p>
+
+            <a asp-controller="Tasks"
+               asp-action="Details"
+               asp-route-id="@task.Id">
+                Details
+            </a>
+
+            |
+
+            <a asp-controller="Tasks"
+               asp-action="Edit"
+               asp-route-id="@task.Id">
+                Edit
+            </a>
+
+            |
+
+            <a asp-controller="Tasks"
+               asp-action="Delete"
+               asp-route-id="@task.Id">
+                Delete
+            </a>
+
+        </div>
+
+        <hr />
     }
+}
 
+@if (Model.TotalPages > 1)
+{
     <div>
-        <h3>@task.Title</h3>
 
-        <p>@task.Description</p>
+        @if (Model.Page > 1)
+        {
+            <a asp-controller="Tasks"
+               asp-action="Index"
+               asp-route-page="@(Model.Page - 1)"
+               asp-route-search="@Model.Search"
+               asp-route-projectId="@Model.ProjectId"
+               asp-route-categoryId="@Model.CategoryId"
+               asp-route-priority="@Model.Priority"
+               asp-route-status="@Model.Status"
+               asp-route-sortBy="@Model.SortBy">
 
-        <p>Priority: @task.Priority</p>
+                Previous
 
-        <p>Status: @task.Status</p>
+            </a>
+        }
 
-        <p>Due: @task.DueDate.ToShortDateString()</p>
+        @for (int pageNumber = 1;
+              pageNumber <= Model.TotalPages;
+              pageNumber++)
+        {
+            <a asp-controller="Tasks"
+               asp-action="Index"
+               asp-route-page="@pageNumber"
+               asp-route-search="@Model.Search"
+               asp-route-projectId="@Model.ProjectId"
+               asp-route-categoryId="@Model.CategoryId"
+               asp-route-priority="@Model.Priority"
+               asp-route-status="@Model.Status"
+               asp-route-sortBy="@Model.SortBy">
 
-        <p>
-            Project:
-            @(task.Project?.Name)
-        </p>
+                @pageNumber
 
-        <a asp-controller="Tasks"
-           asp-action="Details"
-           asp-route-id="@task.Id">
-            Detail
-        </a>
-        <a asp-controller="Tasks"
-           asp-action="Edit"
-           asp-route-id="@task.Id">
-            Edit
-        </a>
-        <a asp-controller="Tasks"
-           asp-action="Delete"
-           asp-route-id="@task.Id">
-            Delete
-        </a>
+            </a>
+        }
+
+        @if (Model.Page < Model.TotalPages)
+        {
+            <a asp-controller="Tasks"
+               asp-action="Index"
+               asp-route-page="@(Model.Page + 1)"
+               asp-route-search="@Model.Search"
+               asp-route-projectId="@Model.ProjectId"
+               asp-route-categoryId="@Model.CategoryId"
+               asp-route-priority="@Model.Priority"
+               asp-route-status="@Model.Status"
+               asp-route-sortBy="@Model.SortBy">
+
+                Next
+
+            </a>
+        }
+
     </div>
-
-    <hr />
 }

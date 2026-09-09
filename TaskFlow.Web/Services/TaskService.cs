@@ -79,13 +79,14 @@ public class TaskService : ITaskService
         return true;
     }
 
-    public async Task<List<TaskItem>> GetFilteredAsync(TaskFilter filter)
+    public async Task<PagedResult<TaskItem>> GetFilteredAsync(TaskFilter filter)
     {
         IQueryable<TaskItem> query = _context.Tasks
             .Include(task => task.Project)
             .Include(task => task.Category)
             .AsNoTracking();
 
+        // Search
         if (!string.IsNullOrWhiteSpace(filter.Search))
         {
             string search = filter.Search.Trim();
@@ -95,30 +96,35 @@ public class TaskService : ITaskService
                 task.Description.Contains(search));
         }
 
+        // Project filter
         if (filter.ProjectId.HasValue)
         {
             query = query.Where(task =>
                 task.ProjectId == filter.ProjectId.Value);
         }
 
+        // Category filter
         if (filter.CategoryId.HasValue)
         {
             query = query.Where(task =>
                 task.CategoryId == filter.CategoryId.Value);
         }
 
+        // Priority filter
         if (filter.Priority.HasValue)
         {
             query = query.Where(task =>
                 task.Priority == filter.Priority.Value);
         }
 
+        // Status filter
         if (filter.Status.HasValue)
         {
             query = query.Where(task =>
                 task.Status == filter.Status.Value);
         }
 
+        // Sorting
         query = filter.SortBy switch
         {
             "title" =>
@@ -140,6 +146,29 @@ public class TaskService : ITaskService
                 query.OrderBy(task => task.DueDate)
         };
 
-        return await query.ToListAsync();
+        // تعداد کل Taskها بعد از Filter
+        int totalCount = await query.CountAsync();
+
+        int page = filter.Page < 1
+            ? 1
+            : filter.Page;
+
+        int pageSize = filter.PageSize < 1
+            ? 10
+            : filter.PageSize;
+
+        // فقط Taskهای صفحه فعلی
+        List<TaskItem> items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<TaskItem>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 }
