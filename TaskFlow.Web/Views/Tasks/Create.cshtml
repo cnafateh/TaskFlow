@@ -4,67 +4,168 @@
     ViewData["Title"] = "Create Task";
 }
 
-<h1>Create New Task</h1>
-
-<form asp-controller="Tasks"
-      asp-action="Create"
-      method="post">
-
-    <div asp-validation-summary="ModelOnly"></div>
-
+<div class="page-header">
 
     <div>
-        <label asp-for="Title"></label>
-        <input asp-for="Title" />
-        <span asp-validation-for="Title"></span>
+        <h1 class="page-title">
+            Create Task
+        </h1>
+
+        <p class="page-subtitle">
+            Add a new task to one of your projects.
+        </p>
     </div>
 
-    <div>
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description"></textarea>
-        <span asp-validation-for="Description"></span>
-    </div>
+</div>
 
-    <div>
-        <label asp-for="Priority"></label>
+<div class="app-card">
 
-        <select asp-for="Priority"
-                asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()">
-        </select>
+    <form asp-controller="Tasks"
+          asp-action="Create"
+          method="post">
 
-        <span asp-validation-for="Priority"></span>
-    </div>
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3">
+        </div>
 
-    <div>
-        <label asp-for="DueDate"></label>
-        <input asp-for="DueDate" />
-        <span asp-validation-for="DueDate"></span>
-    </div>
+        <div class="mb-3">
 
-    <div>
-        <label asp-for="ProjectId"></label>
+            <label asp-for="Title"
+                   class="form-label">
+            </label>
 
-        <select asp-for="ProjectId"
-                asp-items="Model.Projects">
-            <option value="">Select a project</option>
-        </select>
+            <input asp-for="Title"
+                   class="form-control" />
 
-        <span asp-validation-for="ProjectId"></span>
-    </div>
+            <span asp-validation-for="Title"
+                  class="text-danger">
+            </span>
 
-    <div>
-        <label asp-for="CategoryId"></label>
+        </div>
 
-        <select asp-for="CategoryId"
-                asp-items="Model.Categories">
-            <option value="">Select a category</option>
-        </select>
+        <div class="mb-3">
 
-        <span asp-validation-for="CategoryId"></span>
-    </div>
+            <label asp-for="Description"
+                   class="form-label">
+            </label>
 
-    <button type="submit">
-        Create
-    </button>
+            <textarea asp-for="Description"
+                      class="form-control"
+                      rows="4">
+            </textarea>
 
-</form>
+            <span asp-validation-for="Description"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <label asp-for="ProjectId"
+                       class="form-label">
+                    Project
+                </label>
+
+                <select asp-for="ProjectId"
+                        asp-items="Model.Projects"
+                        class="form-select">
+
+                    <option value="">
+                        Select a project
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="ProjectId"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <label asp-for="CategoryId"
+                       class="form-label">
+                    Category
+                </label>
+
+                <select asp-for="CategoryId"
+                        asp-items="Model.Categories"
+                        class="form-select">
+
+                    <option value="">
+                        Select a category
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="CategoryId"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <label asp-for="Priority"
+                       class="form-label">
+                </label>
+
+                <select asp-for="Priority"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()"
+                        class="form-select">
+                </select>
+
+                <span asp-validation-for="Priority"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <label asp-for="DueDate"
+                       class="form-label">
+                </label>
+
+                <input asp-for="DueDate"
+                       class="form-control" />
+
+                <span asp-validation-for="DueDate"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Create Task
+            </button>
+
+            <a asp-controller="Tasks"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

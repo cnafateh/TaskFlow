@@ -4,41 +4,140 @@
     ViewData["Title"] = "Task Details";
 }
 
-<h1>Task Details</h1>
+<div class="page-header">
 
-<h2>@Model.Title</h2>
+    <div>
 
-<p>@Model.Description</p>
+        <h1 class="page-title">
+            @Model.Title
+        </h1>
 
-<p>Priority: @Model.Priority</p>
+        <p class="page-subtitle">
+            Task details
+        </p>
 
-<p>Status: @Model.Status</p>
+    </div>
 
-<p>Due Date: @Model.DueDate.ToShortDateString()</p>
+    <div class="d-flex gap-2">
 
-<p>
-    Project:
-    @(Model.Project?.Name)
-</p>
-<p>
-    category:
-    @(Model.Category?.Name)
-</p>
+        <a asp-controller="Tasks"
+           asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+            Edit
+        </a>
 
-<p>
-    <strong>Created:</strong>
-    @Model.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-</p>
+        <a asp-controller="Tasks"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back
+        </a>
 
-@if (Model.UpdatedAt.HasValue)
-{
-    <p>
-        <strong>Last Updated:</strong>
-        @Model.UpdatedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
-    </p>
-}
+    </div>
 
-<a asp-controller="Tasks"
-   asp-action="Index">
-    Back to Tasks
-</a>
+</div>
+
+<div class="app-card">
+
+    <div class="details-row">
+
+        <div class="meta-label">
+            Description
+        </div>
+
+        <div>
+            @Model.Description
+        </div>
+
+    </div>
+
+    <div class="details-row">
+
+        <div class="meta-label">
+            Project
+        </div>
+
+        <div>
+            @Model.Project?.Name
+        </div>
+
+    </div>
+
+    <div class="details-row">
+
+        <div class="meta-label">
+            Category
+        </div>
+
+        <div>
+            @Model.Category?.Name
+        </div>
+
+    </div>
+
+    <div class="details-row">
+
+        <div class="meta-label">
+            Priority
+        </div>
+
+        <div>
+            @Model.Priority
+        </div>
+
+    </div>
+
+    <div class="details-row">
+
+        <div class="meta-label">
+            Status
+        </div>
+
+        <div>
+            @Model.Status
+        </div>
+
+    </div>
+
+    <div class="details-row">
+
+        <div class="meta-label">
+            Due Date
+        </div>
+
+        <div>
+            @Model.DueDate.ToShortDateString()
+        </div>
+
+    </div>
+
+    <div class="details-row">
+
+        <div class="meta-label">
+            Created
+        </div>
+
+        <div>
+            @Model.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+        </div>
+
+    </div>
+
+    @if (Model.UpdatedAt.HasValue)
+    {
+        <div class="details-row">
+
+            <div class="meta-label">
+                Last Updated
+            </div>
+
+            <div>
+                @Model.UpdatedAt.Value
+                .ToLocalTime()
+                .ToString("yyyy-MM-dd HH:mm")
+            </div>
+
+        </div>
+    }
+
+</div>
