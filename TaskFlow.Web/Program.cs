@@ -23,6 +23,7 @@ builder.Services
     {
         options.SignIn.RequireConfirmedAccount = false;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
 var app = builder.Build();
@@ -49,5 +50,24 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    IServiceProvider services =
+        scope.ServiceProvider;
+
+
+    RoleManager<IdentityRole> roleManager =
+        services.GetRequiredService<RoleManager<IdentityRole>>();
+
+
+    UserManager<ApplicationUser> userManager =
+        services.GetRequiredService<UserManager<ApplicationUser>>();
+
+
+    await IdentitySeeder.SeedRolesAsync(roleManager);
+
+    await IdentitySeeder.SeedAdminUserAsync(userManager);
+}
 
 app.Run();

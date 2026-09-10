@@ -4,10 +4,27 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
+
 <ul class="navbar-nav align-items-lg-center">
 
     @if (SignInManager.IsSignedIn(User))
     {
+        @if (User.IsInRole("Admin"))
+        {
+            <li class="nav-item">
+
+                <a class="nav-link"
+                   asp-controller="Admin"
+                   asp-action="Index">
+
+                    Admin Panel
+
+                </a>
+
+            </li>
+        }
+
+
         <li class="nav-item">
 
             <a class="nav-link"
@@ -21,6 +38,7 @@
 
         </li>
 
+
         <li class="nav-item">
 
             <form asp-area="Identity"
@@ -30,7 +48,9 @@
 
                 <button type="submit"
                         class="btn btn-link nav-link border-0">
+
                     Logout
+
                 </button>
 
             </form>
@@ -44,17 +64,22 @@
             <a class="nav-link"
                asp-area="Identity"
                asp-page="/Account/Login">
+
                 Login
+
             </a>
 
         </li>
+
 
         <li class="nav-item ms-lg-2">
 
             <a class="btn btn-primary btn-sm px-3"
                asp-area="Identity"
                asp-page="/Account/Register">
+
                 Register
+
             </a>
 
         </li>
