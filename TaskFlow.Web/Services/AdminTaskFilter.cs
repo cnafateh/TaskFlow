@@ -1,0 +1,24 @@
+﻿using TaskFlow.Web.Models.Enums;
+
+namespace TaskFlow.Web.Services;
+
+public class AdminTaskFilter
+{
+    public string? Search { get; set; }
+
+    public string? OwnerId { get; set; }
+
+    public int? ProjectId { get; set; }
+
+    public int? CategoryId { get; set; }
+
+    public TaskPriority? Priority { get; set; }
+
+    public Models.Enums.TaskStatus? Status { get; set; }
+
+    public string? SortBy { get; set; }
+
+    public int Page { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
+}
