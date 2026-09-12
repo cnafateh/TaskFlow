@@ -4,54 +4,81 @@
     ViewData["Title"] = "Delete Task";
 }
 
-<div class="page-header">
+<div class="form-page">
 
-    <div>
-        <h1 class="page-title">
-            Delete Task
-        </h1>
-    </div>
+    <div class="form-page-header">
 
-</div>
+        <div>
 
-<div class="app-card">
+            <div class="workspace-eyebrow">
+                Tasks
+            </div>
 
-    <div class="alert alert-warning">
+            <h1 class="form-page-title">
+                Delete task
+            </h1>
 
-        Are you sure you want to delete
-        <strong>@Model.Title</strong>?
-
-    </div>
-
-    @if (!string.IsNullOrWhiteSpace(Model.Description))
-    {
-        <p class="text-muted">
-            @Model.Description
-        </p>
-    }
-
-    <form asp-controller="Tasks"
-          asp-action="Delete"
-          method="post">
-
-        <input asp-for="Id"
-               type="hidden" />
-
-        <div class="d-flex gap-2">
-
-            <button type="submit"
-                    class="btn btn-danger">
-                Delete Task
-            </button>
-
-            <a asp-controller="Tasks"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Cancel
-            </a>
+            <p class="form-page-description">
+                Confirm the permanent removal of this task.
+            </p>
 
         </div>
 
-    </form>
+    </div>
+
+
+    <div class="danger-card">
+
+        <div class="danger-header">
+
+            <h2 class="danger-title">
+                Delete this task?
+            </h2>
+
+            <p class="danger-description">
+                This action cannot be undone.
+            </p>
+
+        </div>
+
+
+        <div class="danger-content">
+
+            <div class="danger-summary">
+
+                <div class="danger-summary-title">
+                    @Model.Title
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Tasks"
+                  asp-action="Delete"
+                  method="post">
+
+                <input asp-for="Id"
+                       type="hidden" />
+
+                <div class="danger-actions">
+
+                    <a asp-controller="Tasks"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Delete permanently
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 </div>

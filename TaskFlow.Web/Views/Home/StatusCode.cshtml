@@ -1,0 +1,75 @@
+﻿@model int
+
+@{
+    ViewData["Title"] =
+        Model == 404
+            ? "Page Not Found"
+            : "Something Went Wrong";
+}
+
+<div class="state-page">
+
+    <div class="state-card">
+
+        <div class="state-code">
+            @Model
+        </div>
+
+        <div class="state-icon">
+
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8">
+
+                <circle cx="12"
+                        cy="12"
+                        r="9">
+                </circle>
+
+                <path d="M9 9h.01"></path>
+                <path d="M15 9h.01"></path>
+                <path d="M9 16c1-1 2-1.5 3-1.5S14 15 15 16"></path>
+
+            </svg>
+
+        </div>
+
+
+        @if (Model == 404)
+        {
+            <h1 class="state-title">
+                Page not found
+            </h1>
+
+            <p class="state-description">
+                The page you're looking for doesn't exist or may have been moved.
+            </p>
+        }
+        else
+        {
+            <h1 class="state-title">
+                Something went wrong
+            </h1>
+
+            <p class="state-description">
+                We couldn't complete this request.
+            </p>
+        }
+
+
+        <div class="state-actions">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-primary">
+
+                Back to overview
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

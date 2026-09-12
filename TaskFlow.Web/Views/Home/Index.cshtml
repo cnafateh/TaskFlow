@@ -1,98 +1,182 @@
 ﻿@{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Overview";
 }
 
 @if (User.Identity?.IsAuthenticated == true)
 {
-    <div class="page-header">
+    <div class="workspace-header">
 
         <div>
-            <h1 class="page-title">
-                Welcome to TaskFlow
+
+            <div class="workspace-eyebrow">
+                Personal workspace
+            </div>
+
+            <h1 class="workspace-title">
+                Your work, organized.
             </h1>
 
-            <p class="page-subtitle">
-                Manage your projects, tasks and categories.
+            <p class="workspace-description">
+                Keep track of tasks, organize work into projects,
+                and use categories to keep everything easy to find.
             </p>
+
         </div>
 
-        <a asp-controller="Tasks"
-           asp-action="Create"
-           class="btn btn-primary">
-            New Task
-        </a>
+
+        <div class="workspace-actions">
+
+            <a asp-controller="Tasks"
+               asp-action="Create"
+               class="btn btn-primary">
+
+                New task
+
+            </a>
+
+            <a asp-controller="Projects"
+               asp-action="Create"
+               class="btn btn-outline-secondary">
+
+                New project
+
+            </a>
+
+        </div>
 
     </div>
 
+
     <vc:task-summary></vc:task-summary>
 
-    <div class="row g-4">
 
-        <div class="col-md-4">
+    <div class="mb-3 mt-4">
 
-            <a asp-controller="Tasks"
-               asp-action="Index"
-               class="text-dark">
-
-                <div class="app-card quick-link-card">
-
-                    <h3 class="h5">
-                        Tasks
-                    </h3>
-
-                    <p class="text-muted mb-0">
-                        Search, filter and manage your tasks.
-                    </p>
-
-                </div>
-
-            </a>
-
+        <div class="workspace-eyebrow">
+            Workspace
         </div>
 
-        <div class="col-md-4">
+        <h2 class="admin-section-title">
+            Manage your work
+        </h2>
 
-            <a asp-controller="Projects"
-               asp-action="Index"
-               class="text-dark">
+        <p class="admin-section-description">
+            Jump into the area you want to work with.
+        </p>
 
-                <div class="app-card quick-link-card">
+    </div>
 
-                    <h3 class="h5">
-                        Projects
-                    </h3>
 
-                    <p class="text-muted mb-0">
-                        Organize your tasks into projects.
-                    </p>
+    <div class="workspace-grid">
 
-                </div>
 
-            </a>
+        <a asp-controller="Tasks"
+           asp-action="Index"
+           class="workspace-link">
 
-        </div>
+            <div class="workspace-link-icon">
 
-        <div class="col-md-4">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8">
 
-            <a asp-controller="Categories"
-               asp-action="Index"
-               class="text-dark">
+                    <path d="M9 11l3 3L22 4"></path>
 
-                <div class="app-card quick-link-card">
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
 
-                    <h3 class="h5">
-                        Categories
-                    </h3>
+                </svg>
 
-                    <p class="text-muted mb-0">
-                        Keep your tasks clearly categorized.
-                    </p>
+            </div>
 
-                </div>
+            <div class="workspace-link-title">
+                Tasks
+            </div>
 
-            </a>
+            <div class="workspace-link-text">
+                Plan, prioritize and track your day-to-day work.
+            </div>
 
-        </div>
+            <div class="workspace-link-footer">
+                Open tasks
+                <span>→</span>
+            </div>
+
+        </a>
+
+
+        <a asp-controller="Projects"
+           asp-action="Index"
+           class="workspace-link">
+
+            <div class="workspace-link-icon">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+
+                    <path d="M3 7h7l2 2h9v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
+
+                    <path d="M3 7V5a2 2 0 0 1 2-2h5l2 2"></path>
+
+                </svg>
+
+            </div>
+
+            <div class="workspace-link-title">
+                Projects
+            </div>
+
+            <div class="workspace-link-text">
+                Group related tasks and keep larger pieces of work organized.
+            </div>
+
+            <div class="workspace-link-footer">
+                Open projects
+                <span>→</span>
+            </div>
+
+        </a>
+
+
+        <a asp-controller="Categories"
+           asp-action="Index"
+           class="workspace-link">
+
+            <div class="workspace-link-icon">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+
+                    <path d="M4 9h16"></path>
+
+                    <path d="M4 15h16"></path>
+
+                    <path d="M10 3L8 21"></path>
+
+                    <path d="M16 3l-2 18"></path>
+
+                </svg>
+
+            </div>
+
+            <div class="workspace-link-title">
+                Categories
+            </div>
+
+            <div class="workspace-link-text">
+                Add another layer of organization across your tasks.
+            </div>
+
+            <div class="workspace-link-footer">
+                Open categories
+                <span>→</span>
+            </div>
+
+        </a>
 
     </div>
 }
@@ -100,29 +184,45 @@ else
 {
     <section class="hero">
 
-        <div class="app-card hero-card mx-auto text-center">
+        <div class="app-card hero-card text-center">
 
-            <h1 class="display-5 fw-bold mb-3">
+            <span class="tf-brand-mark mb-4">
+                TF
+            </span>
+
+            <div class="workspace-eyebrow">
                 TaskFlow
+            </div>
+
+            <h1 class="workspace-title">
+                Keep work simple.
             </h1>
 
-            <p class="lead text-muted mb-4">
-                A simple workspace for managing tasks,
-                projects and priorities.
+            <p class="workspace-description mx-auto">
+                A focused workspace for organizing tasks,
+                projects and priorities without unnecessary complexity.
             </p>
 
-            <div class="d-flex justify-content-center gap-2">
-
-                <a asp-area="Identity"
-                   asp-page="/Account/Login"
-                   class="btn btn-primary">
-                    Login
-                </a>
+            <div class="d-flex
+                justify-content-center
+                flex-wrap
+                gap-2
+                mt-4">
 
                 <a asp-area="Identity"
                    asp-page="/Account/Register"
-                   class="btn btn-outline-primary">
-                    Create Account
+                   class="btn btn-primary">
+
+                    Create account
+
+                </a>
+
+                <a asp-area="Identity"
+                   asp-page="/Account/Login"
+                   class="btn btn-outline-secondary">
+
+                    Sign in
+
                 </a>
 
             </div>

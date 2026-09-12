@@ -1,154 +1,296 @@
 ﻿@model TaskFlow.Web.ViewModels.Admin.AdminDashboardViewModel
 
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Dashboard";
 }
+
 
 <div class="page-header">
 
     <div>
+
         <h1 class="page-title">
-            Admin Dashboard
+            Administration
         </h1>
 
         <p class="page-subtitle">
-            Overview of TaskFlow activity.
+            System-wide overview and management.
         </p>
+
     </div>
 
 </div>
 
-<div class="row g-4">
 
-    <div class="col-md-6 col-xl-3">
-        <div class="app-card h-100">
+<div class="admin-stat-grid">
 
-            <div class="meta-label">
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-label">
+            Total Users
+        </div>
+
+        <div class="admin-stat-value">
+            @Model.TotalUsers
+        </div>
+
+        <div class="admin-stat-meta">
+            Registered accounts
+        </div>
+
+    </div>
+
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-label">
+            Administrators
+        </div>
+
+        <div class="admin-stat-value">
+            @Model.TotalAdmins
+        </div>
+
+        <div class="admin-stat-meta">
+            Accounts with admin access
+        </div>
+
+    </div>
+
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-label">
+            Projects
+        </div>
+
+        <div class="admin-stat-value">
+            @Model.TotalProjects
+        </div>
+
+        <div class="admin-stat-meta">
+            Across all users
+        </div>
+
+    </div>
+
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-label">
+            Total Tasks
+        </div>
+
+        <div class="admin-stat-value">
+            @Model.TotalTasks
+        </div>
+
+        <div class="admin-stat-meta">
+            @Model.CompletedTasks completed
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<div class="app-card mb-4">
+
+    <div class="d-flex
+        justify-content-between
+        align-items-start
+        flex-wrap
+        gap-3">
+
+        <div>
+
+            <h2 class="admin-section-title">
+                Task completion
+            </h2>
+
+            <p class="admin-section-description">
+                Completion across every TaskFlow account.
+            </p>
+
+        </div>
+
+
+        @if (Model.TotalTasks > 0)
+        {
+            double completionRate =
+                (double)Model.CompletedTasks /
+                Model.TotalTasks *
+                100;
+
+            <div class="text-end">
+
+                <div class="h4 fw-bold mb-1">
+                    @completionRate.ToString("0")%
+                </div>
+
+                <div class="meta-label">
+                    completion rate
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+
+    @if (Model.TotalTasks > 0)
+    {
+        double progress =
+            (double)Model.CompletedTasks /
+            Model.TotalTasks *
+            100;
+
+        <div class="progress mt-4"
+             style="height: 8px;">
+
+            <div class="progress-bar"
+                 role="progressbar"
+                 style="width: @progress.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"
+                 aria-valuenow="@progress"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+
+        </div>
+
+
+        <div class="d-flex
+            justify-content-between
+            mt-2">
+
+            <span class="meta-label">
+                @Model.CompletedTasks completed
+            </span>
+
+            <span class="meta-label">
+                @Model.TotalTasks total
+            </span>
+
+        </div>
+    }
+    else
+    {
+        <div class="text-muted small mt-4">
+            No tasks have been created yet.
+        </div>
+    }
+
+</div>
+
+
+<div class="mb-3">
+
+    <h2 class="admin-section-title">
+        Management
+    </h2>
+
+    <p class="admin-section-description">
+        Manage data across all TaskFlow accounts.
+    </p>
+
+</div>
+
+
+<div class="admin-management-grid">
+
+
+    <a asp-controller="Admin"
+       asp-action="Users"
+       class="admin-management-card">
+
+        <div>
+
+            <div class="admin-management-card-title">
                 Users
             </div>
 
-            <div class="display-6 fw-bold mt-2">
-                @Model.TotalUsers
-            </div>
-
-        </div>
-    </div>
-
-
-    <div class="col-md-6 col-xl-3">
-        <div class="app-card h-100">
-
-            <div class="meta-label">
-                Admins
-            </div>
-
-            <div class="display-6 fw-bold mt-2">
-                @Model.TotalAdmins
-            </div>
-
-        </div>
-    </div>
-
-
-    <div class="col-md-6 col-xl-3">
-        <div class="app-card h-100">
-
-            <div class="meta-label">
-                Projects
-            </div>
-
-            <div class="display-6 fw-bold mt-2">
-                @Model.TotalProjects
-            </div>
-
-        </div>
-    </div>
-
-
-    <div class="col-md-6 col-xl-3">
-        <div class="app-card h-100">
-
-            <div class="meta-label">
-                Tasks
-            </div>
-
-            <div class="display-6 fw-bold mt-2">
-                @Model.TotalTasks
-            </div>
-
-        </div>
-    </div>
-
-</div>
-
-
-<div class="row g-4 mt-1">
-
-    <div class="col-md-6">
-
-        <div class="app-card h-100">
-
-            <h2 class="h5">
-                Task Completion
-            </h2>
-
-            <p class="text-muted mb-3">
-                Completed tasks across all users.
-            </p>
-
-            <div class="display-6 fw-bold">
-                @Model.CompletedTasks
-            </div>
-
-            <div class="meta-label mt-2">
-                of @Model.TotalTasks total tasks
+            <div class="admin-management-card-text">
+                Accounts and access roles
             </div>
 
         </div>
 
-    </div>
+        <span class="admin-management-arrow">
+            →
+        </span>
 
+    </a>
 
-    <div class="col-md-6">
-
-        <div class="app-card h-100">
-
-            <h2 class="h5">
-                User Management
-            </h2>
-
-            <p class="text-muted">
-                View users and manage their roles.
-            </p>
-
-            <a asp-controller="Admin"
-               asp-action="Users"
-               class="btn btn-primary">
-                Manage Users
-            </a>
-
-        </div>
-
-    </div>
 
     <a asp-controller="Admin"
        asp-action="Tasks"
-       class="btn btn-primary">
+       class="admin-management-card">
 
-        Manage Tasks
+        <div>
+
+            <div class="admin-management-card-title">
+                Tasks
+            </div>
+
+            <div class="admin-management-card-text">
+                Review and manage all tasks
+            </div>
+
+        </div>
+
+        <span class="admin-management-arrow">
+            →
+        </span>
 
     </a>
+
 
     <a asp-controller="Admin"
        asp-action="Projects"
-       class="btn btn-outline-primary">
-        Manage Projects
+       class="admin-management-card">
+
+        <div>
+
+            <div class="admin-management-card-title">
+                Projects
+            </div>
+
+            <div class="admin-management-card-text">
+                Projects across every account
+            </div>
+
+        </div>
+
+        <span class="admin-management-arrow">
+            →
+        </span>
+
     </a>
+
 
     <a asp-controller="Admin"
        asp-action="Categories"
-       class="btn btn-outline-primary">
-        Manage Categories
+       class="admin-management-card">
+
+        <div>
+
+            <div class="admin-management-card-title">
+                Categories
+            </div>
+
+            <div class="admin-management-card-text">
+                Category usage and management
+            </div>
+
+        </div>
+
+        <span class="admin-management-arrow">
+            →
+        </span>
+
     </a>
+
 
 </div>

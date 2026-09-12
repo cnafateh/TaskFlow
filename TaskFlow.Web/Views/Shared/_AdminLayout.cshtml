@@ -1,0 +1,336 @@
+﻿@{
+    string? currentAction =
+        ViewContext.RouteData.Values["action"]?
+            .ToString();
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] · TaskFlow Admin</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/admin.css"
+          asp-append-version="true" />
+
+</head>
+
+
+<body class="admin-body">
+
+
+    <div class="admin-shell">
+
+
+        <aside class="offcanvas-lg offcanvas-start admin-sidebar"
+               tabindex="-1"
+               id="adminSidebar"
+               aria-labelledby="adminSidebarLabel">
+
+
+            <div class="offcanvas-header admin-mobile-header">
+
+                <span class="tf-brand">
+
+                    <span class="tf-brand-mark">
+                        TF
+                    </span>
+
+                    <span class="tf-brand-name">
+                        TaskFlow
+                    </span>
+
+                </span>
+
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="offcanvas"
+                        data-bs-target="#adminSidebar"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+
+            <div class="admin-sidebar-inner">
+
+
+                <div class="admin-brand">
+
+                    <a asp-controller="Admin"
+                       asp-action="Index"
+                       class="tf-brand">
+
+                        <span class="tf-brand-mark">
+                            TF
+                        </span>
+
+                        <span>
+
+                            <span class="tf-brand-name">
+                                TaskFlow
+                            </span>
+
+                            <span class="admin-brand-label">
+                                Administration
+                            </span>
+
+                        </span>
+
+                    </a>
+
+                </div>
+
+
+                <nav class="admin-nav">
+
+
+                    <div class="admin-nav-label">
+                        Overview
+                    </div>
+
+
+                    <a asp-controller="Admin"
+                       asp-action="Index"
+                       class="admin-nav-link
+                        @(currentAction == "Index"
+                           ? "active"
+                           : "")">
+
+                        <span class="admin-nav-icon">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+                                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                            </svg>
+                        </span>
+
+                        Dashboard
+
+                    </a>
+
+
+                    <div class="admin-nav-label">
+                        Management
+                    </div>
+
+
+                    <a asp-controller="Admin"
+                       asp-action="Users"
+                       class="admin-nav-link
+                        @(currentAction == "Users"
+                           ? "active"
+                           : "")">
+
+                        <span class="admin-nav-icon">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+                                <circle cx="9" cy="8" r="3"></circle>
+                                <path d="M3 20c0-4 2.5-6 6-6s6 2 6 6"></path>
+                                <path d="M16 5c2.5.2 4 1.6 4 3.5S18.5 12 16 12"></path>
+                                <path d="M17 15c2.5.6 4 2.2 4 5"></path>
+                            </svg>
+                        </span>
+
+                        Users
+
+                    </a>
+
+
+                    <a asp-controller="Admin"
+                       asp-action="Tasks"
+                       class="admin-nav-link
+                        @(currentAction == "Tasks"
+                           ? "active"
+                           : "")">
+
+                        <span class="admin-nav-icon">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+                                <path d="M9 6h11"></path>
+                                <path d="M9 12h11"></path>
+                                <path d="M9 18h11"></path>
+                                <path d="m3 6 1.5 1.5L7 5"></path>
+                                <path d="m3 12 1.5 1.5L7 11"></path>
+                                <path d="m3 18 1.5 1.5L7 17"></path>
+                            </svg>
+                        </span>
+
+                        Tasks
+
+                    </a>
+
+
+                    <a asp-controller="Admin"
+                       asp-action="Projects"
+                       class="admin-nav-link
+                        @(currentAction == "Projects"
+                           ? "active"
+                           : "")">
+
+                        <span class="admin-nav-icon">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+                                <path d="M3 7h7l2 2h9v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
+                                <path d="M3 7V5a2 2 0 0 1 2-2h5l2 2"></path>
+                            </svg>
+                        </span>
+
+                        Projects
+
+                    </a>
+
+
+                    <a asp-controller="Admin"
+                       asp-action="Categories"
+                       class="admin-nav-link
+                        @(currentAction == "Categories"
+                           ? "active"
+                           : "")">
+
+                        <span class="admin-nav-icon">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+                                <path d="M4 9h16"></path>
+                                <path d="M4 15h16"></path>
+                                <path d="M10 3 8 21"></path>
+                                <path d="m16 3-2 18"></path>
+                            </svg>
+                        </span>
+
+                        Categories
+
+                    </a>
+
+                </nav>
+
+
+                <div class="admin-sidebar-footer">
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="admin-back-link">
+
+                        ← Back to TaskFlow
+
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </aside>
+
+
+        <div class="admin-main">
+
+
+            <header class="admin-topbar">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <button class="btn admin-menu-button d-lg-none"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#adminSidebar"
+                            aria-controls="adminSidebar">
+
+                        ☰
+
+                    </button>
+
+
+                    <div>
+
+                        <div class="admin-topbar-eyebrow">
+                            Administration
+                        </div>
+
+                        <div class="admin-topbar-title">
+                            @ViewData["Title"]
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="admin-account">
+
+                    <div class="tf-avatar">
+                        A
+                    </div>
+
+
+                    <div class="d-none d-sm-block">
+
+                        <div class="admin-account-name">
+                            @User.Identity?.Name
+                        </div>
+
+                        <div class="admin-account-role">
+                            Administrator
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <main class="admin-content">
+
+                <partial name="_FlashMessages" />
+
+                @RenderBody()
+
+            </main>
+
+
+        </div>
+
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false)
+
+</body>
+
+</html>

@@ -1,51 +1,77 @@
 ﻿@model TaskFlow.Web.ViewModels.Admin.AdminProjectIndexViewModel
 
 @{
-    ViewData["Title"] = "Manage Projects";
+    ViewData["Title"] = "Projects";
 }
 
+<div class="admin-page-header">
 
-<div class="page-header">
+    <div class="admin-page-heading">
 
-    <div>
-        <h1 class="page-title">
-            Manage Projects
-        </h1>
+        <div class="d-flex align-items-center flex-wrap">
 
-        <p class="page-subtitle">
-            @Model.TotalCount project(s) across all users
+            <h1 class="admin-page-title">
+                Projects
+            </h1>
+
+            <span class="admin-count">
+                @Model.TotalCount
+            </span>
+
+        </div>
+
+        <p class="admin-page-description">
+            Review and manage projects across all TaskFlow accounts.
         </p>
-    </div>
 
-    <a asp-controller="Admin"
-       asp-action="Index"
-       class="btn btn-outline-secondary">
-        Back to Dashboard
-    </a>
+    </div>
 
 </div>
 
 
-<div class="app-card filter-card">
+<div class="admin-filter-panel">
 
     <form asp-controller="Admin"
           asp-action="Projects"
           method="get">
 
-        <div class="filter-grid">
+        <div class="admin-filter-grid">
 
             <div>
+
                 <label class="form-label">
                     Search
                 </label>
 
-                <input asp-for="Search"
-                       class="form-control"
-                       placeholder="Project, description or owner..." />
+                <div class="admin-search-wrap">
+
+                    <svg class="admin-search-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <circle cx="11"
+                                cy="11"
+                                r="7">
+                        </circle>
+
+                        <path d="m20 20-3.5-3.5">
+                        </path>
+
+                    </svg>
+
+                    <input asp-for="Search"
+                           class="form-control admin-search-input"
+                           placeholder="Project, description or owner..." />
+
+                </div>
+
             </div>
 
 
             <div>
+
                 <label class="form-label">
                     Owner
                 </label>
@@ -54,7 +80,7 @@
                         class="form-select">
 
                     <option value="">
-                        All Users
+                        All users
                     </option>
 
                     @foreach (var owner in Model.Owners)
@@ -65,10 +91,12 @@
                     }
 
                 </select>
+
             </div>
 
 
             <div>
+
                 <label class="form-label">
                     Sort
                 </label>
@@ -77,38 +105,43 @@
                         class="form-select">
 
                     <option value="createdAtDesc">
-                        Newest
+                        Newest first
                     </option>
 
                     <option value="createdAt">
-                        Oldest
+                        Oldest first
                     </option>
 
                     <option value="name">
-                        Name A-Z
+                        Name A–Z
                     </option>
 
                     <option value="nameDesc">
-                        Name Z-A
+                        Name Z–A
                     </option>
 
                 </select>
+
             </div>
 
-        </div>
 
+            <div class="admin-filter-actions">
 
-        <div class="d-flex gap-2 mt-3">
+                <button type="submit"
+                        class="btn btn-primary">
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Apply Filters
-            </button>
+                    Apply filters
 
-            <a asp-action="Projects"
-               class="btn btn-outline-secondary">
-                Reset
-            </a>
+                </button>
+
+                <a asp-action="Projects"
+                   class="btn btn-outline-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
 
         </div>
 
@@ -117,51 +150,93 @@
 </div>
 
 
-@if (Model.Projects.Count == 0)
-{
-    <div class="empty-state">
-        <h3>No projects found</h3>
-    </div>
-}
-else
-{
-    <form id="bulkProjectDeleteForm"
-          asp-action="BulkDeleteProjects"
-          method="post"
-          onsubmit="return confirm('Deleting projects will also delete their tasks. Continue?');">
+<div class="admin-data-panel">
 
-        <div class="d-flex justify-content-end mb-3">
 
-            <button type="submit"
-                    class="btn btn-danger btn-sm">
-                Delete Selected
-            </button>
+    <div class="admin-data-toolbar">
+
+        <div class="admin-data-toolbar-left">
+
+            <span id="projectSelectionCount"
+                  class="admin-selected-count">
+
+                No projects selected
+
+            </span>
 
         </div>
 
-    </form>
+
+        <div class="admin-data-toolbar-right">
+
+            <form id="bulkProjectDeleteForm"
+                  asp-controller="Admin"
+                  asp-action="BulkDeleteProjects"
+                  method="post"
+                  onsubmit="return confirm(
+                      'Deleting selected projects will also delete their tasks. Continue?');">
+
+                <button id="bulkProjectDeleteButton"
+                        type="submit"
+                        class="btn btn-sm btn-outline-danger admin-bulk-button"
+                        disabled>
+
+                    Delete selected
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
 
 
-    <div class="app-card table-card">
+    @if (Model.Projects.Count == 0)
+    {
+        <div class="admin-empty">
 
+            <div class="admin-empty-icon">
+                P
+            </div>
+
+            <div class="admin-empty-title">
+                No projects found
+            </div>
+
+            <p class="admin-empty-text">
+                Try changing the current search or filters.
+            </p>
+
+        </div>
+    }
+    else
+    {
         <div class="table-responsive">
 
-            <table class="table table-hover align-middle">
+            <table class="admin-table">
 
-                <thead class="table-light">
+                <thead>
 
                     <tr>
 
-                        <th style="width:45px;">
+                        <th style="width: 44px;">
+
                             <input id="selectAllProjects"
                                    type="checkbox"
-                                   class="form-check-input" />
+                                   class="form-check-input"
+                                   aria-label="Select all projects" />
+
                         </th>
 
                         <th>Project</th>
+
                         <th>Owner</th>
+
                         <th>Tasks</th>
+
                         <th>Created</th>
+
                         <th class="text-end">
                             Actions
                         </th>
@@ -173,71 +248,120 @@ else
 
                 <tbody>
 
-                    @foreach (var project in Model.Projects)
-                    {
-                        <tr>
+                @foreach (var project in Model.Projects)
+                {
+                    string ownerEmail =
+                        string.IsNullOrWhiteSpace(project.OwnerEmail)
+                            ? "Unknown"
+                            : project.OwnerEmail;
 
-                            <td>
-                                <input type="checkbox"
-                                       class="form-check-input project-checkbox"
-                                       name="selectedProjectIds"
-                                       value="@project.Id"
-                                       form="bulkProjectDeleteForm" />
-                            </td>
+                    string ownerInitial =
+                        ownerEmail.Length > 0
+                            ? ownerEmail[..1].ToUpper()
+                            : "?";
+
+                    <tr>
+
+                        <td>
+
+                            <input type="checkbox"
+                                   name="selectedProjectIds"
+                                   value="@project.Id"
+                                   form="bulkProjectDeleteForm"
+                                   class="form-check-input project-checkbox"
+                                   aria-label="Select @project.Name" />
+
+                        </td>
 
 
-                            <td>
+                        <td>
 
-                                <div class="fw-semibold">
-                                    @project.Name
+                            <div class="admin-table-title">
+                                @project.Name
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                    project.Description))
+                            {
+                                <div class="admin-table-subtitle">
+                                    @project.Description
+                                </div>
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="admin-user-cell">
+
+                                <div class="admin-user-avatar">
+                                    @ownerInitial
                                 </div>
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                        project.Description))
-                                {
-                                    <div class="text-muted small">
-                                        @project.Description
-                                    </div>
-                                }
+                                <div class="admin-user-email">
+                                    @ownerEmail
+                                </div>
 
-                            </td>
+                            </div>
+
+                        </td>
 
 
-                            <td>
-                                @project.OwnerEmail
-                            </td>
+                        <td>
+
+                            @if (project.TaskCount > 0)
+                            {
+                                <span class="admin-badge admin-badge-primary">
+                                    @project.TaskCount
+                                    task@(project.TaskCount == 1 ? "" : "s")
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge-neutral">
+                                    Empty
+                                </span>
+                            }
+
+                        </td>
 
 
-                            <td>
-                                @project.TaskCount
-                            </td>
+                        <td>
+
+                            <span class="admin-table-muted">
+                                @project.CreatedAt.ToString("MMM dd, yyyy")
+                            </span>
+
+                        </td>
 
 
-                            <td>
-                                @project.CreatedAt.ToString(
-                                    "yyyy-MM-dd")
-                            </td>
+                        <td>
 
+                            <div class="admin-table-actions">
 
-                            <td class="text-end">
-
-                                <form asp-action="DeleteProject"
+                                <form asp-controller="Admin"
+                                      asp-action="DeleteProject"
                                       asp-route-id="@project.Id"
                                       method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm('Deleting this project will also delete its tasks. Continue?');">
+                                      onsubmit="return confirm(
+                                          'Deleting this project will also delete its tasks. Continue?');">
 
                                     <button type="submit"
-                                            class="btn btn-sm btn-outline-danger">
+                                            class="admin-icon-button admin-icon-button-danger">
+
                                         Delete
+
                                     </button>
 
                                 </form>
 
-                            </td>
+                            </div>
 
-                        </tr>
-                    }
+                        </td>
+
+                    </tr>
+                }
 
                 </tbody>
 
@@ -245,46 +369,98 @@ else
 
         </div>
 
-    </div>
-}
+
+        <div class="admin-table-footer">
+
+            <div class="admin-pagination-info">
+
+                Page @Model.Page of
+                @(Model.TotalPages == 0 ? 1 : Model.TotalPages)
+
+                · @Model.TotalCount total projects
+
+            </div>
 
 
-@if (Model.TotalPages > 1)
-{
-    <nav>
-
-        <ul class="pagination justify-content-center">
-
-            @for (
-                int pageNumber = 1;
-                pageNumber <= Model.TotalPages;
-                pageNumber++)
+            @if (Model.TotalPages > 1)
             {
-                <li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+                <ul class="pagination">
 
-                    <a class="page-link"
-                       asp-action="Projects"
-                       asp-route-page="@pageNumber"
-                       asp-route-search="@Model.Search"
-                       asp-route-ownerId="@Model.OwnerId"
-                       asp-route-sortBy="@Model.SortBy">
+                    @if (Model.Page > 1)
+                    {
+                        <li class="page-item">
 
-                        @pageNumber
+                            <a class="page-link"
+                               asp-action="Projects"
+                               asp-route-page="@(Model.Page - 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-sortBy="@Model.SortBy">
 
-                    </a>
+                                ‹
 
-                </li>
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @for (
+                        int pageNumber = 1;
+                        pageNumber <= Model.TotalPages;
+                        pageNumber++)
+                    {
+                        <li class="page-item
+                                   @(pageNumber == Model.Page
+                                       ? "active"
+                                       : "")">
+
+                            <a class="page-link"
+                               asp-action="Projects"
+                               asp-route-page="@pageNumber"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                @pageNumber
+
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-action="Projects"
+                               asp-route-page="@(Model.Page + 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                ›
+
+                            </a>
+
+                        </li>
+                    }
+
+                </ul>
             }
 
-        </ul>
+        </div>
+    }
 
-    </nav>
-}
+</div>
 
 
 @section Scripts
 {
     <script>
+
         const selectAllProjects =
             document.getElementById(
                 "selectAllProjects");
@@ -293,19 +469,88 @@ else
             document.querySelectorAll(
                 ".project-checkbox");
 
+        const bulkProjectButton =
+            document.getElementById(
+                "bulkProjectDeleteButton");
+
+        const projectSelectionCount =
+            document.getElementById(
+                "projectSelectionCount");
+
+
+        function updateProjectSelection() {
+
+            const checked =
+                document.querySelectorAll(
+                    ".project-checkbox:checked"
+                ).length;
+
+
+            if (projectSelectionCount) {
+
+                projectSelectionCount.textContent =
+                    checked === 0
+                        ? "No projects selected"
+                        : `${checked} project${checked === 1 ? "" : "s"} selected`;
+
+            }
+
+
+            if (bulkProjectButton) {
+
+                bulkProjectButton.disabled =
+                    checked === 0;
+
+            }
+
+
+            if (selectAllProjects) {
+
+                selectAllProjects.checked =
+                    projectCheckboxes.length > 0 &&
+                    checked === projectCheckboxes.length;
+
+                selectAllProjects.indeterminate =
+                    checked > 0 &&
+                    checked < projectCheckboxes.length;
+
+            }
+
+        }
+
 
         if (selectAllProjects) {
 
             selectAllProjects.addEventListener(
                 "change",
-                function() {
+                function () {
 
                     projectCheckboxes.forEach(
-                        checkbox =>
+                        checkbox => {
+
                             checkbox.checked =
-                            selectAllProjects.checked);
+                                selectAllProjects.checked;
+
+                        });
+
+                    updateProjectSelection();
 
                 });
+
         }
+
+
+        projectCheckboxes.forEach(
+            checkbox => {
+
+                checkbox.addEventListener(
+                    "change",
+                    updateProjectSelection);
+
+            });
+
+
+        updateProjectSelection();
+
     </script>
 }

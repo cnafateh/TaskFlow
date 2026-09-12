@@ -1,0 +1,197 @@
+﻿@page
+@model TaskFlow.Web.Areas.Identity.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Sign in";
+}
+
+<div class="auth-page">
+
+    <div class="auth-container">
+
+        <div class="auth-header">
+
+            <div class="auth-brand">
+                TF
+            </div>
+
+            <h1 class="auth-title">
+                Welcome back
+            </h1>
+
+            <p class="auth-subtitle">
+                Sign in to continue to your TaskFlow workspace.
+            </p>
+
+        </div>
+
+
+        <div class="auth-card">
+
+            <form id="account" method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="auth-validation"
+                     role="alert">
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label asp-for="Input.Email"
+                           class="form-label">
+                        Email
+                    </label>
+
+                    <input asp-for="Input.Email"
+                           class="form-control"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="name@example.com" />
+
+                    <span asp-validation-for="Input.Email"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <div class="d-flex
+                        align-items-center
+                        justify-content-between">
+
+                        <label asp-for="Input.Password"
+                               class="form-label">
+                            Password
+                        </label>
+
+                        <a asp-page="./ForgotPassword"
+                           class="auth-link small">
+                            Forgot password?
+                        </a>
+
+                    </div>
+
+
+                    <div class="auth-password-wrap">
+
+                        <input asp-for="Input.Password"
+                               id="loginPassword"
+                               class="form-control"
+                               autocomplete="current-password"
+                               aria-required="true"
+                               placeholder="Enter your password" />
+
+                        <button type="button"
+                                class="auth-password-toggle"
+                                data-password-target="loginPassword"
+                                aria-label="Show password">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+
+                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z">
+                                </path>
+
+                                <circle cx="12"
+                                        cy="12"
+                                        r="2.5">
+                                </circle>
+
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <span asp-validation-for="Input.Password"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="auth-options">
+
+                    <label class="auth-check">
+
+                        <input asp-for="Input.RememberMe"
+                               class="form-check-input" />
+
+                        <span>
+                            Remember me
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <button id="login-submit"
+                        type="submit"
+                        class="btn btn-primary auth-submit">
+
+                    Sign in
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <div class="auth-footer">
+
+            Don't have an account?
+
+            <a asp-page="./Register"
+               asp-route-returnUrl="@Model.ReturnUrl">
+                Create one
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document
+            .querySelectorAll("[data-password-target]")
+            .forEach(button => {
+
+                button.addEventListener("click", function() {
+
+                    const input =
+                        document.getElementById(
+                            this.dataset.passwordTarget
+                        );
+
+                    if (!input) {
+                        return;
+                    }
+
+                    const show =
+                        input.type === "password";
+
+                    input.type =
+                        show ? "text" : "password";
+
+                    this.setAttribute(
+                        "aria-label",
+                        show
+                            ? "Hide password"
+                            : "Show password"
+                    );
+                });
+            });
+    </script>
+}

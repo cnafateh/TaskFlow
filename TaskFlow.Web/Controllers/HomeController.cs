@@ -1,5 +1,6 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using TaskFlow.Web.Models;
 
 namespace TaskFlow.Web.Controllers;
@@ -23,5 +24,19 @@ public class HomeController : Controller
                 Activity.Current?.Id ??
                 HttpContext.TraceIdentifier
         });
+    }
+
+    [AllowAnonymous]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
+    [AllowAnonymous]
+    public IActionResult StatusCodePage(int code)
+    {
+        Response.StatusCode = code;
+
+        return View("StatusCode", code);
     }
 }

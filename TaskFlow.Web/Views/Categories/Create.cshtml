@@ -1,62 +1,99 @@
-﻿@model TaskFlow.Web.ViewModels.Categories.CreateCategoryViewModel
+﻿@model TaskFlow.Web.Models.Category
 
 @{
-    ViewData["Title"] = "Create Category";
+    ViewData["Title"] = "New Category";
 }
 
-<div class="page-header">
+<div class="form-page">
 
-    <div>
+    <div class="form-page-header">
 
-        <h1 class="page-title">
-            Create Category
-        </h1>
+        <div>
 
-        <p class="page-subtitle">
-            Add a category for organizing tasks.
-        </p>
+            <div class="workspace-eyebrow">
+                Categories
+            </div>
+
+            <h1 class="form-page-title">
+                Create category
+            </h1>
+
+            <p class="form-page-description">
+                Add a category for organizing your tasks.
+            </p>
+
+        </div>
+
+
+        <a asp-controller="Categories"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Back to categories
+
+        </a>
 
     </div>
 
-</div>
-
-<div class="app-card">
 
     <form asp-controller="Categories"
           asp-action="Create"
           method="post">
 
-        <div asp-validation-summary="ModelOnly"
-             class="text-danger mb-3">
-        </div>
+        <div class="form-card">
 
-        <div class="mb-3">
+            <div class="form-section">
 
-            <label asp-for="Name"
-                   class="form-label">
-            </label>
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
 
-            <input asp-for="Name"
-                   class="form-control" />
 
-            <span asp-validation-for="Name"
-                  class="text-danger">
-            </span>
+                <div class="form-grid">
 
-        </div>
+                    <div class="form-field-full">
 
-        <div class="d-flex gap-2">
+                        <label asp-for="Name"
+                               class="form-label">
+                        </label>
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Create Category
-            </button>
+                        <input asp-for="Name"
+                               class="form-control"
+                               placeholder="Category name" />
 
-            <a asp-controller="Categories"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Cancel
-            </a>
+                        <span asp-validation-for="Name"
+                              class="text-danger">
+                        </span>
+
+                        <div class="form-help">
+                            Use a short name that will be easy to recognize when creating tasks.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a asp-controller="Categories"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    Cancel
+
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    Create category
+
+                </button>
+
+            </div>
 
         </div>
 

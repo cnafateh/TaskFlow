@@ -4,59 +4,86 @@
     ViewData["Title"] = "Delete Category";
 }
 
-<div class="page-header">
+<div class="form-page">
 
-    <div>
-        <h1 class="page-title">
-            Delete Category
-        </h1>
-    </div>
+    <div class="form-page-header">
 
-</div>
+        <div>
 
-<div class="app-card">
+            <div class="workspace-eyebrow">
+                Categories
+            </div>
 
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div asp-validation-summary="ModelOnly"
-             class="alert alert-danger">
-        </div>
-    }
+            <h1 class="form-page-title">
+                Delete category
+            </h1>
 
-    <div class="alert alert-warning">
-
-        Are you sure you want to delete
-        <strong>@Model.Name</strong>?
-
-    </div>
-
-    <p class="text-muted">
-        A category that is currently assigned to a task
-        cannot be deleted.
-    </p>
-
-    <form asp-controller="Categories"
-          asp-action="Delete"
-          method="post">
-
-        <input asp-for="Id"
-               type="hidden" />
-
-        <div class="d-flex gap-2">
-
-            <button type="submit"
-                    class="btn btn-danger">
-                Delete Category
-            </button>
-
-            <a asp-controller="Categories"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Cancel
-            </a>
+            <p class="form-page-description">
+                Remove an unused category from your workspace.
+            </p>
 
         </div>
 
-    </form>
+    </div>
+
+
+    <div class="danger-card">
+
+        <div class="danger-header">
+
+            <h2 class="danger-title">
+                Delete this category?
+            </h2>
+
+            <p class="danger-description">
+                Categories currently assigned to tasks cannot be deleted.
+            </p>
+
+        </div>
+
+
+        <div class="danger-content">
+
+            <div class="danger-summary">
+
+                <div class="danger-summary-title">
+                    @Model.Name
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Categories"
+                  asp-action="Delete"
+                  method="post">
+
+                <input asp-for="Id"
+                       type="hidden" />
+
+
+                <div class="danger-actions">
+
+                    <a asp-controller="Categories"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+
+                        Delete category
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 </div>

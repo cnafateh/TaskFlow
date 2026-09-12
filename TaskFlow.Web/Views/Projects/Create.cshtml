@@ -1,79 +1,126 @@
-﻿@model TaskFlow.Web.ViewModels.Projects.CreateProjectViewModel
+﻿@model TaskFlow.Web.Models.Project
 
 @{
-    ViewData["Title"] = "Create Project";
+    ViewData["Title"] = "New Project";
 }
 
-<div class="page-header">
+<div class="form-page">
 
-    <div>
+    <div class="form-page-header">
 
-        <h1 class="page-title">
-            Create Project
-        </h1>
+        <div>
 
-        <p class="page-subtitle">
-            Create a workspace for related tasks.
-        </p>
+            <div class="workspace-eyebrow">
+                Projects
+            </div>
+
+            <h1 class="form-page-title">
+                Create project
+            </h1>
+
+            <p class="form-page-description">
+                Create a workspace for related tasks.
+            </p>
+
+        </div>
+
+
+        <a asp-controller="Projects"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Back to projects
+
+        </a>
 
     </div>
 
-</div>
-
-<div class="app-card">
 
     <form asp-controller="Projects"
           asp-action="Create"
           method="post">
 
-        <div asp-validation-summary="ModelOnly"
-             class="text-danger mb-3">
-        </div>
+        <div class="form-card">
 
-        <div class="mb-3">
+            <div class="form-section">
 
-            <label asp-for="Name"
-                   class="form-label">
-            </label>
+                <div class="form-section-header">
 
-            <input asp-for="Name"
-                   class="form-control" />
+                    <h2 class="form-section-title">
+                        Project information
+                    </h2>
 
-            <span asp-validation-for="Name"
-                  class="text-danger">
-            </span>
+                    <p class="form-section-description">
+                        Give the project a clear name and description.
+                    </p>
 
-        </div>
+                </div>
 
-        <div class="mb-3">
 
-            <label asp-for="Description"
-                   class="form-label">
-            </label>
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
 
-            <textarea asp-for="Description"
-                      class="form-control"
-                      rows="4">
-            </textarea>
 
-            <span asp-validation-for="Description"
-                  class="text-danger">
-            </span>
+                <div class="form-grid">
 
-        </div>
+                    <div class="form-field-full">
 
-        <div class="d-flex gap-2">
+                        <label asp-for="Name"
+                               class="form-label">
+                        </label>
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Create Project
-            </button>
+                        <input asp-for="Name"
+                               class="form-control"
+                               placeholder="Project name" />
 
-            <a asp-controller="Projects"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Cancel
-            </a>
+                        <span asp-validation-for="Name"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-field-full">
+
+                        <label asp-for="Description"
+                               class="form-label">
+                        </label>
+
+                        <textarea asp-for="Description"
+                                  class="form-control"
+                                  placeholder="What is this project about?">
+                        </textarea>
+
+                        <span asp-validation-for="Description"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a asp-controller="Projects"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    Cancel
+
+                </a>
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    Create project
+
+                </button>
+
+            </div>
 
         </div>
 

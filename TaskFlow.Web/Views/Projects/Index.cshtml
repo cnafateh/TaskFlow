@@ -1,121 +1,170 @@
-﻿@model List<TaskFlow.Web.Models.Project>
+﻿@model IEnumerable<TaskFlow.Web.Models.Project>
 
 @{
     ViewData["Title"] = "Projects";
 }
 
-<div class="page-header">
+<div class="workspace-header">
 
     <div>
 
-        <h1 class="page-title">
+        <div class="workspace-eyebrow">
+            Workspace
+        </div>
+
+        <h1 class="workspace-title">
             Projects
         </h1>
 
-        <p class="page-subtitle">
-            Organize your tasks by project.
+        <p class="workspace-description">
+            Organize related tasks into focused areas of work.
         </p>
 
     </div>
 
-    <a asp-controller="Projects"
-       asp-action="Create"
-       class="btn btn-primary">
-        New Project
-    </a>
+
+    <div class="workspace-actions">
+
+        <a asp-controller="Projects"
+           asp-action="Create"
+           class="btn btn-primary">
+
+            New project
+
+        </a>
+
+    </div>
 
 </div>
 
-@if (Model.Count == 0)
+
+@if (!Model.Any())
 {
     <div class="empty-state">
+
+        <div class="workspace-link-icon mx-auto">
+
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8">
+
+                <path d="M3 7h7l2 2h9v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z">
+                </path>
+
+                <path d="M3 7V5a2 2 0 0 1 2-2h5l2 2">
+                </path>
+
+            </svg>
+
+        </div>
 
         <h3>
             No projects yet
         </h3>
 
-        <p class="text-muted">
+        <p class="text-muted mb-3">
             Create your first project to start organizing tasks.
         </p>
 
         <a asp-controller="Projects"
            asp-action="Create"
            class="btn btn-primary">
-            Create Project
+
+            Create project
+
         </a>
 
     </div>
 }
 else
 {
-    <div class="app-card table-card">
+    <div class="collection-grid">
 
-        <div class="table-responsive">
+        @foreach (var project in Model)
+        {
+            <div class="collection-card">
 
-            <table class="table table-hover">
+                <div class="collection-card-header">
 
-                <thead class="table-light">
+                    <div class="collection-icon">
 
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Created</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8">
 
-                </thead>
+                            <path d="M3 7h7l2 2h9v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z">
+                            </path>
 
-                <tbody>
+                            <path d="M3 7V5a2 2 0 0 1 2-2h5l2 2">
+                            </path>
 
-                    @foreach (var project in Model)
-                    {
-                        <tr>
+                        </svg>
 
-                            <td class="fw-semibold">
-                                @project.Name
-                            </td>
+                    </div>
 
-                            <td class="text-muted">
-                                @project.Description
-                            </td>
+                </div>
 
-                            <td>
-                                @project.CreatedAt.ToShortDateString()
-                            </td>
 
-                            <td class="text-end text-nowrap">
+                <div class="collection-title">
+                    @project.Name
+                </div>
 
-                                <a asp-controller="Projects"
-                                   asp-action="Details"
-                                   asp-route-id="@project.Id"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    Details
-                                </a>
 
-                                <a asp-controller="Projects"
-                                   asp-action="Edit"
-                                   asp-route-id="@project.Id"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Edit
-                                </a>
+                @if (!string.IsNullOrWhiteSpace(
+                        project.Description))
+                {
+                    <div class="collection-description">
+                        @project.Description
+                    </div>
+                }
+                else
+                {
+                    <div class="collection-description">
+                        No description added.
+                    </div>
+                }
 
-                                <a asp-controller="Projects"
-                                   asp-action="Delete"
-                                   asp-route-id="@project.Id"
-                                   class="btn btn-sm btn-outline-danger">
-                                    Delete
-                                </a>
 
-                            </td>
+                <div class="collection-meta">
+                    Created @project.CreatedAt.ToString("MMM dd, yyyy")
+                </div>
 
-                        </tr>
-                    }
 
-                </tbody>
+                <div class="collection-footer">
 
-            </table>
+                    <span class="tf-pill tf-pill-neutral">
+                        Project
+                    </span>
 
-        </div>
+
+                    <div class="collection-actions">
+
+                        <a asp-controller="Projects"
+                           asp-action="Edit"
+                           asp-route-id="@project.Id"
+                           class="task-action-button">
+
+                            Edit
+
+                        </a>
+
+                        <a asp-controller="Projects"
+                           asp-action="Delete"
+                           asp-route-id="@project.Id"
+                           class="task-action-button task-action-danger">
+
+                            Delete
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
 
     </div>
 }

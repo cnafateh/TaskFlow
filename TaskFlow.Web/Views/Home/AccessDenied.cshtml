@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="state-page">
+
+    <div class="state-card">
+
+        <div class="state-code">
+            403
+        </div>
+
+        <div class="state-icon state-icon-warning">
+
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8">
+
+                <path d="M12 9v4"></path>
+                <path d="M12 17h.01"></path>
+
+                <path d="M10.3 3.8 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0z">
+                </path>
+
+            </svg>
+
+        </div>
+
+        <h1 class="state-title">
+            Access denied
+        </h1>
+
+        <p class="state-description">
+            You don't have permission to access this area.
+        </p>
+
+        <div class="state-actions">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-primary">
+
+                Back to overview
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

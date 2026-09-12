@@ -4,56 +4,79 @@
     ViewData["Title"] = "Delete Project";
 }
 
-<div class="page-header">
+<div class="form-page">
 
-    <div>
-        <h1 class="page-title">
-            Delete Project
-        </h1>
+    <div class="form-page-header">
+
+        <div>
+            <div class="workspace-eyebrow">
+                Projects
+            </div>
+
+            <h1 class="form-page-title">
+                Delete project
+            </h1>
+
+            <p class="form-page-description">
+                Review the consequences before continuing.
+            </p>
+        </div>
+
     </div>
 
-</div>
 
-<div class="app-card">
+    <div class="danger-card">
 
-    <div class="alert alert-danger">
+        <div class="danger-header">
 
-        <strong>Warning:</strong>
-        deleting this project will also delete all tasks
-        assigned to it.
+            <h2 class="danger-title">
+                Delete this project?
+            </h2>
 
-    </div>
-
-    <h2 class="h5">
-        @Model.Name
-    </h2>
-
-    <p class="text-muted">
-        @Model.Description
-    </p>
-
-    <form asp-controller="Projects"
-          asp-action="Delete"
-          method="post">
-
-        <input asp-for="Id"
-               type="hidden" />
-
-        <div class="d-flex gap-2">
-
-            <button type="submit"
-                    class="btn btn-danger">
-                Delete Project
-            </button>
-
-            <a asp-controller="Projects"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Cancel
-            </a>
+            <p class="danger-description">
+                Tasks belonging to this project will also be permanently deleted.
+            </p>
 
         </div>
 
-    </form>
+
+        <div class="danger-content">
+
+            <div class="danger-summary">
+
+                <div class="danger-summary-title">
+                    @Model.Name
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Projects"
+                  asp-action="Delete"
+                  method="post">
+
+                <input asp-for="Id"
+                       type="hidden" />
+
+                <div class="danger-actions">
+
+                    <a asp-controller="Projects"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Delete project and tasks
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 </div>

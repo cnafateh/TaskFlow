@@ -1,76 +1,63 @@
 ﻿@model TaskFlow.Web.ViewModels.Tasks.TaskSummaryViewModel
 
-<div class="mb-4">
+<div class="user-stat-grid">
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="user-stat-card">
 
-        <div>
-            <h2 class="h5 mb-1">
-                My Tasks
-            </h2>
+        <div class="user-stat-content">
 
-            <div class="text-muted small">
-                Current task overview
+            <div class="user-stat-label">
+                Total tasks
             </div>
-        </div>
 
-        <a asp-controller="Tasks"
-           asp-action="Index"
-           class="btn btn-sm btn-outline-secondary">
-            View Tasks
-        </a>
+            <div class="user-stat-value">
+                @Model.TotalTasks
+            </div>
+
+            <div class="user-stat-meta">
+                Tasks in your workspace
+            </div>
+
+        </div>
 
     </div>
 
 
-    <div class="row g-3">
+    <div class="user-stat-card">
 
-        <div class="col-md-4">
+        <div class="user-stat-content">
 
-            <div class="app-card h-100">
+            <div class="user-stat-label">
+                In progress
+            </div>
 
-                <div class="meta-label">
-                    Total
-                </div>
+            <div class="user-stat-value">
+                @Model.InProgressTasks
+            </div>
 
-                <div class="h2 mb-0 mt-2">
-                    @Model.TotalTasks
-                </div>
-
+            <div class="user-stat-meta">
+                Currently being worked on
             </div>
 
         </div>
 
+    </div>
 
-        <div class="col-md-4">
 
-            <div class="app-card h-100">
+    <div class="user-stat-card">
 
-                <div class="meta-label">
-                    In Progress
-                </div>
+        <div class="user-stat-content">
 
-                <div class="h2 mb-0 mt-2">
-                    @Model.InProgressTasks
-                </div>
-
+            <div class="user-stat-label">
+                Completed
             </div>
 
-        </div>
+            <div class="user-stat-value">
+                @Model.CompletedTasks
+            </div>
 
-
-        <div class="col-md-4">
-
-            <div class="app-card h-100">
-
-                <div class="meta-label">
-                    Completed
-                </div>
-
-                <div class="h2 mb-0 mt-2">
-                    @Model.CompletedTasks
-                </div>
-
+            <div class="user-stat-meta">
+                Finished tasks
             </div>
 
         </div>

@@ -1,13 +1,57 @@
-﻿@if (TempData["SuccessMessage"] != null)
+﻿@if (TempData["SuccessMessage"] is string successMessage)
 {
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
+    <div class="tf-alert tf-alert-success"
+         role="alert">
+
+        <div class="tf-alert-icon">
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2">
+                <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+        </div>
+
+        <div class="tf-alert-content">
+            @successMessage
+        </div>
+
+        <button type="button"
+                class="tf-alert-close"
+                data-bs-dismiss="alert"
+                aria-label="Close">
+            ×
+        </button>
+
     </div>
 }
 
-@if (TempData["ErrorMessage"] != null)
+@if (TempData["ErrorMessage"] is string errorMessage)
 {
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
+    <div class="tf-alert tf-alert-danger"
+         role="alert">
+
+        <div class="tf-alert-icon">
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2">
+                <path d="M12 8v5"></path>
+                <path d="M12 17h.01"></path>
+                <circle cx="12" cy="12" r="9"></circle>
+            </svg>
+        </div>
+
+        <div class="tf-alert-content">
+            @errorMessage
+        </div>
+
+        <button type="button"
+                class="tf-alert-close"
+                data-bs-dismiss="alert"
+                aria-label="Close">
+            ×
+        </button>
+
     </div>
 }

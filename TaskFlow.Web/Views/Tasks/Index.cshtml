@@ -4,46 +4,90 @@
     ViewData["Title"] = "Tasks";
 }
 
-<div class="page-header">
+
+<div class="workspace-header">
 
     <div>
 
-        <h1 class="page-title">
+        <div class="workspace-eyebrow">
+            Workspace
+        </div>
+
+        <h1 class="workspace-title">
             Tasks
         </h1>
 
-        <p class="page-subtitle">
-            @Model.TotalCount task(s) found
+        <p class="workspace-description">
+            Plan your work, track progress and keep priorities visible.
         </p>
 
     </div>
 
-    <a asp-controller="Tasks"
-       asp-action="Create"
-       class="btn btn-primary">
-        New Task
-    </a>
+
+    <div class="workspace-actions">
+
+        <a asp-controller="Tasks"
+           asp-action="Create"
+           class="btn btn-primary">
+
+            New task
+
+        </a>
+
+    </div>
 
 </div>
 
-<partial name="_TaskFilters" model="Model" />
+
+<partial name="_TaskFilters"
+         model="Model" />
+
+
+<div class="task-page-toolbar">
+
+    <div class="task-result-count">
+
+        @Model.TotalCount
+        task@(Model.TotalCount == 1 ? "" : "s")
+
+    </div>
+
+</div>
+
 
 @if (Model.Tasks.Count == 0)
 {
     <div class="empty-state">
 
+        <div class="workspace-link-icon mx-auto">
+
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8">
+
+                <path d="M9 11l3 3L22 4"></path>
+
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+
+            </svg>
+
+        </div>
+
         <h3>
             No tasks found
         </h3>
 
-        <p class="text-muted">
-            Create a task or change your filters.
+        <p class="text-muted mb-3">
+            Create a task or adjust the current filters.
         </p>
 
         <a asp-controller="Tasks"
            asp-action="Create"
            class="btn btn-primary">
-            Create Task
+
+            Create task
+
         </a>
 
     </div>
@@ -56,108 +100,155 @@ else
 
             <table class="table table-hover align-middle">
 
-                <thead class="table-light">
+                <thead>
 
                     <tr>
                         <th>Task</th>
                         <th>Project</th>
-                        <th>Category</th>
                         <th>Priority</th>
                         <th>Status</th>
                         <th>Due</th>
-                        <th class="text-end">Actions</th>
+                        <th class="text-end">
+                            Actions
+                        </th>
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
                     @foreach (var task in Model.Tasks)
                     {
-                        string priorityClass = task.Priority switch
-                        {
-                            TaskFlow.Web.Models.Enums.TaskPriority.High =>
-                                "text-bg-danger",
-
-                            TaskFlow.Web.Models.Enums.TaskPriority.Medium =>
-                                "text-bg-warning",
-
-                            _ =>
-                                "text-bg-secondary"
-                        };
-
-                        string statusClass = task.Status switch
-                        {
-                            TaskFlow.Web.Models.Enums.TaskStatus.Done =>
-                                "text-bg-success",
-
-                            TaskFlow.Web.Models.Enums.TaskStatus.InProgress =>
-                                "text-bg-primary",
-
-                            _ =>
-                                "text-bg-secondary"
-                        };
-
                         <tr>
 
                             <td>
 
-                                <div class="fw-semibold">
+                                <div class="task-table-title">
                                     @task.Title
                                 </div>
 
-                                <div class="task-description small">
-                                    @task.Description
+                                @if (!string.IsNullOrWhiteSpace(
+                                        task.Description))
+                                {
+                                    <div class="task-table-description">
+                                        @task.Description
+                                    </div>
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="task-meta-stack">
+
+                                    <span class="task-project-name">
+                                        @task.Project?.Name
+                                    </span>
+
+                                    <span class="task-category-name">
+                                        @task.Category?.Name
+                                    </span>
+
                                 </div>
 
                             </td>
 
-                            <td>
-                                @task.Project?.Name
-                            </td>
 
                             <td>
-                                @task.Category?.Name
+
+                                @if (task.Priority ==
+                                    TaskFlow.Web.Models.Enums.TaskPriority.High)
+                                {
+                                    <span class="tf-pill tf-pill-danger">
+                                        High
+                                    </span>
+                                }
+                                else if (task.Priority ==
+                                         TaskFlow.Web.Models.Enums.TaskPriority.Medium)
+                                {
+                                    <span class="tf-pill tf-pill-warning">
+                                        Medium
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="tf-pill tf-pill-neutral">
+                                        Low
+                                    </span>
+                                }
+
                             </td>
 
+
                             <td>
-                                <span class="badge @priorityClass">
-                                    @task.Priority
+
+                                @if (task.Status ==
+                                    TaskFlow.Web.Models.Enums.TaskStatus.Done)
+                                {
+                                    <span class="tf-pill tf-pill-success">
+                                        Done
+                                    </span>
+                                }
+                                else if (task.Status ==
+                                         TaskFlow.Web.Models.Enums.TaskStatus.InProgress)
+                                {
+                                    <span class="tf-pill tf-pill-primary">
+                                        In progress
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="tf-pill tf-pill-neutral">
+                                        Todo
+                                    </span>
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="text-muted small">
+                                    @task.DueDate.ToString("MMM dd, yyyy")
                                 </span>
+
                             </td>
+
 
                             <td>
-                                <span class="badge @statusClass">
-                                    @task.Status
-                                </span>
-                            </td>
 
-                            <td>
-                                @task.DueDate.ToShortDateString()
-                            </td>
+                                <div class="task-action-group">
 
-                            <td class="text-end text-nowrap">
+                                    <a asp-controller="Tasks"
+                                       asp-action="Details"
+                                       asp-route-id="@task.Id"
+                                       class="task-action-button">
 
-                                <a asp-controller="Tasks"
-                                   asp-action="Details"
-                                   asp-route-id="@task.Id"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    Details
-                                </a>
+                                        View
 
-                                <a asp-controller="Tasks"
-                                   asp-action="Edit"
-                                   asp-route-id="@task.Id"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Edit
-                                </a>
+                                    </a>
 
-                                <a asp-controller="Tasks"
-                                   asp-action="Delete"
-                                   asp-route-id="@task.Id"
-                                   class="btn btn-sm btn-outline-danger">
-                                    Delete
-                                </a>
+                                    <a asp-controller="Tasks"
+                                       asp-action="Edit"
+                                       asp-route-id="@task.Id"
+                                       class="task-action-button">
+
+                                        Edit
+
+                                    </a>
+
+                                    <a asp-controller="Tasks"
+                                       asp-action="Delete"
+                                       asp-route-id="@task.Id"
+                                       class="task-action-button task-action-danger">
+
+                                        Delete
+
+                                    </a>
+
+                                </div>
 
                             </td>
 
@@ -171,75 +262,87 @@ else
         </div>
 
     </div>
-}
 
-@if (Model.TotalPages > 1)
-{
-    <nav aria-label="Tasks pagination">
 
-        <ul class="pagination justify-content-center">
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Task pagination">
 
-            @if (Model.Page > 1)
-            {
-                <li class="page-item">
+            <ul class="pagination justify-content-center">
 
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-page="@(Model.Page - 1)"
-                       asp-route-search="@Model.Search"
-                       asp-route-projectId="@Model.ProjectId"
-                       asp-route-categoryId="@Model.CategoryId"
-                       asp-route-priority="@Model.Priority"
-                       asp-route-status="@Model.Status"
-                       asp-route-sortBy="@Model.SortBy">
-                        Previous
-                    </a>
+                @if (Model.Page > 1)
+                {
+                    <li class="page-item">
 
-                </li>
-            }
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Page - 1)"
+                           asp-route-search="@Model.Search"
+                           asp-route-projectId="@Model.ProjectId"
+                           asp-route-categoryId="@Model.CategoryId"
+                           asp-route-priority="@Model.Priority"
+                           asp-route-status="@Model.Status"
+                           asp-route-sortBy="@Model.SortBy">
 
-            @for (
-                int pageNumber = 1;
-                pageNumber <= Model.TotalPages;
-                pageNumber++)
-            {
-                <li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+                            ‹
 
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-page="@pageNumber"
-                       asp-route-search="@Model.Search"
-                       asp-route-projectId="@Model.ProjectId"
-                       asp-route-categoryId="@Model.CategoryId"
-                       asp-route-priority="@Model.Priority"
-                       asp-route-status="@Model.Status"
-                       asp-route-sortBy="@Model.SortBy">
-                        @pageNumber
-                    </a>
+                        </a>
 
-                </li>
-            }
+                    </li>
+                }
 
-            @if (Model.Page < Model.TotalPages)
-            {
-                <li class="page-item">
 
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-page="@(Model.Page + 1)"
-                       asp-route-search="@Model.Search"
-                       asp-route-projectId="@Model.ProjectId"
-                       asp-route-categoryId="@Model.CategoryId"
-                       asp-route-priority="@Model.Priority"
-                       asp-route-status="@Model.Status"
-                       asp-route-sortBy="@Model.SortBy">
-                        Next
-                    </a>
+                @for (
+                    int pageNumber = 1;
+                    pageNumber <= Model.TotalPages;
+                    pageNumber++)
+                {
+                    <li class="page-item
+                        @(pageNumber == Model.Page
+                            ? "active"
+                            : "")">
 
-                </li>
-            }
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@pageNumber"
+                           asp-route-search="@Model.Search"
+                           asp-route-projectId="@Model.ProjectId"
+                           asp-route-categoryId="@Model.CategoryId"
+                           asp-route-priority="@Model.Priority"
+                           asp-route-status="@Model.Status"
+                           asp-route-sortBy="@Model.SortBy">
 
-        </ul>
+                            @pageNumber
 
-    </nav>
+                        </a>
+
+                    </li>
+                }
+
+
+                @if (Model.Page < Model.TotalPages)
+                {
+                    <li class="page-item">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Page + 1)"
+                           asp-route-search="@Model.Search"
+                           asp-route-projectId="@Model.ProjectId"
+                           asp-route-categoryId="@Model.CategoryId"
+                           asp-route-priority="@Model.Priority"
+                           asp-route-status="@Model.Status"
+                           asp-route-sortBy="@Model.SortBy">
+
+                            ›
+
+                        </a>
+
+                    </li>
+                }
+
+            </ul>
+
+        </nav>
+    }
 }

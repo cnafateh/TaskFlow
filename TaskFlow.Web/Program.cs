@@ -30,6 +30,11 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.AccessDeniedPath = "/Home/AccessDenied";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -47,6 +52,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+
+app.UseStatusCodePagesWithReExecute(
+    "/Home/StatusCodePage",
+    "?code={0}");
+
 
 app.MapControllerRoute(
     name: "default",

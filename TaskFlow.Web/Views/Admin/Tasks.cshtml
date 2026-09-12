@@ -1,43 +1,41 @@
 ﻿@model TaskFlow.Web.ViewModels.Admin.AdminTaskIndexViewModel
 
 @{
-    ViewData["Title"] = "Manage Tasks";
+    ViewData["Title"] = "Tasks";
 }
 
+<div class="admin-page-header">
 
-<div class="page-header">
+    <div class="admin-page-heading">
 
-    <div>
+        <div class="d-flex align-items-center flex-wrap">
 
-        <h1 class="page-title">
-            Manage Tasks
-        </h1>
+            <h1 class="admin-page-title">
+                Tasks
+            </h1>
 
-        <p class="page-subtitle">
-            @Model.TotalCount task(s) across all users
+            <span class="admin-count">
+                @Model.TotalCount
+            </span>
+
+        </div>
+
+        <p class="admin-page-description">
+            Search, review and manage tasks across all accounts.
         </p>
 
     </div>
 
-    <a asp-controller="Admin"
-       asp-action="Index"
-       class="btn btn-outline-secondary">
-
-        Back to Dashboard
-
-    </a>
-
 </div>
 
 
-<div class="app-card filter-card">
+<div class="admin-filter-panel">
 
     <form asp-controller="Admin"
           asp-action="Tasks"
           method="get">
 
-        <div class="filter-grid">
-
+        <div class="admin-filter-grid">
 
             <div>
 
@@ -45,9 +43,29 @@
                     Search
                 </label>
 
-                <input asp-for="Search"
-                       class="form-control"
-                       placeholder="Task, project, category or user..." />
+                <div class="admin-search-wrap">
+
+                    <svg class="admin-search-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <circle cx="11"
+                                cy="11"
+                                r="7">
+                        </circle>
+
+                        <path d="m20 20-3.5-3.5">
+                        </path>
+
+                    </svg>
+
+                    <input asp-for="Search"
+                           class="form-control admin-search-input"
+                           placeholder="Task, project, category or user..." />
+
+                </div>
 
             </div>
 
@@ -62,7 +80,7 @@
                         class="form-select">
 
                     <option value="">
-                        All Users
+                        All users
                     </option>
 
                     @foreach (var owner in Model.Owners)
@@ -80,6 +98,44 @@
             <div>
 
                 <label class="form-label">
+                    Status
+                </label>
+
+                <select asp-for="Status"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskStatus>()"
+                        class="form-select">
+
+                    <option value="">
+                        All statuses
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label class="form-label">
+                    Priority
+                </label>
+
+                <select asp-for="Priority"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()"
+                        class="form-select">
+
+                    <option value="">
+                        All priorities
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label class="form-label">
                     Project
                 </label>
 
@@ -87,13 +143,13 @@
                         class="form-select">
 
                     <option value="">
-                        All Projects
+                        All projects
                     </option>
 
                     @foreach (var project in Model.Projects)
                     {
                         <option value="@project.Id">
-                            @project.Name — @(project.User?.Email ?? "Unknown")
+                            @project.Name
                         </option>
                     }
 
@@ -112,53 +168,15 @@
                         class="form-select">
 
                     <option value="">
-                        All Categories
+                        All categories
                     </option>
 
                     @foreach (var category in Model.Categories)
                     {
                         <option value="@category.Id">
-                            @category.Name — @(category.User?.Email ?? "Unknown")
+                            @category.Name
                         </option>
                     }
-
-                </select>
-
-            </div>
-
-
-            <div>
-
-                <label class="form-label">
-                    Priority
-                </label>
-
-                <select asp-for="Priority"
-                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()"
-                        class="form-select">
-
-                    <option value="">
-                        All Priorities
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div>
-
-                <label class="form-label">
-                    Status
-                </label>
-
-                <select asp-for="Status"
-                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskStatus>()"
-                        class="form-select">
-
-                    <option value="">
-                        All Statuses
-                    </option>
 
                 </select>
 
@@ -175,48 +193,51 @@
                         class="form-select">
 
                     <option value="createdAtDesc">
-                        Created - Newest
+                        Newest first
                     </option>
 
                     <option value="createdAt">
-                        Created - Oldest
+                        Oldest first
                     </option>
 
                     <option value="dueDate">
-                        Due Date - Earliest
+                        Due date
                     </option>
 
                     <option value="dueDateDesc">
-                        Due Date - Latest
+                        Due date descending
                     </option>
 
                     <option value="title">
-                        Title A-Z
+                        Title A–Z
                     </option>
 
                     <option value="titleDesc">
-                        Title Z-A
+                        Title Z–A
                     </option>
 
                 </select>
 
             </div>
 
-        </div>
 
+            <div class="admin-filter-actions">
 
-        <div class="d-flex gap-2 mt-3">
+                <button type="submit"
+                        class="btn btn-primary">
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Apply Filters
-            </button>
+                    Apply filters
 
-            <a asp-controller="Admin"
-               asp-action="Tasks"
-               class="btn btn-outline-secondary">
-                Reset
-            </a>
+                </button>
+
+                <a asp-action="Tasks"
+                   class="btn btn-outline-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
 
         </div>
 
@@ -225,62 +246,75 @@
 </div>
 
 
-@if (Model.Tasks.Count == 0)
-{
-    <div class="empty-state">
+<div class="admin-data-panel">
 
-        <h3>
-            No tasks found
-        </h3>
+    <div class="admin-data-toolbar">
 
-        <p class="text-muted mb-0">
-            Try changing the current filters.
-        </p>
+        <div class="admin-data-toolbar-left">
 
-    </div>
-}
-else
-{
-    <div class="d-flex justify-content-between
-        align-items-center mb-3">
+            <span class="admin-selected-count"
+                  id="taskSelectionCount">
 
-        <div class="text-muted small">
+                No tasks selected
 
-            Select tasks to perform bulk actions.
+            </span>
 
         </div>
 
 
-        <form id="bulkDeleteForm"
-              asp-controller="Admin"
-              asp-action="BulkDeleteTasks"
-              method="post"
-              onsubmit="return confirm(
-            'Delete all selected tasks?');">
+        <div class="admin-data-toolbar-right">
 
-            <button type="submit"
-                    class="btn btn-danger btn-sm">
+            <form id="bulkDeleteForm"
+                  asp-controller="Admin"
+                  asp-action="BulkDeleteTasks"
+                  method="post"
+                  onsubmit="return confirm('Delete all selected tasks?');">
 
-                Delete Selected
+                <button id="bulkDeleteButton"
+                        type="submit"
+                        class="btn btn-sm btn-outline-danger admin-bulk-button"
+                        disabled>
 
-            </button>
+                    Delete selected
 
-        </form>
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
 
 
-    <div class="app-card table-card">
+    @if (Model.Tasks.Count == 0)
+    {
+        <div class="admin-empty">
 
+            <div class="admin-empty-icon">
+                ✓
+            </div>
+
+            <div class="admin-empty-title">
+                No tasks found
+            </div>
+
+            <p class="admin-empty-text">
+                Try changing the current filters.
+            </p>
+
+        </div>
+    }
+    else
+    {
         <div class="table-responsive">
 
-            <table class="table table-hover align-middle">
+            <table class="admin-table">
 
-                <thead class="table-light">
+                <thead>
 
                     <tr>
 
-                        <th style="width: 45px;">
+                        <th style="width: 44px;">
 
                             <input id="selectAllTasks"
                                    type="checkbox"
@@ -290,17 +324,10 @@ else
                         </th>
 
                         <th>Task</th>
-
                         <th>Owner</th>
-
                         <th>Project</th>
-
-                        <th>Category</th>
-
                         <th>Priority</th>
-
                         <th>Status</th>
-
                         <th>Due</th>
 
                         <th class="text-end">
@@ -314,133 +341,157 @@ else
 
                 <tbody>
 
-                    @foreach (var task in Model.Tasks)
-                    {
-                        <tr>
+                @foreach (var task in Model.Tasks)
+                {
+                    <tr>
 
-                            <td>
+                        <td>
 
-                                <input type="checkbox"
-                                       name="selectedTaskIds"
-                                       value="@task.Id"
-                                       form="bulkDeleteForm"
-                                       class="form-check-input task-checkbox"
-                                       aria-label="Select @task.Title" />
+                            <input type="checkbox"
+                                   name="selectedTaskIds"
+                                   value="@task.Id"
+                                   form="bulkDeleteForm"
+                                   class="form-check-input task-checkbox"
+                                   aria-label="Select @task.Title" />
 
-                            </td>
+                        </td>
 
 
-                            <td>
+                        <td>
 
-                                <div class="fw-semibold">
-                                    @task.Title
+                            <div class="admin-table-title">
+                                @task.Title
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(task.Description))
+                            {
+                                <div class="admin-table-subtitle">
+                                    @task.Description
+                                </div>
+                            }
+
+                            @if (task.Category != null)
+                            {
+                                <div class="admin-table-muted mt-1">
+                                    @task.Category.Name
+                                </div>
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="admin-user-cell">
+
+                                <div class="admin-user-avatar">
+
+                                    @{
+                                        string ownerEmail =
+                                            task.Project?.User?.Email
+                                            ?? "?";
+
+                                        string ownerInitial =
+                                            ownerEmail.Length > 0
+                                                ? ownerEmail[..1].ToUpper()
+                                                : "?";
+                                    }
+
+                                    @ownerInitial
+
                                 </div>
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                        task.Description))
-                                {
-                                    <div class="text-muted small">
-                                        @task.Description
-                                    </div>
-                                }
+                                <span class="admin-user-email">
+                                    @ownerEmail
+                                </span>
 
-                            </td>
+                            </div>
+
+                        </td>
 
 
-                            <td>
+                        <td>
 
-                                @(task.Project?.User?.Email
-                                    ?? "Unknown")
-
-                            </td>
-
-
-                            <td>
+                            <span class="admin-table-title">
                                 @task.Project?.Name
-                            </td>
+                            </span>
+
+                        </td>
 
 
-                            <td>
-                                @task.Category?.Name
-                            </td>
+                        <td>
+
+                            @if (task.Priority ==
+                                TaskFlow.Web.Models.Enums.TaskPriority.High)
+                            {
+                                <span class="admin-badge admin-badge-danger">
+                                    High
+                                </span>
+                            }
+                            else if (task.Priority ==
+                                     TaskFlow.Web.Models.Enums.TaskPriority.Medium)
+                            {
+                                <span class="admin-badge admin-badge-warning">
+                                    Medium
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge-neutral">
+                                    Low
+                                </span>
+                            }
+
+                        </td>
 
 
-                            <td>
+                        <td>
 
-                                @if (
-                                    task.Priority ==
-                                    TaskFlow.Web.Models.Enums.TaskPriority.High)
-                                {
-                                    <span class="badge text-bg-danger">
-                                        High
-                                    </span>
-                                }
-                                else if (
-                                    task.Priority ==
-                                    TaskFlow.Web.Models.Enums.TaskPriority.Medium)
-                                {
-                                    <span class="badge text-bg-warning">
-                                        Medium
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge text-bg-secondary">
-                                        Low
-                                    </span>
-                                }
+                            @if (task.Status ==
+                                TaskFlow.Web.Models.Enums.TaskStatus.Done)
+                            {
+                                <span class="admin-badge admin-badge-success">
+                                    Done
+                                </span>
+                            }
+                            else if (task.Status ==
+                                     TaskFlow.Web.Models.Enums.TaskStatus.InProgress)
+                            {
+                                <span class="admin-badge admin-badge-primary">
+                                    In progress
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge-neutral">
+                                    Todo
+                                </span>
+                            }
 
-                            </td>
+                        </td>
 
 
-                            <td>
+                        <td>
 
-                                @if (
-                                    task.Status ==
-                                    TaskFlow.Web.Models.Enums.TaskStatus.Done)
-                                {
-                                    <span class="badge text-bg-success">
-                                        Done
-                                    </span>
-                                }
-                                else if (
-                                    task.Status ==
-                                    TaskFlow.Web.Models.Enums.TaskStatus.InProgress)
-                                {
-                                    <span class="badge text-bg-primary">
-                                        In Progress
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge text-bg-secondary">
-                                        Todo
-                                    </span>
-                                }
+                            <span class="admin-table-muted">
+                                @task.DueDate.ToString("MMM dd, yyyy")
+                            </span>
 
-                            </td>
+                        </td>
 
 
-                            <td class="text-nowrap">
+                        <td>
 
-                                @task.DueDate.ToString(
-                                    "yyyy-MM-dd")
-
-                            </td>
-
-
-                            <td class="text-end">
+                            <div class="admin-table-actions">
 
                                 <form asp-controller="Admin"
                                       asp-action="DeleteTask"
                                       asp-route-id="@task.Id"
                                       method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm(
-                                    'Delete this task?');">
+                                      onsubmit="return confirm('Delete this task?');">
 
                                     <button type="submit"
-                                            class="btn btn-sm btn-outline-danger">
+                                            class="admin-icon-button admin-icon-button-danger">
 
                                         Delete
 
@@ -448,10 +499,12 @@ else
 
                                 </form>
 
-                            </td>
+                            </div>
 
-                        </tr>
-                    }
+                        </td>
+
+                    </tr>
+                }
 
                 </tbody>
 
@@ -459,94 +512,99 @@ else
 
         </div>
 
-    </div>
-}
+
+        <div class="admin-table-footer">
+
+            <div class="admin-pagination-info">
+
+                Page @Model.Page of
+                @(Model.TotalPages == 0 ? 1 : Model.TotalPages)
+                · @Model.TotalCount total tasks
+
+            </div>
 
 
-@if (Model.TotalPages > 1)
-{
-    <nav aria-label="Admin task pagination">
-
-        <ul class="pagination justify-content-center">
-
-            @if (Model.Page > 1)
+            @if (Model.TotalPages > 1)
             {
-                <li class="page-item">
+                <ul class="pagination">
 
-                    <a class="page-link"
-                       asp-action="Tasks"
-                       asp-route-page="@(Model.Page - 1)"
-                       asp-route-search="@Model.Search"
-                       asp-route-ownerId="@Model.OwnerId"
-                       asp-route-projectId="@Model.ProjectId"
-                       asp-route-categoryId="@Model.CategoryId"
-                       asp-route-priority="@Model.Priority"
-                       asp-route-status="@Model.Status"
-                       asp-route-sortBy="@Model.SortBy">
+                    @if (Model.Page > 1)
+                    {
+                        <li class="page-item">
 
-                        Previous
+                            <a class="page-link"
+                               asp-action="Tasks"
+                               asp-route-page="@(Model.Page - 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-projectId="@Model.ProjectId"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-priority="@Model.Priority"
+                               asp-route-status="@Model.Status"
+                               asp-route-sortBy="@Model.SortBy">
 
-                    </a>
+                                ‹
 
-                </li>
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @for (int pageNumber = 1;
+                          pageNumber <= Model.TotalPages;
+                          pageNumber++)
+                    {
+                        <li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+
+                            <a class="page-link"
+                               asp-action="Tasks"
+                               asp-route-page="@pageNumber"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-projectId="@Model.ProjectId"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-priority="@Model.Priority"
+                               asp-route-status="@Model.Status"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                @pageNumber
+
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-action="Tasks"
+                               asp-route-page="@(Model.Page + 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-projectId="@Model.ProjectId"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-priority="@Model.Priority"
+                               asp-route-status="@Model.Status"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                ›
+
+                            </a>
+
+                        </li>
+                    }
+
+                </ul>
             }
 
+        </div>
+    }
 
-            @for (
-                int pageNumber = 1;
-                pageNumber <= Model.TotalPages;
-                pageNumber++)
-            {
-                <li class="page-item
-                    @(pageNumber == Model.Page
-                        ? "active"
-                        : "")">
-
-                    <a class="page-link"
-                       asp-action="Tasks"
-                       asp-route-page="@pageNumber"
-                       asp-route-search="@Model.Search"
-                       asp-route-ownerId="@Model.OwnerId"
-                       asp-route-projectId="@Model.ProjectId"
-                       asp-route-categoryId="@Model.CategoryId"
-                       asp-route-priority="@Model.Priority"
-                       asp-route-status="@Model.Status"
-                       asp-route-sortBy="@Model.SortBy">
-
-                        @pageNumber
-
-                    </a>
-
-                </li>
-            }
-
-
-            @if (Model.Page < Model.TotalPages)
-            {
-                <li class="page-item">
-
-                    <a class="page-link"
-                       asp-action="Tasks"
-                       asp-route-page="@(Model.Page + 1)"
-                       asp-route-search="@Model.Search"
-                       asp-route-ownerId="@Model.OwnerId"
-                       asp-route-projectId="@Model.ProjectId"
-                       asp-route-categoryId="@Model.CategoryId"
-                       asp-route-priority="@Model.Priority"
-                       asp-route-status="@Model.Status"
-                       asp-route-sortBy="@Model.SortBy">
-
-                        Next
-
-                    </a>
-
-                </li>
-            }
-
-        </ul>
-
-    </nav>
-}
+</div>
 
 
 @section Scripts
@@ -558,12 +616,54 @@ else
         const taskCheckboxes =
             document.querySelectorAll(".task-checkbox");
 
+        const bulkButton =
+            document.getElementById("bulkDeleteButton");
+
+        const selectionCount =
+            document.getElementById("taskSelectionCount");
+
+
+        function updateTaskSelection() {
+
+            const checked =
+                document.querySelectorAll(
+                    ".task-checkbox:checked"
+                ).length;
+
+            if (selectionCount) {
+
+                selectionCount.textContent =
+                    checked === 0
+                        ? "No tasks selected"
+                        : `${checked} task${checked === 1 ? "" : "s"} selected`;
+
+            }
+
+            if (bulkButton) {
+                bulkButton.disabled =
+                    checked === 0;
+            }
+
+            if (selectAll) {
+
+                selectAll.checked =
+                    taskCheckboxes.length > 0 &&
+                    checked === taskCheckboxes.length;
+
+                selectAll.indeterminate =
+                    checked > 0 &&
+                    checked < taskCheckboxes.length;
+
+            }
+
+        }
+
 
         if (selectAll) {
 
             selectAll.addEventListener(
                 "change",
-                function() {
+                function () {
 
                     taskCheckboxes.forEach(
                         checkbox => {
@@ -573,34 +673,23 @@ else
 
                         });
 
-                });
-
-
-            taskCheckboxes.forEach(
-                checkbox => {
-
-                    checkbox.addEventListener(
-                        "change",
-                        function() {
-
-                            const checkedCount =
-                                document.querySelectorAll(
-                                    ".task-checkbox:checked"
-                                ).length;
-
-                            selectAll.checked =
-                                checkedCount ===
-                                taskCheckboxes.length;
-
-                            selectAll.indeterminate =
-                                checkedCount > 0 &&
-                                checkedCount <
-                                taskCheckboxes.length;
-
-                        });
+                    updateTaskSelection();
 
                 });
 
         }
+
+
+        taskCheckboxes.forEach(
+            checkbox => {
+
+                checkbox.addEventListener(
+                    "change",
+                    updateTaskSelection);
+
+            });
+
+
+        updateTaskSelection();
     </script>
 }

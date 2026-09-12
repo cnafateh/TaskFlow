@@ -2,87 +2,129 @@
 @using TaskFlow.Web.Models
 
 @inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="dropdown tf-user-menu">
+
+        <button class="tf-user-button dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+
+            <span class="tf-avatar">
+
+                @{
+                    string userName =
+                        User.Identity?.Name ?? "U";
+
+                    string initial =
+                        userName.Length > 0
+                            ? userName[..1].ToUpper()
+                            : "U";
+                }
+
+                @initial
+
+            </span>
+
+            <span class="tf-user-info">
+
+                <span class="tf-user-name">
+                    @User.Identity?.Name
+                </span>
+
+                <span class="tf-user-role">
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <text>Administrator</text>
+                    }
+                    else
+                    {
+                        <text>Member</text>
+                    }
+
+                </span>
+
+            </span>
+
+        </button>
 
 
-<ul class="navbar-nav align-items-lg-center">
+        <ul class="dropdown-menu dropdown-menu-end tf-dropdown">
 
-    @if (SignInManager.IsSignedIn(User))
-    {
-        @if (User.IsInRole("Admin"))
-        {
-            <li class="nav-item">
+            <li>
+                <a class="dropdown-item"
+                   asp-area="Identity"
+                   asp-page="/Account/Manage/Index">
 
-                <a class="nav-link"
-                   asp-controller="Admin"
-                   asp-action="Index">
-
-                    Admin Panel
+                    Account settings
 
                 </a>
+            </li>
+
+
+            @if (User.IsInRole("Admin"))
+            {
+                <li>
+                    <a class="dropdown-item"
+                       asp-controller="Admin"
+                       asp-action="Index">
+
+                        Administration
+
+                    </a>
+                </li>
+            }
+
+
+            <li>
+                <hr class="dropdown-divider" />
+            </li>
+
+
+            <li>
+
+                <form asp-area="Identity"
+                      asp-page="/Account/Logout"
+                      asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                      method="post">
+
+                    <button type="submit"
+                            class="dropdown-item text-danger">
+
+                        Sign out
+
+                    </button>
+
+                </form>
 
             </li>
-        }
 
+        </ul>
 
-        <li class="nav-item">
+    </div>
+}
+else
+{
+    <div class="d-flex align-items-center gap-2">
 
-            <a class="nav-link"
-               asp-area="Identity"
-               asp-page="/Account/Manage/Index"
-               title="Manage account">
+        <a class="btn btn-link tf-login-link"
+           asp-area="Identity"
+           asp-page="/Account/Login">
 
-                @User.Identity?.Name
+            Sign in
 
-            </a>
+        </a>
 
-        </li>
+        <a class="btn btn-primary tf-register-button"
+           asp-area="Identity"
+           asp-page="/Account/Register">
 
+            Create account
 
-        <li class="nav-item">
+        </a>
 
-            <form asp-area="Identity"
-                  asp-page="/Account/Logout"
-                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
-                  method="post">
-
-                <button type="submit"
-                        class="btn btn-link nav-link border-0">
-
-                    Logout
-
-                </button>
-
-            </form>
-
-        </li>
-    }
-    else
-    {
-        <li class="nav-item">
-
-            <a class="nav-link"
-               asp-area="Identity"
-               asp-page="/Account/Login">
-
-                Login
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item ms-lg-2">
-
-            <a class="btn btn-primary btn-sm px-3"
-               asp-area="Identity"
-               asp-page="/Account/Register">
-
-                Register
-
-            </a>
-
-        </li>
-    }
-
-</ul>
+    </div>
+}

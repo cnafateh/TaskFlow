@@ -8,12 +8,13 @@
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8" />
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0" />
 
-    <title>@ViewData["Title"] - TaskFlow</title>
+    <title>@ViewData["Title"] · TaskFlow</title>
 
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -21,75 +22,123 @@
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
+
 </head>
+
 
 <body>
 
-    <header class="app-header">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <header class="tf-header">
+
+        <nav class="navbar navbar-expand-lg">
 
             <div class="container">
 
-                <a class="navbar-brand fw-bold"
-                   asp-area=""
+                <a class="tf-brand"
                    asp-controller="Home"
                    asp-action="Index">
-                    TaskFlow
+
+                    <span class="tf-brand-mark">
+                        TF
+                    </span>
+
+                    <span class="tf-brand-name">
+                        TaskFlow
+                    </span>
+
                 </a>
+
 
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#mainNavbar"
-                        aria-controls="mainNavbar"
+                        data-bs-target="#mainNavigation"
+                        aria-controls="mainNavigation"
                         aria-expanded="false"
                         aria-label="Toggle navigation">
 
                     <span class="navbar-toggler-icon"></span>
+
                 </button>
 
+
                 <div class="collapse navbar-collapse"
-                     id="mainNavbar">
+                     id="mainNavigation">
 
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <ul class="navbar-nav tf-main-nav me-auto">
 
-                        <li class="nav-item">
-                            <a class="nav-link @(currentController == "Home" ? "active fw-semibold" : "")"
-                               asp-area=""
-                               asp-controller="Home"
-                               asp-action="Index">
-                                Home
-                            </a>
-                        </li>
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
                             <li class="nav-item">
-                                <a class="nav-link @(currentController == "Tasks" ? "active fw-semibold" : "")"
+
+                                <a class="nav-link
+                                    @(currentController == "Home"
+                                       ? "active"
+                                       : "")"
+                                   asp-controller="Home"
+                                   asp-action="Index">
+
+                                    Overview
+
+                                </a>
+
+                            </li>
+
+
+                            <li class="nav-item">
+
+                                <a class="nav-link
+                                    @(currentController == "Tasks"
+                                       ? "active"
+                                       : "")"
                                    asp-controller="Tasks"
                                    asp-action="Index">
+
                                     Tasks
+
                                 </a>
+
                             </li>
 
+
                             <li class="nav-item">
-                                <a class="nav-link @(currentController == "Projects" ? "active fw-semibold" : "")"
+
+                                <a class="nav-link
+                                    @(currentController == "Projects"
+                                       ? "active"
+                                       : "")"
                                    asp-controller="Projects"
                                    asp-action="Index">
+
                                     Projects
+
                                 </a>
+
                             </li>
+
 
                             <li class="nav-item">
-                                <a class="nav-link @(currentController == "Categories" ? "active fw-semibold" : "")"
+
+                                <a class="nav-link
+                                    @(currentController == "Categories"
+                                       ? "active"
+                                       : "")"
                                    asp-controller="Categories"
                                    asp-action="Index">
-                                    Categories
-                                </a>
-                            </li>
-                        }
 
-                    </ul>
+                                    Categories
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="me-auto"></div>
+                    }
+
 
                     <partial name="_LoginPartial" />
 
@@ -98,31 +147,53 @@
             </div>
 
         </nav>
+
     </header>
 
-    <div class="container app-container">
+
+    <div class="app-container container">
 
         <partial name="_FlashMessages" />
 
-        <main role="main">
+
+        <main role="main"
+              class="app-main">
+
             @RenderBody()
+
         </main>
 
     </div>
 
-    <footer class="app-footer">
+
+    <footer class="tf-footer">
 
         <div class="container">
-            <span>TaskFlow &copy; 2026</span>
+
+            <div class="tf-footer-inner">
+
+                <div>
+                    TaskFlow
+                </div>
+
+                <div>
+                    ASP.NET Core MVC
+                </div>
+
+            </div>
+
         </div>
 
     </footer>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false)
 
 </body>
 

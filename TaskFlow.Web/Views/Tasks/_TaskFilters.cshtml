@@ -1,29 +1,55 @@
 ﻿@model TaskFlow.Web.ViewModels.Tasks.TaskIndexViewModel
 
-<div class="app-card filter-card">
+<div class="task-filter-panel">
 
     <form asp-controller="Tasks"
           asp-action="Index"
           method="get">
 
-        <div class="filter-grid">
+        <div class="task-filter-grid">
+
 
             <div>
+
                 <label asp-for="Search"
                        class="form-label">
                     Search
                 </label>
 
-                <input asp-for="Search"
-                       class="form-control"
-                       placeholder="Search title or description..." />
+                <div class="admin-search-wrap">
+
+                    <svg class="admin-search-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <circle cx="11"
+                                cy="11"
+                                r="7">
+                        </circle>
+
+                        <path d="m20 20-3.5-3.5">
+                        </path>
+
+                    </svg>
+
+                    <input asp-for="Search"
+                           class="form-control admin-search-input"
+                           placeholder="Search tasks..." />
+
+                </div>
+
             </div>
 
 
             <div>
+
                 <label asp-for="ProjectId"
                        class="form-label">
+
                     Project
+
                 </label>
 
                 <select asp-for="ProjectId"
@@ -31,17 +57,21 @@
                         class="form-select">
 
                     <option value="">
-                        All Projects
+                        All projects
                     </option>
 
                 </select>
+
             </div>
 
 
             <div>
+
                 <label asp-for="CategoryId"
                        class="form-label">
+
                     Category
+
                 </label>
 
                 <select asp-for="CategoryId"
@@ -49,35 +79,21 @@
                         class="form-select">
 
                     <option value="">
-                        All Categories
+                        All categories
                     </option>
 
                 </select>
+
             </div>
 
 
             <div>
-                <label asp-for="Priority"
-                       class="form-label">
-                    Priority
-                </label>
 
-                <select asp-for="Priority"
-                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()"
-                        class="form-select">
-
-                    <option value="">
-                        All Priorities
-                    </option>
-
-                </select>
-            </div>
-
-
-            <div>
                 <label asp-for="Status"
                        class="form-label">
+
                     Status
+
                 </label>
 
                 <select asp-for="Status"
@@ -85,64 +101,91 @@
                         class="form-select">
 
                     <option value="">
-                        All Statuses
+                        All statuses
                     </option>
 
                 </select>
+
             </div>
 
 
             <div>
+
+                <label asp-for="Priority"
+                       class="form-label">
+
+                    Priority
+
+                </label>
+
+                <select asp-for="Priority"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()"
+                        class="form-select">
+
+                    <option value="">
+                        All priorities
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
                 <label asp-for="SortBy"
                        class="form-label">
+
                     Sort
+
                 </label>
 
                 <select asp-for="SortBy"
                         class="form-select">
 
                     <option value="">
-                        Due Date - Earliest
-                    </option>
-
-                    <option value="dueDateDesc">
-                        Due Date - Latest
+                        Default
                     </option>
 
                     <option value="title">
-                        Title A-Z
+                        Title A–Z
                     </option>
 
                     <option value="titleDesc">
-                        Title Z-A
+                        Title Z–A
                     </option>
 
-                    <option value="createdAt">
-                        Created - Oldest
+                    <option value="dueDate">
+                        Due date
                     </option>
 
-                    <option value="createdAtDesc">
-                        Created - Newest
+                    <option value="dueDateDesc">
+                        Due date descending
                     </option>
 
                 </select>
+
             </div>
 
-        </div>
 
+            <div class="task-filter-actions">
 
-        <div class="d-flex gap-2 mt-3">
+                <button type="submit"
+                        class="btn btn-primary">
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Apply Filters
-            </button>
+                    Apply
 
-            <a asp-controller="Tasks"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Reset
-            </a>
+                </button>
+
+                <a asp-controller="Tasks"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
 
         </div>
 

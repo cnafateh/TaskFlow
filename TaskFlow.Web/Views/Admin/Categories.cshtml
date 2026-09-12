@@ -1,38 +1,41 @@
 ﻿@model TaskFlow.Web.ViewModels.Admin.AdminCategoryIndexViewModel
 
 @{
-    ViewData["Title"] = "Manage Categories";
+    ViewData["Title"] = "Categories";
 }
 
+<div class="admin-page-header">
 
-<div class="page-header">
+    <div class="admin-page-heading">
 
-    <div>
+        <div class="d-flex align-items-center flex-wrap">
 
-        <h1 class="page-title">
-            Manage Categories
-        </h1>
+            <h1 class="admin-page-title">
+                Categories
+            </h1>
 
-        <p class="page-subtitle">
-            @Model.TotalCount category(s) across all users
+            <span class="admin-count">
+                @Model.TotalCount
+            </span>
+
+        </div>
+
+        <p class="admin-page-description">
+            Review category usage and remove unused categories.
         </p>
 
     </div>
 
-    <a asp-action="Index"
-       class="btn btn-outline-secondary">
-        Back to Dashboard
-    </a>
-
 </div>
 
 
-<div class="app-card filter-card">
+<div class="admin-filter-panel">
 
-    <form asp-action="Categories"
+    <form asp-controller="Admin"
+          asp-action="Categories"
           method="get">
 
-        <div class="filter-grid">
+        <div class="admin-filter-grid">
 
             <div>
 
@@ -40,9 +43,29 @@
                     Search
                 </label>
 
-                <input asp-for="Search"
-                       class="form-control"
-                       placeholder="Category or owner..." />
+                <div class="admin-search-wrap">
+
+                    <svg class="admin-search-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2">
+
+                        <circle cx="11"
+                                cy="11"
+                                r="7">
+                        </circle>
+
+                        <path d="m20 20-3.5-3.5">
+                        </path>
+
+                    </svg>
+
+                    <input asp-for="Search"
+                           class="form-control admin-search-input"
+                           placeholder="Category or owner..." />
+
+                </div>
 
             </div>
 
@@ -57,7 +80,7 @@
                         class="form-select">
 
                     <option value="">
-                        All Users
+                        All users
                     </option>
 
                     @foreach (var owner in Model.Owners)
@@ -82,31 +105,35 @@
                         class="form-select">
 
                     <option value="name">
-                        Name A-Z
+                        Name A–Z
                     </option>
 
                     <option value="nameDesc">
-                        Name Z-A
+                        Name Z–A
                     </option>
 
                 </select>
 
             </div>
 
-        </div>
 
+            <div class="admin-filter-actions">
 
-        <div class="d-flex gap-2 mt-3">
+                <button type="submit"
+                        class="btn btn-primary">
 
-            <button type="submit"
-                    class="btn btn-primary">
-                Apply Filters
-            </button>
+                    Apply filters
 
-            <a asp-action="Categories"
-               class="btn btn-outline-secondary">
-                Reset
-            </a>
+                </button>
+
+                <a asp-action="Categories"
+                   class="btn btn-outline-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
 
         </div>
 
@@ -115,52 +142,92 @@
 </div>
 
 
-@if (Model.Categories.Count == 0)
-{
-    <div class="empty-state">
-        <h3>No categories found</h3>
-    </div>
-}
-else
-{
-    <form id="bulkCategoryDeleteForm"
-          asp-action="BulkDeleteCategories"
-          method="post"
-          onsubmit="return confirm('Delete the selected unused categories?');">
+<div class="admin-data-panel">
 
-        <div class="d-flex justify-content-end mb-3">
 
-            <button type="submit"
-                    class="btn btn-danger btn-sm">
-                Delete Selected
-            </button>
+    <div class="admin-data-toolbar">
+
+        <div class="admin-data-toolbar-left">
+
+            <span id="categorySelectionCount"
+                  class="admin-selected-count">
+
+                No categories selected
+
+            </span>
 
         </div>
 
-    </form>
+
+        <div class="admin-data-toolbar-right">
+
+            <form id="bulkCategoryDeleteForm"
+                  asp-controller="Admin"
+                  asp-action="BulkDeleteCategories"
+                  method="post"
+                  onsubmit="return confirm(
+                      'Delete the selected unused categories?');">
+
+                <button id="bulkCategoryDeleteButton"
+                        type="submit"
+                        class="btn btn-sm btn-outline-danger admin-bulk-button"
+                        disabled>
+
+                    Delete selected
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
 
 
-    <div class="app-card table-card">
+    @if (Model.Categories.Count == 0)
+    {
+        <div class="admin-empty">
 
+            <div class="admin-empty-icon">
+                #
+            </div>
+
+            <div class="admin-empty-title">
+                No categories found
+            </div>
+
+            <p class="admin-empty-text">
+                Try changing the current search or filters.
+            </p>
+
+        </div>
+    }
+    else
+    {
         <div class="table-responsive">
 
-            <table class="table table-hover align-middle">
+            <table class="admin-table">
 
-                <thead class="table-light">
+                <thead>
 
                     <tr>
 
-                        <th style="width:45px;">
+                        <th style="width:44px;">
+
                             <input id="selectAllCategories"
                                    type="checkbox"
-                                   class="form-check-input" />
+                                   class="form-check-input"
+                                   aria-label="Select all unused categories" />
+
                         </th>
 
                         <th>Category</th>
 
                         <th>Owner</th>
 
-                        <th>Used By Tasks</th>
+                        <th>Usage</th>
+
+                        <th>State</th>
 
                         <th class="text-end">
                             Actions
@@ -173,50 +240,125 @@ else
 
                 <tbody>
 
-                    @foreach (
-                        var category
-                        in Model.Categories)
-                    {
-                        <tr>
+                @foreach (var category in Model.Categories)
+                {
+                    string ownerEmail =
+                        string.IsNullOrWhiteSpace(category.OwnerEmail)
+                            ? "Unknown"
+                            : category.OwnerEmail;
 
-                            <td>
+                    string ownerInitial =
+                        ownerEmail.Length > 0
+                            ? ownerEmail[..1].ToUpper()
+                            : "?";
 
+                    bool isInUse =
+                        category.TaskCount > 0;
+
+                    <tr>
+
+                        <td>
+
+                            @if (isInUse)
+                            {
                                 <input type="checkbox"
-                                       class="form-check-input category-checkbox"
+                                       class="form-check-input"
+                                       disabled
+                                       title="Categories in use cannot be deleted." />
+                            }
+                            else
+                            {
+                                <input type="checkbox"
                                        name="selectedCategoryIds"
                                        value="@category.Id"
-                                       form="bulkCategoryDeleteForm" />
+                                       form="bulkCategoryDeleteForm"
+                                       class="form-check-input category-checkbox"
+                                       aria-label="Select @category.Name" />
+                            }
 
-                            </td>
+                        </td>
 
 
-                            <td class="fw-semibold">
+                        <td>
+
+                            <div class="admin-table-title">
                                 @category.Name
-                            </td>
+                            </div>
+
+                        </td>
 
 
-                            <td>
-                                @category.OwnerEmail
-                            </td>
+                        <td>
+
+                            <div class="admin-user-cell">
+
+                                <div class="admin-user-avatar">
+                                    @ownerInitial
+                                </div>
+
+                                <div class="admin-user-email">
+                                    @ownerEmail
+                                </div>
+
+                            </div>
+
+                        </td>
 
 
-                            <td>
-                                @category.TaskCount
-                            </td>
+                        <td>
+
+                            @if (category.TaskCount > 0)
+                            {
+                                <span class="admin-badge admin-badge-primary">
+
+                                    @category.TaskCount
+                                    task@(category.TaskCount == 1 ? "" : "s")
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge-neutral">
+                                    No tasks
+                                </span>
+                            }
+
+                        </td>
 
 
-                            <td class="text-end">
+                        <td>
 
-                                @if (category.TaskCount == 0)
+                            @if (isInUse)
+                            {
+                                <span class="admin-badge admin-badge-warning">
+                                    In use
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge-success">
+                                    Available
+                                </span>
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="admin-table-actions">
+
+                                @if (!isInUse)
                                 {
-                                    <form asp-action="DeleteCategory"
+                                    <form asp-controller="Admin"
+                                          asp-action="DeleteCategory"
                                           asp-route-id="@category.Id"
                                           method="post"
-                                          class="d-inline"
-                                          onsubmit="return confirm('Delete this category?');">
+                                          onsubmit="return confirm(
+                                              'Delete this category?');">
 
                                         <button type="submit"
-                                                class="btn btn-sm btn-outline-danger">
+                                                class="admin-icon-button admin-icon-button-danger">
 
                                             Delete
 
@@ -226,15 +368,17 @@ else
                                 }
                                 else
                                 {
-                                    <span class="text-muted small">
-                                        In use
+                                    <span class="admin-table-muted">
+                                        Protected
                                     </span>
                                 }
 
-                            </td>
+                            </div>
 
-                        </tr>
-                    }
+                        </td>
+
+                    </tr>
+                }
 
                 </tbody>
 
@@ -242,46 +386,98 @@ else
 
         </div>
 
-    </div>
-}
+
+        <div class="admin-table-footer">
+
+            <div class="admin-pagination-info">
+
+                Page @Model.Page of
+                @(Model.TotalPages == 0 ? 1 : Model.TotalPages)
+
+                · @Model.TotalCount total categories
+
+            </div>
 
 
-@if (Model.TotalPages > 1)
-{
-    <nav>
-
-        <ul class="pagination justify-content-center">
-
-            @for (
-                int pageNumber = 1;
-                pageNumber <= Model.TotalPages;
-                pageNumber++)
+            @if (Model.TotalPages > 1)
             {
-                <li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+                <ul class="pagination">
 
-                    <a class="page-link"
-                       asp-action="Categories"
-                       asp-route-page="@pageNumber"
-                       asp-route-search="@Model.Search"
-                       asp-route-ownerId="@Model.OwnerId"
-                       asp-route-sortBy="@Model.SortBy">
+                    @if (Model.Page > 1)
+                    {
+                        <li class="page-item">
 
-                        @pageNumber
+                            <a class="page-link"
+                               asp-action="Categories"
+                               asp-route-page="@(Model.Page - 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-sortBy="@Model.SortBy">
 
-                    </a>
+                                ‹
 
-                </li>
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @for (
+                        int pageNumber = 1;
+                        pageNumber <= Model.TotalPages;
+                        pageNumber++)
+                    {
+                        <li class="page-item
+                                   @(pageNumber == Model.Page
+                                       ? "active"
+                                       : "")">
+
+                            <a class="page-link"
+                               asp-action="Categories"
+                               asp-route-page="@pageNumber"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                @pageNumber
+
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-action="Categories"
+                               asp-route-page="@(Model.Page + 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-ownerId="@Model.OwnerId"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                ›
+
+                            </a>
+
+                        </li>
+                    }
+
+                </ul>
             }
 
-        </ul>
+        </div>
+    }
 
-    </nav>
-}
+</div>
 
 
 @section Scripts
 {
     <script>
+
         const selectAllCategories =
             document.getElementById(
                 "selectAllCategories");
@@ -290,19 +486,88 @@ else
             document.querySelectorAll(
                 ".category-checkbox");
 
+        const bulkCategoryButton =
+            document.getElementById(
+                "bulkCategoryDeleteButton");
+
+        const categorySelectionCount =
+            document.getElementById(
+                "categorySelectionCount");
+
+
+        function updateCategorySelection() {
+
+            const checked =
+                document.querySelectorAll(
+                    ".category-checkbox:checked"
+                ).length;
+
+
+            if (categorySelectionCount) {
+
+                categorySelectionCount.textContent =
+                    checked === 0
+                        ? "No categories selected"
+                        : `${checked} categor${checked === 1 ? "y" : "ies"} selected`;
+
+            }
+
+
+            if (bulkCategoryButton) {
+
+                bulkCategoryButton.disabled =
+                    checked === 0;
+
+            }
+
+
+            if (selectAllCategories) {
+
+                selectAllCategories.checked =
+                    categoryCheckboxes.length > 0 &&
+                    checked === categoryCheckboxes.length;
+
+                selectAllCategories.indeterminate =
+                    checked > 0 &&
+                    checked < categoryCheckboxes.length;
+
+            }
+
+        }
+
 
         if (selectAllCategories) {
 
             selectAllCategories.addEventListener(
                 "change",
-                function() {
+                function () {
 
                     categoryCheckboxes.forEach(
-                        checkbox =>
+                        checkbox => {
+
                             checkbox.checked =
-                            selectAllCategories.checked);
+                                selectAllCategories.checked;
+
+                        });
+
+                    updateCategorySelection();
 
                 });
+
         }
+
+
+        categoryCheckboxes.forEach(
+            checkbox => {
+
+                checkbox.addEventListener(
+                    "change",
+                    updateCategorySelection);
+
+            });
+
+
+        updateCategorySelection();
+
     </script>
 }

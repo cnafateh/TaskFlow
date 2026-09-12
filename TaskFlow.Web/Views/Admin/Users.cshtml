@@ -4,70 +4,124 @@
     ViewData["Title"] = "Users";
 }
 
-<div class="page-header">
+<div class="admin-page-header">
 
-    <div>
+    <div class="admin-page-heading">
 
-        <h1 class="page-title">
-            Users
-        </h1>
+        <div class="d-flex align-items-center flex-wrap">
 
-        <p class="page-subtitle">
-            Manage registered users and their roles.
+            <h1 class="admin-page-title">
+                Users
+            </h1>
+
+            <span class="admin-count">
+                @Model.Count
+            </span>
+
+        </div>
+
+        <p class="admin-page-description">
+            Manage registered accounts and application access.
         </p>
 
     </div>
 
-    <a asp-controller="Admin"
-       asp-action="Index"
-       class="btn btn-outline-secondary">
-
-        Back to Dashboard
-
-    </a>
-
 </div>
 
 
+<div class="admin-data-panel">
 
+    <div class="admin-data-toolbar">
 
+        <div class="admin-data-toolbar-left">
 
-@if (Model.Count == 0)
-{
-    <div class="empty-state">
+            <span class="admin-table-muted">
+                Registered accounts
+            </span>
 
-        <h3>
-            No users found
-        </h3>
+        </div>
+
+        <div class="admin-data-toolbar-right">
+
+            <span class="admin-table-muted">
+                @Model.Count total
+            </span>
+
+        </div>
 
     </div>
-}
-else
-{
-    <div class="app-card table-card">
 
+
+    @if (Model.Count == 0)
+    {
+        <div class="admin-empty">
+
+            <div class="admin-empty-icon">
+                U
+            </div>
+
+            <div class="admin-empty-title">
+                No users found
+            </div>
+
+            <p class="admin-empty-text">
+                Registered users will appear here.
+            </p>
+
+        </div>
+    }
+    else
+    {
         <div class="table-responsive">
 
-            <table class="table table-hover align-middle">
+            <table class="admin-table">
 
-                <thead class="table-light">
+                <thead>
 
                     <tr>
-                        <th>Email</th>
-                        <th>Current Role</th>
-                        <th>Change Role</th>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th style="width: 290px;">
+                            Access
+                        </th>
                     </tr>
 
                 </thead>
+
 
                 <tbody>
 
                     @foreach (var user in Model)
                     {
+                        string initial =
+                            !string.IsNullOrWhiteSpace(user.Email)
+                                ? user.Email[..1].ToUpper()
+                                : "U";
+
                         <tr>
 
-                            <td class="fw-semibold">
-                                @user.Email
+                            <td>
+
+                                <div class="admin-user-cell">
+
+                                    <div class="admin-user-avatar">
+                                        @initial
+                                    </div>
+
+                                    <div>
+
+                                        <div class="admin-user-email">
+                                            @user.Email
+                                        </div>
+
+                                        <div class="admin-table-muted">
+                                            Account
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
                             </td>
 
 
@@ -75,14 +129,14 @@ else
 
                                 @if (user.Role == "Admin")
                                 {
-                                    <span class="badge text-bg-danger">
-                                        Admin
+                                    <span class="admin-badge admin-badge-admin">
+                                        Administrator
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="badge text-bg-secondary">
-                                        User
+                                    <span class="admin-badge admin-badge-user">
+                                        Member
                                     </span>
                                 }
 
@@ -94,16 +148,14 @@ else
                                 <form asp-controller="Admin"
                                       asp-action="ChangeRole"
                                       method="post"
-                                      class="d-flex gap-2">
+                                      class="d-flex align-items-center gap-2">
 
                                     <input type="hidden"
                                            name="userId"
                                            value="@user.Id" />
 
-
                                     <select name="role"
-                                            class="form-select form-select-sm"
-                                            style="max-width: 140px;">
+                                            class="form-select form-select-sm">
 
                                         @if (user.Role == "User")
                                         {
@@ -130,11 +182,10 @@ else
 
                                     </select>
 
-
                                     <button type="submit"
-                                            class="btn btn-sm btn-primary">
+                                            class="btn btn-sm btn-outline-primary text-nowrap">
 
-                                        Update
+                                        Update role
 
                                     </button>
 
@@ -150,6 +201,6 @@ else
             </table>
 
         </div>
+    }
 
-    </div>
-}
+</div>

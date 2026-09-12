@@ -1,0 +1,218 @@
+﻿@page
+@model TaskFlow.Web.Areas.Identity.Pages.Account.RegisterModel
+
+@{
+    ViewData["Title"] = "Create account";
+}
+
+<div class="auth-page">
+
+    <div class="auth-container">
+
+        <div class="auth-header">
+
+            <div class="auth-brand">
+                TF
+            </div>
+
+            <h1 class="auth-title">
+                Create your account
+            </h1>
+
+            <p class="auth-subtitle">
+                Create a TaskFlow workspace and start organizing your work.
+            </p>
+
+        </div>
+
+
+        <div class="auth-card">
+
+            <form id="registerForm"
+                  asp-route-returnUrl="@Model.ReturnUrl"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="auth-validation"
+                     role="alert">
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label asp-for="Input.Email"
+                           class="form-label">
+                        Email
+                    </label>
+
+                    <input asp-for="Input.Email"
+                           class="form-control"
+                           autocomplete="username"
+                           aria-required="true"
+                           placeholder="name@example.com" />
+
+                    <span asp-validation-for="Input.Email"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label asp-for="Input.Password"
+                           class="form-label">
+                        Password
+                    </label>
+
+                    <div class="auth-password-wrap">
+
+                        <input asp-for="Input.Password"
+                               id="registerPassword"
+                               class="form-control"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Create a password" />
+
+                        <button type="button"
+                                class="auth-password-toggle"
+                                data-password-target="registerPassword"
+                                aria-label="Show password">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+
+                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z">
+                                </path>
+
+                                <circle cx="12"
+                                        cy="12"
+                                        r="2.5">
+                                </circle>
+
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <span asp-validation-for="Input.Password"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <div class="auth-field">
+
+                    <label asp-for="Input.ConfirmPassword"
+                           class="form-label">
+                        Confirm password
+                    </label>
+
+                    <div class="auth-password-wrap">
+
+                        <input asp-for="Input.ConfirmPassword"
+                               id="confirmPassword"
+                               class="form-control"
+                               autocomplete="new-password"
+                               aria-required="true"
+                               placeholder="Repeat your password" />
+
+                        <button type="button"
+                                class="auth-password-toggle"
+                                data-password-target="confirmPassword"
+                                aria-label="Show password">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8">
+
+                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z">
+                                </path>
+
+                                <circle cx="12"
+                                        cy="12"
+                                        r="2.5">
+                                </circle>
+
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                    <span asp-validation-for="Input.ConfirmPassword"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <button id="registerSubmit"
+                        type="submit"
+                        class="btn btn-primary auth-submit">
+
+                    Create account
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <div class="auth-footer">
+
+            Already have an account?
+
+            <a asp-page="./Login"
+               asp-route-returnUrl="@Model.ReturnUrl">
+                Sign in
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document
+            .querySelectorAll("[data-password-target]")
+            .forEach(button => {
+
+                button.addEventListener("click", function() {
+
+                    const input =
+                        document.getElementById(
+                            this.dataset.passwordTarget
+                        );
+
+                    if (!input) {
+                        return;
+                    }
+
+                    const show =
+                        input.type === "password";
+
+                    input.type =
+                        show ? "text" : "password";
+
+                    this.setAttribute(
+                        "aria-label",
+                        show
+                            ? "Hide password"
+                            : "Show password"
+                    );
+                });
+            });
+    </script>
+}

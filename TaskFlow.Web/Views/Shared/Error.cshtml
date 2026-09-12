@@ -4,29 +4,72 @@
     ViewData["Title"] = "Error";
 }
 
-<div class="app-card">
+<div class="state-page">
 
-    <h1 class="h3 text-danger mb-3">
-        Something went wrong
-    </h1>
+    <div class="state-card">
 
-    <p class="text-muted">
-        The request could not be completed.
-        Please try again.
-    </p>
+        <div class="state-code">
+            Error
+        </div>
 
-    @if (Model.ShowRequestId)
-    {
-        <p class="small text-muted">
-            Request ID:
-            <code>@Model.RequestId</code>
+        <div class="state-icon state-icon-danger">
+
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8">
+
+                <circle cx="12"
+                        cy="12"
+                        r="9">
+                </circle>
+
+                <path d="M12 8v5"></path>
+                <path d="M12 17h.01"></path>
+
+            </svg>
+
+        </div>
+
+
+        <h1 class="state-title">
+            Something went wrong
+        </h1>
+
+        <p class="state-description">
+            An unexpected error occurred while processing your request.
+            Please try again.
         </p>
-    }
 
-    <a asp-controller="Home"
-       asp-action="Index"
-       class="btn btn-primary">
-        Back to Home
-    </a>
+
+        @if (Model.ShowRequestId)
+        {
+            <div class="state-request">
+
+                <span>
+                    Request ID
+                </span>
+
+                <code>
+                    @Model.RequestId
+                </code>
+
+            </div>
+        }
+
+
+        <div class="state-actions">
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-primary">
+
+                Back to overview
+
+            </a>
+
+        </div>
+
+    </div>
 
 </div>
