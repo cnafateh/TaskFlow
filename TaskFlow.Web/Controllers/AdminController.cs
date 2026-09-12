@@ -1,12 +1,14 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using TaskFlow.Web.Filters;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Admin;
 
 namespace TaskFlow.Web.Controllers;
 
 [Authorize(Roles = "Admin")]
+[ServiceFilter(typeof(ActionLoggingFilter))]
 public class AdminController : Controller
 {
     private readonly IAdminService _adminService;

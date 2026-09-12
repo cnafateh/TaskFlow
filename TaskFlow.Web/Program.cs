@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
-using TaskFlow.Web.Services;
-using Microsoft.AspNetCore.Identity;
+using TaskFlow.Web.Filters;
 using TaskFlow.Web.Models;
+using TaskFlow.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +14,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-
 builder.Services
     .AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<ActionLoggingFilter>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(
