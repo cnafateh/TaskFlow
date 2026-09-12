@@ -140,6 +140,7 @@ public class TasksController : Controller
             return BadRequest();
         }
 
+        TempData["SuccessMessage"] = "Task created successfully.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -217,6 +218,8 @@ public class TasksController : Controller
             return NotFound();
         }
 
+        TempData["SuccessMessage"] =
+            "Task updated successfully.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -268,6 +271,9 @@ public class TasksController : Controller
         {
             return NotFound();
         }
+
+        TempData["SuccessMessage"] =
+            "Task deleted successfully.";
 
         return RedirectToAction(nameof(Index));
     }
