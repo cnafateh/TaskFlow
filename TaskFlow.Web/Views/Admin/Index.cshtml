@@ -1,16 +1,134 @@
-﻿@{
-    ViewData["Title"] = "Admin Panel";
+﻿@model TaskFlow.Web.ViewModels.Admin.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
 }
 
+<div class="page-header">
 
-<div class="app-card">
+    <div>
+        <h1 class="page-title">
+            Admin Dashboard
+        </h1>
 
-    <h1>
-        Admin Panel
-    </h1>
+        <p class="page-subtitle">
+            Overview of TaskFlow activity.
+        </p>
+    </div>
 
-    <p class="text-muted">
-        You have administrator access.
-    </p>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-6 col-xl-3">
+        <div class="app-card h-100">
+
+            <div class="meta-label">
+                Users
+            </div>
+
+            <div class="display-6 fw-bold mt-2">
+                @Model.TotalUsers
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-xl-3">
+        <div class="app-card h-100">
+
+            <div class="meta-label">
+                Admins
+            </div>
+
+            <div class="display-6 fw-bold mt-2">
+                @Model.TotalAdmins
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-xl-3">
+        <div class="app-card h-100">
+
+            <div class="meta-label">
+                Projects
+            </div>
+
+            <div class="display-6 fw-bold mt-2">
+                @Model.TotalProjects
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="col-md-6 col-xl-3">
+        <div class="app-card h-100">
+
+            <div class="meta-label">
+                Tasks
+            </div>
+
+            <div class="display-6 fw-bold mt-2">
+                @Model.TotalTasks
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row g-4 mt-1">
+
+    <div class="col-md-6">
+
+        <div class="app-card h-100">
+
+            <h2 class="h5">
+                Task Completion
+            </h2>
+
+            <p class="text-muted mb-3">
+                Completed tasks across all users.
+            </p>
+
+            <div class="display-6 fw-bold">
+                @Model.CompletedTasks
+            </div>
+
+            <div class="meta-label mt-2">
+                of @Model.TotalTasks total tasks
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-6">
+
+        <div class="app-card h-100">
+
+            <h2 class="h5">
+                User Management
+            </h2>
+
+            <p class="text-muted">
+                View users and manage their roles.
+            </p>
+
+            <a asp-controller="Admin"
+               asp-action="Users"
+               class="btn btn-primary">
+                Manage Users
+            </a>
+
+        </div>
+
+    </div>
 
 </div>

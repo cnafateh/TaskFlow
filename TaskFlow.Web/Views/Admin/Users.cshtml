@@ -1,0 +1,172 @@
+﻿@model List<TaskFlow.Web.ViewModels.Admin.AdminUserViewModel>
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="page-header">
+
+    <div>
+
+        <h1 class="page-title">
+            Users
+        </h1>
+
+        <p class="page-subtitle">
+            Manage registered users and their roles.
+        </p>
+
+    </div>
+
+    <a asp-controller="Admin"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+
+        Back to Dashboard
+
+    </a>
+
+</div>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+
+        @TempData["SuccessMessage"]
+
+    </div>
+}
+
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+
+        @TempData["ErrorMessage"]
+
+    </div>
+}
+
+
+@if (Model.Count == 0)
+{
+    <div class="empty-state">
+
+        <h3>
+            No users found
+        </h3>
+
+    </div>
+}
+else
+{
+    <div class="app-card table-card">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Email</th>
+                        <th>Current Role</th>
+                        <th>Change Role</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+
+                            <td class="fw-semibold">
+                                @user.Email
+                            </td>
+
+
+                            <td>
+
+                                @if (user.Role == "Admin")
+                                {
+                                    <span class="badge text-bg-danger">
+                                        Admin
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-secondary">
+                                        User
+                                    </span>
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                <form asp-controller="Admin"
+                                      asp-action="ChangeRole"
+                                      method="post"
+                                      class="d-flex gap-2">
+
+                                    <input type="hidden"
+                                           name="userId"
+                                           value="@user.Id" />
+
+
+                                    <select name="role"
+                                            class="form-select form-select-sm"
+                                            style="max-width: 140px;">
+
+                                        @if (user.Role == "User")
+                                        {
+                                            <option value="User"
+                                                    selected>
+                                                User
+                                            </option>
+
+                                            <option value="Admin">
+                                                Admin
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="User">
+                                                User
+                                            </option>
+
+                                            <option value="Admin"
+                                                    selected>
+                                                Admin
+                                            </option>
+                                        }
+
+                                    </select>
+
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-primary">
+
+                                        Update
+
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
