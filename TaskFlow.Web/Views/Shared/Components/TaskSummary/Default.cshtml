@@ -1,0 +1,80 @@
+﻿@model TaskFlow.Web.ViewModels.Tasks.TaskSummaryViewModel
+
+<div class="mb-4">
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+
+        <div>
+            <h2 class="h5 mb-1">
+                My Tasks
+            </h2>
+
+            <div class="text-muted small">
+                Current task overview
+            </div>
+        </div>
+
+        <a asp-controller="Tasks"
+           asp-action="Index"
+           class="btn btn-sm btn-outline-secondary">
+            View Tasks
+        </a>
+
+    </div>
+
+
+    <div class="row g-3">
+
+        <div class="col-md-4">
+
+            <div class="app-card h-100">
+
+                <div class="meta-label">
+                    Total
+                </div>
+
+                <div class="h2 mb-0 mt-2">
+                    @Model.TotalTasks
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="app-card h-100">
+
+                <div class="meta-label">
+                    In Progress
+                </div>
+
+                <div class="h2 mb-0 mt-2">
+                    @Model.InProgressTasks
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="app-card h-100">
+
+                <div class="meta-label">
+                    Completed
+                </div>
+
+                <div class="h2 mb-0 mt-2">
+                    @Model.CompletedTasks
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

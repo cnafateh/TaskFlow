@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
 using TaskFlow.Web.Models;
+using TaskFlow.Web.ViewModels.Tasks;
 
 namespace TaskFlow.Web.Services;
 
@@ -237,6 +238,35 @@ public class TaskService : ITaskService
             TotalCount = totalCount,
             Page = page,
             PageSize = pageSize
+        };
+    }
+
+    public async Task<TaskSummaryViewModel> GetSummaryAsync(
+    string userId)
+    {
+        IQueryable<TaskItem> query =
+            _context.Tasks
+                .Where(task =>
+                    task.Project.UserId == userId);
+
+        int totalTasks =
+            await query.CountAsync();
+
+        int inProgressTasks =
+            await query.CountAsync(
+                task =>
+                    task.Status == Models.Enums.TaskStatus.InProgress);
+
+        int completedTasks =
+            await query.CountAsync(
+                task =>
+                    task.Status == Models.Enums.TaskStatus.Done);
+
+        return new TaskSummaryViewModel
+        {
+            TotalTasks = totalTasks,
+            InProgressTasks = inProgressTasks,
+            CompletedTasks = completedTasks
         };
     }
 }

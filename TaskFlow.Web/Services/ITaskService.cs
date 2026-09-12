@@ -1,4 +1,5 @@
 ﻿using TaskFlow.Web.Models;
+using TaskFlow.Web.ViewModels.Tasks;
 
 namespace TaskFlow.Web.Services;
 
@@ -15,4 +16,6 @@ public interface ITaskService
     Task<PagedResult<TaskItem>> GetFilteredAsync(
         TaskFilter filter,
         string userId);
+
+    Task<TaskSummaryViewModel> GetSummaryAsync(string userId);
 }
