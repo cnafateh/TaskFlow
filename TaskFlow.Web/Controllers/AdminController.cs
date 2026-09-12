@@ -188,4 +188,217 @@ public class AdminController : Controller
         return RedirectToAction(
             nameof(Tasks));
     }
+
+    public async Task<IActionResult> Projects(
+    AdminProjectIndexViewModel model)
+    {
+        AdminProjectFilter filter =
+            new AdminProjectFilter
+            {
+                Search =
+                    model.Search,
+
+                OwnerId =
+                    model.OwnerId,
+
+                SortBy =
+                    model.SortBy,
+
+                Page =
+                    model.Page
+            };
+
+
+        PagedResult<AdminProjectRowViewModel>
+            result =
+                await _adminService
+                    .GetProjectsAsync(filter);
+
+
+        model.Projects =
+            result.Items;
+
+        model.Page =
+            result.Page;
+
+        model.TotalPages =
+            result.TotalPages;
+
+        model.TotalCount =
+            result.TotalCount;
+
+        model.Owners =
+            await _adminService
+                .GetTaskOwnersAsync();
+
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult>
+    DeleteProject(int id)
+    {
+        bool deleted =
+            await _adminService
+                .DeleteProjectAsync(id);
+
+
+        if (!deleted)
+        {
+            TempData["ErrorMessage"] =
+                "Project not found.";
+        }
+        else
+        {
+            TempData["SuccessMessage"] =
+                "Project and its tasks were deleted successfully.";
+        }
+
+
+        return RedirectToAction(
+            nameof(Projects));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult>
+    BulkDeleteProjects(
+        List<int> selectedProjectIds)
+    {
+        if (selectedProjectIds.Count == 0)
+        {
+            TempData["ErrorMessage"] =
+                "No projects were selected.";
+
+            return RedirectToAction(
+                nameof(Projects));
+        }
+
+
+        int deletedCount =
+            await _adminService
+                .DeleteProjectsAsync(
+                    selectedProjectIds);
+
+
+        TempData["SuccessMessage"] =
+            $"{deletedCount} project(s) deleted successfully.";
+
+
+        return RedirectToAction(
+            nameof(Projects));
+    }
+
+    public async Task<IActionResult> Categories(
+    AdminCategoryIndexViewModel model)
+    {
+        AdminCategoryFilter filter =
+            new AdminCategoryFilter
+            {
+                Search =
+                    model.Search,
+
+                OwnerId =
+                    model.OwnerId,
+
+                SortBy =
+                    model.SortBy,
+
+                Page =
+                    model.Page
+            };
+
+
+        PagedResult<AdminCategoryRowViewModel>
+            result =
+                await _adminService
+                    .GetCategoriesAsync(filter);
+
+
+        model.Categories =
+            result.Items;
+
+        model.Page =
+            result.Page;
+
+        model.TotalPages =
+            result.TotalPages;
+
+        model.TotalCount =
+            result.TotalCount;
+
+        model.Owners =
+            await _adminService
+                .GetTaskOwnersAsync();
+
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult>
+    DeleteCategory(int id)
+    {
+        bool deleted =
+            await _adminService
+                .DeleteCategoryAsync(id);
+
+
+        if (!deleted)
+        {
+            TempData["ErrorMessage"] =
+                "Category could not be deleted. It may still be assigned to tasks.";
+        }
+        else
+        {
+            TempData["SuccessMessage"] =
+                "Category deleted successfully.";
+        }
+
+
+        return RedirectToAction(
+            nameof(Categories));
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult>
+    BulkDeleteCategories(
+        List<int> selectedCategoryIds)
+    {
+        if (selectedCategoryIds.Count == 0)
+        {
+            TempData["ErrorMessage"] =
+                "No categories were selected.";
+
+            return RedirectToAction(
+                nameof(Categories));
+        }
+
+
+        AdminBulkDeleteResult result =
+            await _adminService
+                .DeleteCategoriesAsync(
+                    selectedCategoryIds);
+
+
+        if (result.DeletedCount > 0)
+        {
+            TempData["SuccessMessage"] =
+                $"{result.DeletedCount} category(s) deleted successfully.";
+        }
+
+
+        if (result.SkippedCount > 0)
+        {
+            TempData["ErrorMessage"] =
+                $"{result.SkippedCount} category(s) were skipped because they are assigned to tasks.";
+        }
+
+
+        return RedirectToAction(
+            nameof(Categories));
+    }
 }

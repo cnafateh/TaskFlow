@@ -1,0 +1,311 @@
+﻿@model TaskFlow.Web.ViewModels.Admin.AdminProjectIndexViewModel
+
+@{
+    ViewData["Title"] = "Manage Projects";
+}
+
+
+<div class="page-header">
+
+    <div>
+        <h1 class="page-title">
+            Manage Projects
+        </h1>
+
+        <p class="page-subtitle">
+            @Model.TotalCount project(s) across all users
+        </p>
+    </div>
+
+    <a asp-controller="Admin"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+
+</div>
+
+
+<div class="app-card filter-card">
+
+    <form asp-controller="Admin"
+          asp-action="Projects"
+          method="get">
+
+        <div class="filter-grid">
+
+            <div>
+                <label class="form-label">
+                    Search
+                </label>
+
+                <input asp-for="Search"
+                       class="form-control"
+                       placeholder="Project, description or owner..." />
+            </div>
+
+
+            <div>
+                <label class="form-label">
+                    Owner
+                </label>
+
+                <select asp-for="OwnerId"
+                        class="form-select">
+
+                    <option value="">
+                        All Users
+                    </option>
+
+                    @foreach (var owner in Model.Owners)
+                    {
+                        <option value="@owner.Id">
+                            @owner.Email
+                        </option>
+                    }
+
+                </select>
+            </div>
+
+
+            <div>
+                <label class="form-label">
+                    Sort
+                </label>
+
+                <select asp-for="SortBy"
+                        class="form-select">
+
+                    <option value="createdAtDesc">
+                        Newest
+                    </option>
+
+                    <option value="createdAt">
+                        Oldest
+                    </option>
+
+                    <option value="name">
+                        Name A-Z
+                    </option>
+
+                    <option value="nameDesc">
+                        Name Z-A
+                    </option>
+
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="d-flex gap-2 mt-3">
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Apply Filters
+            </button>
+
+            <a asp-action="Projects"
+               class="btn btn-outline-secondary">
+                Reset
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+@if (Model.Projects.Count == 0)
+{
+    <div class="empty-state">
+        <h3>No projects found</h3>
+    </div>
+}
+else
+{
+    <form id="bulkProjectDeleteForm"
+          asp-action="BulkDeleteProjects"
+          method="post"
+          onsubmit="return confirm('Deleting projects will also delete their tasks. Continue?');">
+
+        <div class="d-flex justify-content-end mb-3">
+
+            <button type="submit"
+                    class="btn btn-danger btn-sm">
+                Delete Selected
+            </button>
+
+        </div>
+
+    </form>
+
+
+    <div class="app-card table-card">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th style="width:45px;">
+                            <input id="selectAllProjects"
+                                   type="checkbox"
+                                   class="form-check-input" />
+                        </th>
+
+                        <th>Project</th>
+                        <th>Owner</th>
+                        <th>Tasks</th>
+                        <th>Created</th>
+                        <th class="text-end">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @foreach (var project in Model.Projects)
+                    {
+                        <tr>
+
+                            <td>
+                                <input type="checkbox"
+                                       class="form-check-input project-checkbox"
+                                       name="selectedProjectIds"
+                                       value="@project.Id"
+                                       form="bulkProjectDeleteForm" />
+                            </td>
+
+
+                            <td>
+
+                                <div class="fw-semibold">
+                                    @project.Name
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                        project.Description))
+                                {
+                                    <div class="text-muted small">
+                                        @project.Description
+                                    </div>
+                                }
+
+                            </td>
+
+
+                            <td>
+                                @project.OwnerEmail
+                            </td>
+
+
+                            <td>
+                                @project.TaskCount
+                            </td>
+
+
+                            <td>
+                                @project.CreatedAt.ToString(
+                                    "yyyy-MM-dd")
+                            </td>
+
+
+                            <td class="text-end">
+
+                                <form asp-action="DeleteProject"
+                                      asp-route-id="@project.Id"
+                                      method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Deleting this project will also delete its tasks. Continue?');">
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+}
+
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+
+        <ul class="pagination justify-content-center">
+
+            @for (
+                int pageNumber = 1;
+                pageNumber <= Model.TotalPages;
+                pageNumber++)
+            {
+                <li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+
+                    <a class="page-link"
+                       asp-action="Projects"
+                       asp-route-page="@pageNumber"
+                       asp-route-search="@Model.Search"
+                       asp-route-ownerId="@Model.OwnerId"
+                       asp-route-sortBy="@Model.SortBy">
+
+                        @pageNumber
+
+                    </a>
+
+                </li>
+            }
+
+        </ul>
+
+    </nav>
+}
+
+
+@section Scripts
+{
+    <script>
+        const selectAllProjects =
+            document.getElementById(
+                "selectAllProjects");
+
+        const projectCheckboxes =
+            document.querySelectorAll(
+                ".project-checkbox");
+
+
+        if (selectAllProjects) {
+
+            selectAllProjects.addEventListener(
+                "change",
+                function() {
+
+                    projectCheckboxes.forEach(
+                        checkbox =>
+                            checkbox.checked =
+                            selectAllProjects.checked);
+
+                });
+        }
+    </script>
+}

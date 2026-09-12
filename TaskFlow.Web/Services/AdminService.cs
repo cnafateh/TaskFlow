@@ -377,4 +377,384 @@ public class AdminService : IAdminService
 
         return tasks.Count;
     }
+
+    public async Task<PagedResult<AdminProjectRowViewModel>>
+    GetProjectsAsync(
+        AdminProjectFilter filter)
+    {
+        IQueryable<Project> query =
+            _context.Project
+                .Include(project => project.User)
+                .AsNoTracking();
+
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            string search =
+                filter.Search.Trim();
+
+            query = query.Where(project =>
+                project.Name.Contains(search) ||
+                (
+                    project.Description != null &&
+                    project.Description.Contains(search)
+                ) ||
+                (
+                    project.User != null &&
+                    project.User.Email != null &&
+                    project.User.Email.Contains(search)
+                ));
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(filter.OwnerId))
+        {
+            query = query.Where(project =>
+                project.UserId == filter.OwnerId);
+        }
+
+
+        query = filter.SortBy switch
+        {
+            "name" =>
+                query.OrderBy(project =>
+                    project.Name),
+
+            "nameDesc" =>
+                query.OrderByDescending(project =>
+                    project.Name),
+
+            "createdAt" =>
+                query.OrderBy(project =>
+                    project.CreatedAt),
+
+            "createdAtDesc" =>
+                query.OrderByDescending(project =>
+                    project.CreatedAt),
+
+            _ =>
+                query.OrderByDescending(project =>
+                    project.CreatedAt)
+        };
+
+
+        int totalCount =
+            await query.CountAsync();
+
+
+        if (filter.Page < 1)
+        {
+            filter.Page = 1;
+        }
+
+
+        int totalPages =
+            (int)Math.Ceiling(
+                (double)totalCount /
+                filter.PageSize);
+
+
+        if (totalPages > 0 &&
+            filter.Page > totalPages)
+        {
+            filter.Page = totalPages;
+        }
+
+
+        List<AdminProjectRowViewModel> projects =
+            await query
+                .Skip(
+                    (filter.Page - 1) *
+                    filter.PageSize)
+                .Take(filter.PageSize)
+                .Select(project =>
+                    new AdminProjectRowViewModel
+                    {
+                        Id = project.Id,
+
+                        Name = project.Name,
+
+                        Description =
+                            project.Description,
+
+                        OwnerEmail =
+                            project.User != null
+                                ? project.User.Email ?? ""
+                                : "Unknown",
+
+                        TaskCount =
+                            project.Tasks.Count,
+
+                        CreatedAt =
+                            project.CreatedAt
+                    })
+                .ToListAsync();
+
+
+        return new PagedResult<AdminProjectRowViewModel>
+        {
+            Items = projects,
+            TotalCount = totalCount,
+            Page = filter.Page,
+            PageSize = filter.PageSize
+        };
+    }
+    public async Task<bool> DeleteProjectAsync(
+    int id)
+    {
+        Project? project =
+            await _context.Project
+                .FirstOrDefaultAsync(
+                    project =>
+                        project.Id == id);
+
+        if (project == null)
+        {
+            return false;
+        }
+
+
+        _context.Project.Remove(project);
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+    public async Task<int> DeleteProjectsAsync(
+    IEnumerable<int> ids)
+    {
+        List<int> projectIds =
+            ids
+                .Distinct()
+                .ToList();
+
+
+        if (projectIds.Count == 0)
+        {
+            return 0;
+        }
+
+
+        List<Project> projects =
+            await _context.Project
+                .Where(project =>
+                    projectIds.Contains(project.Id))
+                .ToListAsync();
+
+
+        if (projects.Count == 0)
+        {
+            return 0;
+        }
+
+
+        _context.Project.RemoveRange(
+            projects);
+
+        await _context.SaveChangesAsync();
+
+        return projects.Count;
+    }
+
+
+    public async Task<PagedResult<AdminCategoryRowViewModel>>
+    GetCategoriesAsync(
+        AdminCategoryFilter filter)
+    {
+        IQueryable<Category> query =
+            _context.Categories
+                .Include(category =>
+                    category.User)
+                .AsNoTracking();
+
+
+        if (!string.IsNullOrWhiteSpace(
+                filter.Search))
+        {
+            string search =
+                filter.Search.Trim();
+
+            query = query.Where(category =>
+                category.Name.Contains(search) ||
+                (
+                    category.User != null &&
+                    category.User.Email != null &&
+                    category.User.Email.Contains(search)
+                ));
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(
+                filter.OwnerId))
+        {
+            query = query.Where(category =>
+                category.UserId ==
+                filter.OwnerId);
+        }
+
+
+        query = filter.SortBy switch
+        {
+            "nameDesc" =>
+                query.OrderByDescending(
+                    category =>
+                        category.Name),
+
+            _ =>
+                query.OrderBy(
+                    category =>
+                        category.Name)
+        };
+
+
+        int totalCount =
+            await query.CountAsync();
+
+
+        if (filter.Page < 1)
+        {
+            filter.Page = 1;
+        }
+
+
+        int totalPages =
+            (int)Math.Ceiling(
+                (double)totalCount /
+                filter.PageSize);
+
+
+        if (totalPages > 0 &&
+            filter.Page > totalPages)
+        {
+            filter.Page = totalPages;
+        }
+
+
+        List<AdminCategoryRowViewModel> categories =
+            await query
+                .Skip(
+                    (filter.Page - 1) *
+                    filter.PageSize)
+                .Take(filter.PageSize)
+                .Select(category =>
+                    new AdminCategoryRowViewModel
+                    {
+                        Id =
+                            category.Id,
+
+                        Name =
+                            category.Name,
+
+                        OwnerEmail =
+                            category.User != null
+                                ? category.User.Email ?? ""
+                                : "Unknown",
+
+                        TaskCount =
+                            category.Tasks.Count
+                    })
+                .ToListAsync();
+
+
+        return new PagedResult<AdminCategoryRowViewModel>
+        {
+            Items = categories,
+            TotalCount = totalCount,
+            Page = filter.Page,
+            PageSize = filter.PageSize
+        };
+    }
+
+    public async Task<bool> DeleteCategoryAsync(
+    int id)
+    {
+        Category? category =
+            await _context.Categories
+                .FirstOrDefaultAsync(
+                    category =>
+                        category.Id == id);
+
+        if (category == null)
+        {
+            return false;
+        }
+
+
+        bool hasTasks =
+            await _context.Tasks
+                .AnyAsync(task =>
+                    task.CategoryId == id);
+
+        if (hasTasks)
+        {
+            return false;
+        }
+
+
+        _context.Categories.Remove(
+            category);
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+    public async Task<AdminBulkDeleteResult>
+    DeleteCategoriesAsync(
+        IEnumerable<int> ids)
+    {
+        List<int> categoryIds =
+            ids
+                .Distinct()
+                .ToList();
+
+
+        if (categoryIds.Count == 0)
+        {
+            return new AdminBulkDeleteResult();
+        }
+
+
+        List<Category> categories =
+            await _context.Categories
+                .Where(category =>
+                    categoryIds.Contains(
+                        category.Id))
+                .ToListAsync();
+
+
+        List<int> categoriesWithTasks =
+            await _context.Tasks
+                .Where(task =>
+                    categoryIds.Contains(
+                        task.CategoryId))
+                .Select(task =>
+                    task.CategoryId)
+                .Distinct()
+                .ToListAsync();
+
+
+        List<Category> deletable =
+            categories
+                .Where(category =>
+                    !categoriesWithTasks.Contains(
+                        category.Id))
+                .ToList();
+
+
+        _context.Categories.RemoveRange(
+            deletable);
+
+        await _context.SaveChangesAsync();
+
+
+        return new AdminBulkDeleteResult
+        {
+            DeletedCount =
+                deletable.Count,
+
+            SkippedCount =
+                categories.Count -
+                deletable.Count
+        };
+    }
 }

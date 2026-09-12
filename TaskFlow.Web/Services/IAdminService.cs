@@ -26,4 +26,22 @@ public interface IAdminService
     Task<bool> DeleteTaskAsync(int id);
 
     Task<int> DeleteTasksAsync(IEnumerable<int> ids);
+
+
+    Task<PagedResult<AdminProjectRowViewModel>>
+    GetProjectsAsync(AdminProjectFilter filter);
+
+    Task<bool> DeleteProjectAsync(int id);
+
+    Task<int> DeleteProjectsAsync(
+        IEnumerable<int> ids);
+
+
+    Task<PagedResult<AdminCategoryRowViewModel>>
+        GetCategoriesAsync(AdminCategoryFilter filter);
+
+    Task<bool> DeleteCategoryAsync(int id);
+
+    Task<AdminBulkDeleteResult> DeleteCategoriesAsync(
+        IEnumerable<int> ids);
 }
