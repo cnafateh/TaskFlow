@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace TaskFlow.Web.Filters;
@@ -13,6 +14,7 @@ public class ActionLoggingFilter : IAsyncActionFilter
         _logger = logger;
     }
 
+
     public async Task OnActionExecutionAsync(
         ActionExecutingContext context,
         ActionExecutionDelegate next)
@@ -25,20 +27,26 @@ public class ActionLoggingFilter : IAsyncActionFilter
             context.RouteData.Values["action"]?
                 .ToString() ?? "Unknown";
 
-        string userName =
-            context.HttpContext.User.Identity?.Name
+        string userId =
+            context.HttpContext.User
+                .FindFirstValue(
+                    ClaimTypes.NameIdentifier)
             ?? "Anonymous";
+
+        string traceId =
+            context.HttpContext.TraceIdentifier;
 
 
         Stopwatch stopwatch =
             Stopwatch.StartNew();
 
 
-        _logger.LogInformation(
-            "Starting {Controller}.{Action} by {User}",
+        _logger.LogDebug(
+            "Starting {Controller}.{Action} by user {UserId}. TraceId: {TraceId}",
             controllerName,
             actionName,
-            userName);
+            userId,
+            traceId);
 
 
         ActionExecutedContext executedContext =
@@ -52,21 +60,24 @@ public class ActionLoggingFilter : IAsyncActionFilter
             executedContext.ExceptionHandled)
         {
             _logger.LogInformation(
-                "Completed {Controller}.{Action} by {User} in {ElapsedMilliseconds} ms",
+                "Completed {Controller}.{Action} by user {UserId} in {ElapsedMilliseconds} ms with status {StatusCode}. TraceId: {TraceId}",
                 controllerName,
                 actionName,
-                userName,
-                stopwatch.ElapsedMilliseconds);
+                userId,
+                stopwatch.ElapsedMilliseconds,
+                context.HttpContext.Response.StatusCode,
+                traceId);
         }
         else
         {
             _logger.LogError(
                 executedContext.Exception,
-                "Failed {Controller}.{Action} by {User} after {ElapsedMilliseconds} ms",
+                "Failed {Controller}.{Action} by user {UserId} after {ElapsedMilliseconds} ms. TraceId: {TraceId}",
                 controllerName,
                 actionName,
-                userName,
-                stopwatch.ElapsedMilliseconds);
+                userId,
+                stopwatch.ElapsedMilliseconds,
+                traceId);
         }
     }
 }

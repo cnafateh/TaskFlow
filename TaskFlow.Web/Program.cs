@@ -10,7 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // MVC + Razor Pages
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.AddService<ActionLoggingFilter>();
+});
 builder.Services.AddRazorPages();
 
 
