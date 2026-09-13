@@ -7,7 +7,8 @@ public interface IAdminService
 {
     Task<AdminDashboardViewModel> GetDashboardAsync();
 
-    Task<List<AdminUserViewModel>> GetUsersAsync();
+    Task<PagedResult<AdminUserViewModel>> GetUsersAsync(
+        AdminUserFilter filter);
 
     Task<string?> UpdateUserRoleAsync(
         string userId,
@@ -24,6 +25,9 @@ public interface IAdminService
     Task<List<Category>> GetAllCategoriesAsync();
 
     Task<bool> DeleteTaskAsync(int id);
+    Task<int> UpdateTasksStatusAsync(
+        IEnumerable<int> ids,
+        TaskFlow.Web.Models.Enums.TaskStatus status);
 
     Task<int> DeleteTasksAsync(IEnumerable<int> ids);
 

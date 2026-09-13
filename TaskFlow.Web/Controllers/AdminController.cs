@@ -29,12 +29,42 @@ public class AdminController : Controller
     }
 
 
-    public async Task<IActionResult> Users()
+    [HttpGet]
+    public async Task<IActionResult> Users(
+    string? search,
+    string? role,
+    string? sortBy,
+    int page = 1)
     {
-        List<AdminUserViewModel> users =
-            await _adminService.GetUsersAsync();
+        AdminUserFilter filter =
+            new()
+            {
+                Search = search,
+                Role = role,
+                SortBy = sortBy,
+                Page = page,
+                PageSize = 10
+            };
 
-        return View(users);
+
+        PagedResult<AdminUserViewModel> result =
+            await _adminService.GetUsersAsync(filter);
+
+
+        AdminUserIndexViewModel model =
+            new()
+            {
+                Users = result.Items,
+                Search = search,
+                Role = role,
+                SortBy = sortBy,
+                Page = result.Page,
+                TotalPages = result.TotalPages,
+                TotalCount = result.TotalCount
+            };
+
+
+        return View(model);
     }
 
 
@@ -184,6 +214,96 @@ public class AdminController : Controller
 
         TempData["SuccessMessage"] =
             $"{deletedCount} task(s) deleted successfully.";
+
+        return RedirectToAction(
+            nameof(Tasks));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BulkTaskAction(
+    string? bulkAction,
+    List<int>? selectedTaskIds)
+    {
+        if (selectedTaskIds == null ||
+            selectedTaskIds.Count == 0)
+        {
+            TempData["ErrorMessage"] =
+                "Select at least one task.";
+
+            return RedirectToAction(
+                nameof(Tasks));
+        }
+
+
+        int affectedCount;
+
+
+        switch (bulkAction)
+        {
+            case "todo":
+
+                affectedCount =
+                    await _adminService
+                        .UpdateTasksStatusAsync(
+                            selectedTaskIds,
+                            Models.Enums.TaskStatus.Todo);
+
+                TempData["SuccessMessage"] =
+                    $"{affectedCount} task(s) marked as Todo.";
+
+                break;
+
+
+            case "inProgress":
+
+                affectedCount =
+                    await _adminService
+                        .UpdateTasksStatusAsync(
+                            selectedTaskIds,
+                            Models.Enums.TaskStatus.InProgress);
+
+                TempData["SuccessMessage"] =
+                    $"{affectedCount} task(s) marked as In Progress.";
+
+                break;
+
+
+            case "done":
+
+                affectedCount =
+                    await _adminService
+                        .UpdateTasksStatusAsync(
+                            selectedTaskIds,
+                            Models.Enums.TaskStatus.Done);
+
+                TempData["SuccessMessage"] =
+                    $"{affectedCount} task(s) marked as Done.";
+
+                break;
+
+
+            case "delete":
+
+                affectedCount =
+                    await _adminService
+                        .DeleteTasksAsync(
+                            selectedTaskIds);
+
+                TempData["SuccessMessage"] =
+                    $"{affectedCount} task(s) deleted.";
+
+                break;
+
+
+            default:
+
+                TempData["ErrorMessage"] =
+                    "Select a valid bulk action.";
+
+                break;
+        }
+
 
         return RedirectToAction(
             nameof(Tasks));

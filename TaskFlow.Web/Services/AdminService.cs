@@ -50,33 +50,164 @@ public class AdminService : IAdminService
     }
 
 
-    public async Task<List<AdminUserViewModel>> GetUsersAsync()
+    public async Task<PagedResult<AdminUserViewModel>> GetUsersAsync(
+    AdminUserFilter filter)
     {
-        List<ApplicationUser> users =
-            await _userManager.Users
-                .AsNoTracking()
-                .ToListAsync();
+        int page =
+            filter.Page < 1
+                ? 1
+                : filter.Page;
 
-        List<AdminUserViewModel> result = new();
+        int pageSize =
+            filter.PageSize < 1
+                ? 10
+                : filter.PageSize;
 
-        foreach (ApplicationUser user in users)
+
+        IQueryable<ApplicationUser> query =
+            _context.Users
+                .AsNoTracking();
+
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
         {
-            bool isAdmin =
-                await _userManager.IsInRoleAsync(
-                    user,
-                    "Admin");
+            string search =
+                filter.Search.Trim();
 
-            result.Add(new AdminUserViewModel
-            {
-                Id = user.Id,
-                Email = user.Email ?? "",
-                Role = isAdmin
-                    ? "Admin"
-                    : "User"
-            });
+            query = query.Where(user =>
+                (user.Email != null &&
+                 user.Email.Contains(search)) ||
+                (user.UserName != null &&
+                 user.UserName.Contains(search)));
         }
 
-        return result;
+
+        if (!string.IsNullOrWhiteSpace(filter.Role) &&
+            (filter.Role == "Admin" ||
+             filter.Role == "User"))
+        {
+            string selectedRole =
+                filter.Role;
+
+            string? roleId =
+                await _context.Roles
+                    .Where(role =>
+                        role.Name == selectedRole)
+                    .Select(role => role.Id)
+                    .FirstOrDefaultAsync();
+
+            if (roleId != null)
+            {
+                query = query.Where(user =>
+                    _context.UserRoles.Any(userRole =>
+                        userRole.UserId == user.Id &&
+                        userRole.RoleId == roleId));
+            }
+        }
+
+
+        query = filter.SortBy switch
+        {
+            "emailDesc" =>
+                query.OrderByDescending(
+                    user => user.Email),
+
+            _ =>
+                query.OrderBy(
+                    user => user.Email)
+        };
+
+
+        int totalCount =
+            await query.CountAsync();
+
+
+        int totalPages =
+            (int)Math.Ceiling(
+                (double)totalCount / pageSize);
+
+
+        if (totalPages > 0 &&
+            page > totalPages)
+        {
+            page = totalPages;
+        }
+
+
+        List<ApplicationUser> users =
+            await query
+                .Skip(
+                    (page - 1) *
+                    pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+
+        List<string> userIds =
+            users
+                .Select(user => user.Id)
+                .ToList();
+
+
+        var roleRows =
+            await (
+                from userRole in _context.UserRoles
+                join role in _context.Roles
+                    on userRole.RoleId equals role.Id
+                where userIds.Contains(
+                    userRole.UserId)
+                select new
+                {
+                    userRole.UserId,
+                    RoleName = role.Name
+                }
+            )
+            .ToListAsync();
+
+
+        Dictionary<string, string> roleMap =
+            roleRows
+                .GroupBy(row =>
+                    row.UserId)
+                .ToDictionary(
+                    group => group.Key,
+                    group =>
+                        group
+                            .Select(row =>
+                                row.RoleName)
+                            .FirstOrDefault()
+                        ?? "User");
+
+
+        List<AdminUserViewModel> items =
+            users
+                .Select(user =>
+                    new AdminUserViewModel
+                    {
+                        Id = user.Id,
+
+                        Email =
+                            user.Email ??
+                            user.UserName ??
+                            "Unknown",
+
+                        Role =
+                            roleMap.TryGetValue(
+                                user.Id,
+                                out string? role)
+                                ? role
+                                : "User"
+                    })
+                .ToList();
+
+
+        return new PagedResult<AdminUserViewModel>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 
 
@@ -372,6 +503,51 @@ public class AdminService : IAdminService
 
 
         _context.Tasks.RemoveRange(tasks);
+
+        await _context.SaveChangesAsync();
+
+        return tasks.Count;
+    }
+
+    public async Task<int> UpdateTasksStatusAsync(
+    IEnumerable<int> ids,
+    Models.Enums.TaskStatus status)
+    {
+        List<int> taskIds =
+            ids
+                .Distinct()
+                .ToList();
+
+
+        if (taskIds.Count == 0)
+        {
+            return 0;
+        }
+
+
+        List<TaskItem> tasks =
+            await _context.Tasks
+                .Where(task =>
+                    taskIds.Contains(task.Id))
+                .ToListAsync();
+
+
+        if (tasks.Count == 0)
+        {
+            return 0;
+        }
+
+
+        DateTime updatedAt =
+            DateTime.UtcNow;
+
+
+        foreach (TaskItem task in tasks)
+        {
+            task.Status = status;
+            task.UpdatedAt = updatedAt;
+        }
+
 
         await _context.SaveChangesAsync();
 

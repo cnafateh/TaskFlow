@@ -49,7 +49,7 @@
                          viewBox="0 0 24 24"
                          fill="none"
                          stroke="currentColor"
-                         stroke-width="2">
+                         stroke-width="1.8">
 
                         <circle cx="11"
                                 cy="11"
@@ -264,18 +264,48 @@
 
         <div class="admin-data-toolbar-right">
 
-            <form id="bulkDeleteForm"
+            <form id="bulkTaskActionForm"
                   asp-controller="Admin"
-                  asp-action="BulkDeleteTasks"
+                  asp-action="BulkTaskAction"
                   method="post"
-                  onsubmit="return confirm('Delete all selected tasks?');">
+                  class="d-flex align-items-center gap-2">
 
-                <button id="bulkDeleteButton"
+                <div id="bulkTaskSelectedIds">
+                </div>
+
+                <select id="bulkTaskActionSelect"
+                        name="bulkAction"
+                        class="form-select form-select-sm"
+                        style="width: 180px;">
+
+                    <option value="">
+                        Select action
+                    </option>
+
+                    <option value="todo">
+                        Mark as Todo
+                    </option>
+
+                    <option value="inProgress">
+                        Mark as In Progress
+                    </option>
+
+                    <option value="done">
+                        Mark as Done
+                    </option>
+
+                    <option value="delete">
+                        Delete
+                    </option>
+
+                </select>
+
+                <button id="bulkTaskActionButton"
                         type="submit"
-                        class="btn btn-sm btn-outline-danger admin-bulk-button"
+                        class="btn btn-sm btn-outline-secondary"
                         disabled>
 
-                    Delete selected
+                    Apply
 
                 </button>
 
@@ -323,12 +353,29 @@
 
                         </th>
 
-                        <th>Task</th>
-                        <th>Owner</th>
-                        <th>Project</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Due</th>
+                        <th>
+                            Task
+                        </th>
+
+                        <th>
+                            Owner
+                        </th>
+
+                        <th>
+                            Project
+                        </th>
+
+                        <th>
+                            Priority
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Due
+                        </th>
 
                         <th class="text-end">
                             Actions
@@ -341,170 +388,166 @@
 
                 <tbody>
 
-                @foreach (var task in Model.Tasks)
-                {
-                    <tr>
+                    @foreach (var task in Model.Tasks)
+                    {
+                        <tr>
 
-                        <td>
+                            <td>
 
-                            <input type="checkbox"
-                                   name="selectedTaskIds"
-                                   value="@task.Id"
-                                   form="bulkDeleteForm"
-                                   class="form-check-input task-checkbox"
-                                   aria-label="Select @task.Title" />
+                                <input type="checkbox"
+                                       value="@task.Id"
+                                       class="form-check-input task-checkbox"
+                                       aria-label="Select @task.Title" />
 
-                        </td>
+                            </td>
 
 
-                        <td>
+                            <td>
 
-                            <div class="admin-table-title">
-                                @task.Title
-                            </div>
-
-                            @if (!string.IsNullOrWhiteSpace(task.Description))
-                            {
-                                <div class="admin-table-subtitle">
-                                    @task.Description
-                                </div>
-                            }
-
-                            @if (task.Category != null)
-                            {
-                                <div class="admin-table-muted mt-1">
-                                    @task.Category.Name
-                                </div>
-                            }
-
-                        </td>
-
-
-                        <td>
-
-                            <div class="admin-user-cell">
-
-                                <div class="admin-user-avatar">
-
-                                    @{
-                                        string ownerEmail =
-                                            task.Project?.User?.Email
-                                            ?? "?";
-
-                                        string ownerInitial =
-                                            ownerEmail.Length > 0
-                                                ? ownerEmail[..1].ToUpper()
-                                                : "?";
-                                    }
-
-                                    @ownerInitial
-
+                                <div class="admin-table-title">
+                                    @task.Title
                                 </div>
 
-                                <span class="admin-user-email">
-                                    @ownerEmail
+                                @if (!string.IsNullOrWhiteSpace(task.Description))
+                                {
+                                    <div class="admin-table-subtitle">
+                                        @task.Description
+                                    </div>
+                                }
+
+                                @if (task.Category != null)
+                                {
+                                    <div class="admin-table-muted mt-1">
+                                        @task.Category.Name
+                                    </div>
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                @{
+                                    string ownerEmail =
+                                        task.Project?.User?.Email
+                                        ?? "?";
+
+                                    string ownerInitial =
+                                        ownerEmail.Length > 0
+                                            ? ownerEmail[..1].ToUpper()
+                                            : "?";
+                                }
+
+                                <div class="admin-user-cell">
+
+                                    <div class="admin-user-avatar">
+                                        @ownerInitial
+                                    </div>
+
+                                    <span class="admin-user-email">
+                                        @ownerEmail
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="admin-table-title">
+                                    @task.Project?.Name
                                 </span>
 
-                            </div>
-
-                        </td>
+                            </td>
 
 
-                        <td>
+                            <td>
 
-                            <span class="admin-table-title">
-                                @task.Project?.Name
-                            </span>
+                                @if (task.Priority ==
+                                    TaskFlow.Web.Models.Enums.TaskPriority.High)
+                                {
+                                    <span class="admin-badge admin-badge-danger">
+                                        High
+                                    </span>
+                                }
+                                else if (task.Priority ==
+                                         TaskFlow.Web.Models.Enums.TaskPriority.Medium)
+                                {
+                                    <span class="admin-badge admin-badge-warning">
+                                        Medium
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="admin-badge admin-badge-neutral">
+                                        Low
+                                    </span>
+                                }
 
-                        </td>
+                            </td>
 
 
-                        <td>
+                            <td>
 
-                            @if (task.Priority ==
-                                TaskFlow.Web.Models.Enums.TaskPriority.High)
-                            {
-                                <span class="admin-badge admin-badge-danger">
-                                    High
+                                @if (task.Status ==
+                                    TaskFlow.Web.Models.Enums.TaskStatus.Done)
+                                {
+                                    <span class="admin-badge admin-badge-success">
+                                        Done
+                                    </span>
+                                }
+                                else if (task.Status ==
+                                         TaskFlow.Web.Models.Enums.TaskStatus.InProgress)
+                                {
+                                    <span class="admin-badge admin-badge-primary">
+                                        In progress
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="admin-badge admin-badge-neutral">
+                                        Todo
+                                    </span>
+                                }
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="admin-table-muted">
+                                    @task.DueDate.ToString("MMM dd, yyyy")
                                 </span>
-                            }
-                            else if (task.Priority ==
-                                     TaskFlow.Web.Models.Enums.TaskPriority.Medium)
-                            {
-                                <span class="admin-badge admin-badge-warning">
-                                    Medium
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="admin-badge admin-badge-neutral">
-                                    Low
-                                </span>
-                            }
 
-                        </td>
+                            </td>
 
 
-                        <td>
+                            <td>
 
-                            @if (task.Status ==
-                                TaskFlow.Web.Models.Enums.TaskStatus.Done)
-                            {
-                                <span class="admin-badge admin-badge-success">
-                                    Done
-                                </span>
-                            }
-                            else if (task.Status ==
-                                     TaskFlow.Web.Models.Enums.TaskStatus.InProgress)
-                            {
-                                <span class="admin-badge admin-badge-primary">
-                                    In progress
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="admin-badge admin-badge-neutral">
-                                    Todo
-                                </span>
-                            }
+                                <div class="admin-table-actions">
 
-                        </td>
+                                    <form asp-controller="Admin"
+                                          asp-action="DeleteTask"
+                                          asp-route-id="@task.Id"
+                                          method="post"
+                                          onsubmit="return confirm('Delete this task?');">
 
+                                        <button type="submit"
+                                                class="admin-icon-button admin-icon-button-danger">
 
-                        <td>
+                                            Delete
 
-                            <span class="admin-table-muted">
-                                @task.DueDate.ToString("MMM dd, yyyy")
-                            </span>
+                                        </button>
 
-                        </td>
+                                    </form>
 
+                                </div>
 
-                        <td>
+                            </td>
 
-                            <div class="admin-table-actions">
-
-                                <form asp-controller="Admin"
-                                      asp-action="DeleteTask"
-                                      asp-route-id="@task.Id"
-                                      method="post"
-                                      onsubmit="return confirm('Delete this task?');">
-
-                                    <button type="submit"
-                                            class="admin-icon-button admin-icon-button-danger">
-
-                                        Delete
-
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-                }
+                        </tr>
+                    }
 
                 </tbody>
 
@@ -519,6 +562,7 @@
 
                 Page @Model.Page of
                 @(Model.TotalPages == 0 ? 1 : Model.TotalPages)
+
                 · @Model.TotalCount total tasks
 
             </div>
@@ -551,11 +595,15 @@
                     }
 
 
-                    @for (int pageNumber = 1;
-                          pageNumber <= Model.TotalPages;
-                          pageNumber++)
+                    @for (
+                        int pageNumber = 1;
+                        pageNumber <= Model.TotalPages;
+                        pageNumber++)
                     {
-                        <li class="page-item @(pageNumber == Model.Page ? "active" : "")">
+                        <li class="page-item
+                            @(pageNumber == Model.Page
+                                ? "active"
+                                : "")">
 
                             <a class="page-link"
                                asp-action="Tasks"
@@ -610,66 +658,99 @@
 @section Scripts
 {
     <script>
-        const selectAll =
-            document.getElementById("selectAllTasks");
+
+        const selectAllTasks =
+            document.getElementById(
+                "selectAllTasks");
 
         const taskCheckboxes =
-            document.querySelectorAll(".task-checkbox");
+            document.querySelectorAll(
+                ".task-checkbox");
 
-        const bulkButton =
-            document.getElementById("bulkDeleteButton");
+        const bulkActionSelect =
+            document.getElementById(
+                "bulkTaskActionSelect");
 
-        const selectionCount =
-            document.getElementById("taskSelectionCount");
+        const bulkActionButton =
+            document.getElementById(
+                "bulkTaskActionButton");
+
+        const bulkTaskActionForm =
+            document.getElementById(
+                "bulkTaskActionForm");
+
+        const selectedIdsContainer =
+            document.getElementById(
+                "bulkTaskSelectedIds");
+
+        const taskSelectionCount =
+            document.getElementById(
+                "taskSelectionCount");
+
+
+        function getCheckedTasks() {
+
+            return document.querySelectorAll(
+                ".task-checkbox:checked"
+            );
+
+        }
 
 
         function updateTaskSelection() {
 
-            const checked =
-                document.querySelectorAll(
-                    ".task-checkbox:checked"
-                ).length;
+            const checkedTasks =
+                getCheckedTasks();
 
-            if (selectionCount) {
+            const checkedCount =
+                checkedTasks.length;
 
-                selectionCount.textContent =
-                    checked === 0
+
+            if (taskSelectionCount) {
+
+                taskSelectionCount.textContent =
+                    checkedCount === 0
                         ? "No tasks selected"
-                        : `${checked} task${checked === 1 ? "" : "s"} selected`;
+                        : `${checkedCount} task${checkedCount === 1 ? "" : "s"} selected`;
 
             }
 
-            if (bulkButton) {
-                bulkButton.disabled =
-                    checked === 0;
+
+            if (bulkActionButton) {
+
+                bulkActionButton.disabled =
+                    checkedCount === 0 ||
+                    !bulkActionSelect?.value;
+
             }
 
-            if (selectAll) {
 
-                selectAll.checked =
+            if (selectAllTasks) {
+
+                selectAllTasks.checked =
                     taskCheckboxes.length > 0 &&
-                    checked === taskCheckboxes.length;
+                    checkedCount === taskCheckboxes.length;
 
-                selectAll.indeterminate =
-                    checked > 0 &&
-                    checked < taskCheckboxes.length;
+                selectAllTasks.indeterminate =
+                    checkedCount > 0 &&
+                    checkedCount < taskCheckboxes.length;
 
             }
 
         }
 
 
-        if (selectAll) {
+        if (selectAllTasks) {
 
-            selectAll.addEventListener(
+            selectAllTasks.addEventListener(
                 "change",
-                function () {
+                function() {
 
                     taskCheckboxes.forEach(
                         checkbox => {
 
                             checkbox.checked =
-                                selectAll.checked;
+                                selectAllTasks.checked;
 
                         });
 
@@ -690,6 +771,94 @@
             });
 
 
+        if (bulkActionSelect) {
+
+            bulkActionSelect.addEventListener(
+                "change",
+                updateTaskSelection);
+
+        }
+
+
+        if (bulkTaskActionForm) {
+
+            bulkTaskActionForm.addEventListener(
+                "submit",
+                function(event) {
+
+                    const checkedTasks =
+                        getCheckedTasks();
+
+
+                    if (checkedTasks.length === 0) {
+
+                        event.preventDefault();
+                        return;
+
+                    }
+
+
+                    if (!bulkActionSelect.value) {
+
+                        event.preventDefault();
+                        return;
+
+                    }
+
+
+                    if (
+                        bulkActionSelect.value ===
+                        "delete"
+                    ) {
+
+                        const confirmed =
+                            confirm(
+                                `Delete ${checkedTasks.length} selected task${checkedTasks.length === 1 ? "" : "s"}?`
+                            );
+
+                        if (!confirmed) {
+
+                            event.preventDefault();
+                            return;
+
+                        }
+
+                    }
+
+
+                    selectedIdsContainer.innerHTML =
+                        "";
+
+
+                    checkedTasks.forEach(
+                        checkbox => {
+
+                            const hiddenInput =
+                                document.createElement(
+                                    "input"
+                                );
+
+                            hiddenInput.type =
+                                "hidden";
+
+                            hiddenInput.name =
+                                "selectedTaskIds";
+
+                            hiddenInput.value =
+                                checkbox.value;
+
+                            selectedIdsContainer.appendChild(
+                                hiddenInput
+                            );
+
+                        });
+
+                });
+
+        }
+
+
         updateTaskSelection();
+
     </script>
 }

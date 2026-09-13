@@ -1,4 +1,4 @@
-﻿@model List<TaskFlow.Web.ViewModels.Admin.AdminUserViewModel>
+﻿@model TaskFlow.Web.ViewModels.Admin.AdminUserIndexViewModel
 
 @{
     ViewData["Title"] = "Users";
@@ -8,23 +8,138 @@
 
     <div class="admin-page-heading">
 
-        <div class="d-flex align-items-center flex-wrap">
+        <div class="d-flex align-items-center flex-wrap gap-2">
 
             <h1 class="admin-page-title">
                 Users
             </h1>
 
             <span class="admin-count">
-                @Model.Count
+                @Model.TotalCount
             </span>
 
         </div>
 
         <p class="admin-page-description">
-            Manage registered accounts and application access.
+            Search users, review their roles and manage administrative access.
         </p>
 
     </div>
+
+</div>
+
+
+<div class="admin-filter-panel">
+
+    <form asp-controller="Admin"
+          asp-action="Users"
+          method="get">
+
+        <div class="admin-filter-grid">
+
+            <div>
+
+                <label class="form-label">
+                    Search
+                </label>
+
+                <div class="admin-search-wrap">
+
+                    <svg class="admin-search-icon"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+
+                        <circle cx="11"
+                                cy="11"
+                                r="7">
+                        </circle>
+
+                        <path d="m20 20-3.5-3.5">
+                        </path>
+
+                    </svg>
+
+                    <input asp-for="Search"
+                           class="form-control admin-search-input"
+                           placeholder="Search by email..." />
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <label class="form-label">
+                    Role
+                </label>
+
+                <select asp-for="Role"
+                        class="form-select">
+
+                    <option value="">
+                        All roles
+                    </option>
+
+                    <option value="Admin">
+                        Admin
+                    </option>
+
+                    <option value="User">
+                        User
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div>
+
+                <label class="form-label">
+                    Sort
+                </label>
+
+                <select asp-for="SortBy"
+                        class="form-select">
+
+                    <option value="email">
+                        Email A–Z
+                    </option>
+
+                    <option value="emailDesc">
+                        Email Z–A
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="admin-filter-actions">
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    Apply filters
+
+                </button>
+
+                <a asp-controller="Admin"
+                   asp-action="Users"
+                   class="btn btn-outline-secondary">
+
+                    Reset
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
 
 </div>
 
@@ -35,16 +150,9 @@
 
         <div class="admin-data-toolbar-left">
 
-            <span class="admin-table-muted">
-                Registered accounts
-            </span>
-
-        </div>
-
-        <div class="admin-data-toolbar-right">
-
-            <span class="admin-table-muted">
-                @Model.Count total
+            <span class="admin-selected-count">
+                @Model.TotalCount
+                user@(Model.TotalCount == 1 ? "" : "s")
             </span>
 
         </div>
@@ -52,7 +160,7 @@
     </div>
 
 
-    @if (Model.Count == 0)
+    @if (Model.Users.Count == 0)
     {
         <div class="admin-empty">
 
@@ -65,7 +173,7 @@
             </div>
 
             <p class="admin-empty-text">
-                Registered users will appear here.
+                Try changing your search or role filter.
             </p>
 
         </div>
@@ -81,8 +189,8 @@
                     <tr>
                         <th>User</th>
                         <th>Role</th>
-                        <th style="width: 290px;">
-                            Access
+                        <th class="text-end">
+                            Role management
                         </th>
                     </tr>
 
@@ -91,12 +199,17 @@
 
                 <tbody>
 
-                    @foreach (var user in Model)
+                    @foreach (var user in Model.Users)
                     {
+                        string email =
+                            string.IsNullOrWhiteSpace(user.Email)
+                                ? "Unknown"
+                                : user.Email;
+
                         string initial =
-                            !string.IsNullOrWhiteSpace(user.Email)
-                                ? user.Email[..1].ToUpper()
-                                : "U";
+                            email.Length > 0
+                                ? email[..1].ToUpper()
+                                : "?";
 
                         <tr>
 
@@ -111,11 +224,11 @@
                                     <div>
 
                                         <div class="admin-user-email">
-                                            @user.Email
+                                            @email
                                         </div>
 
-                                        <div class="admin-table-muted">
-                                            Account
+                                        <div class="admin-table-subtitle">
+                                            TaskFlow account
                                         </div>
 
                                     </div>
@@ -130,13 +243,13 @@
                                 @if (user.Role == "Admin")
                                 {
                                     <span class="admin-badge admin-badge-admin">
-                                        Administrator
+                                        Admin
                                     </span>
                                 }
                                 else
                                 {
                                     <span class="admin-badge admin-badge-user">
-                                        Member
+                                        User
                                     </span>
                                 }
 
@@ -148,44 +261,43 @@
                                 <form asp-controller="Admin"
                                       asp-action="ChangeRole"
                                       method="post"
-                                      class="d-flex align-items-center gap-2">
+                                      class="d-flex justify-content-end align-items-center gap-2">
 
                                     <input type="hidden"
                                            name="userId"
                                            value="@user.Id" />
 
                                     <select name="role"
-                                            class="form-select form-select-sm">
+                                            class="form-select form-select-sm"
+                                            style="width: 125px;">
 
-                                        @if (user.Role == "User")
+                                        @if (user.Role == "Admin")
                                         {
-                                            <option value="User"
-                                                    selected>
-                                                User
+                                            <option value="Admin" selected>
+                                                Admin
                                             </option>
 
-                                            <option value="Admin">
-                                                Admin
+                                            <option value="User">
+                                                User
                                             </option>
                                         }
                                         else
                                         {
-                                            <option value="User">
-                                                User
+                                            <option value="Admin">
+                                                Admin
                                             </option>
 
-                                            <option value="Admin"
-                                                    selected>
-                                                Admin
+                                            <option value="User" selected>
+                                                User
                                             </option>
                                         }
 
                                     </select>
 
                                     <button type="submit"
-                                            class="btn btn-sm btn-outline-primary text-nowrap">
+                                            class="btn btn-sm btn-outline-secondary">
 
-                                        Update role
+                                        Update
 
                                     </button>
 
@@ -199,6 +311,93 @@
                 </tbody>
 
             </table>
+
+        </div>
+
+
+        <div class="admin-table-footer">
+
+            <div class="admin-pagination-info">
+
+                Page @Model.Page of
+                @(Model.TotalPages == 0 ? 1 : Model.TotalPages)
+
+                · @Model.TotalCount total users
+
+            </div>
+
+
+            @if (Model.TotalPages > 1)
+            {
+                <ul class="pagination">
+
+                    @if (Model.Page > 1)
+                    {
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-controller="Admin"
+                               asp-action="Users"
+                               asp-route-page="@(Model.Page - 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-role="@Model.Role"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                ‹
+
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @for (
+                        int pageNumber = 1;
+                        pageNumber <= Model.TotalPages;
+                        pageNumber++)
+                    {
+                        <li class="page-item
+                            @(pageNumber == Model.Page
+                                ? "active"
+                                : "")">
+
+                            <a class="page-link"
+                               asp-controller="Admin"
+                               asp-action="Users"
+                               asp-route-page="@pageNumber"
+                               asp-route-search="@Model.Search"
+                               asp-route-role="@Model.Role"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                @pageNumber
+
+                            </a>
+
+                        </li>
+                    }
+
+
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <li class="page-item">
+
+                            <a class="page-link"
+                               asp-controller="Admin"
+                               asp-action="Users"
+                               asp-route-page="@(Model.Page + 1)"
+                               asp-route-search="@Model.Search"
+                               asp-route-role="@Model.Role"
+                               asp-route-sortBy="@Model.SortBy">
+
+                                ›
+
+                            </a>
+
+                        </li>
+                    }
+
+                </ul>
+            }
 
         </div>
     }
