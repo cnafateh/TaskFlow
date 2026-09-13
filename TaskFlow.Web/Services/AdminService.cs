@@ -212,9 +212,9 @@ public class AdminService : IAdminService
 
 
     public async Task<string?> UpdateUserRoleAsync(
-        string userId,
-        string role,
-        string currentAdminId)
+    string userId,
+    string role,
+    string currentAdminId)
     {
         if (role != "Admin" &&
             role != "User")
@@ -238,10 +238,18 @@ public class AdminService : IAdminService
         }
 
 
+        IList<string> currentRoles =
+            await _userManager.GetRolesAsync(user);
+
+
+        if (currentRoles.Contains(role))
+        {
+            return null;
+        }
+
+
         bool isCurrentlyAdmin =
-            await _userManager.IsInRoleAsync(
-                user,
-                "Admin");
+            currentRoles.Contains("Admin");
 
 
         if (isCurrentlyAdmin &&
@@ -258,24 +266,6 @@ public class AdminService : IAdminService
         }
 
 
-        IList<string> currentRoles =
-            await _userManager.GetRolesAsync(user);
-
-
-        if (currentRoles.Count > 0)
-        {
-            IdentityResult removeResult =
-                await _userManager.RemoveFromRolesAsync(
-                    user,
-                    currentRoles);
-
-            if (!removeResult.Succeeded)
-            {
-                return "Could not remove the current role.";
-            }
-        }
-
-
         IdentityResult addResult =
             await _userManager.AddToRoleAsync(
                 user,
@@ -284,6 +274,35 @@ public class AdminService : IAdminService
         if (!addResult.Succeeded)
         {
             return "Could not assign the new role.";
+        }
+
+
+        List<string> rolesToRemove =
+            currentRoles
+                .Where(currentRole =>
+                    currentRole != role)
+                .ToList();
+
+
+        if (rolesToRemove.Count == 0)
+        {
+            return null;
+        }
+
+
+        IdentityResult removeResult =
+            await _userManager.RemoveFromRolesAsync(
+                user,
+                rolesToRemove);
+
+
+        if (!removeResult.Succeeded)
+        {
+            await _userManager.RemoveFromRoleAsync(
+                user,
+                role);
+
+            return "Could not complete the role change.";
         }
 
 

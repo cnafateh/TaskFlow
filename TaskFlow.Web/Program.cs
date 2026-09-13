@@ -82,7 +82,7 @@ using (var scope = app.Services.CreateScope())
 
     await IdentitySeeder.SeedRolesAsync(roleManager);
 
-    await IdentitySeeder.SeedAdminUserAsync(userManager);
+    await IdentitySeeder.SeedAdminUserAsync(userManager, builder.Configuration);
 }
 
 app.Run();
