@@ -480,3 +480,25 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Local Data Protection keys
+.keys/
+**/.keys/
+
+# Visual Studio
+.vs/
+
+# Build output
+**/bin/
+**/obj/

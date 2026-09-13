@@ -1,0 +1,37 @@
+services:
+
+  taskflow:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NUGET_SOURCE: ${NUGET_SOURCE:-https://package-mirror.liara.ir/repository/nuget/index.json}
+
+    image: taskflow:latest
+
+    container_name: taskflow
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+      ConnectionStrings__DefaultConnection: "Data Source=/app/data/taskflow.db"
+
+      DataProtection__KeysPath: "/app/keys"
+
+      SeedAdmin__Email: "${SEED_ADMIN_EMAIL}"
+      SeedAdmin__Password: "${SEED_ADMIN_PASSWORD}"
+
+    volumes:
+      - taskflow_data:/app/data
+      - taskflow_keys:/app/keys
+
+
+volumes:
+  taskflow_data:
+  taskflow_keys:

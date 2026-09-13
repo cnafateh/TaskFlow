@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
@@ -7,21 +8,28 @@ using TaskFlow.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+// MVC + Razor Pages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+
+// Application services
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services
-    .AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ActionLoggingFilter>();
 
+
+// Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString(
+            "DefaultConnection")));
 
+
+// Identity
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options =>
     {
@@ -30,22 +38,51 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.AccessDeniedPath = "/Home/AccessDenied";
+    options.AccessDeniedPath =
+        "/Home/AccessDenied";
 });
+
+
+// Persist Data Protection keys when a path
+// is supplied by the deployment environment.
+string? dataProtectionKeysPath =
+    builder.Configuration[
+        "DataProtection:KeysPath"];
+
+if (!string.IsNullOrWhiteSpace(
+        dataProtectionKeysPath))
+{
+    builder.Services
+        .AddDataProtection()
+        .PersistKeysToFileSystem(
+            new DirectoryInfo(
+                dataProtectionKeysPath))
+        .SetApplicationName("TaskFlow");
+}
+
+
+// Basic container / deployment health endpoint
+builder.Services.AddHealthChecks();
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+// Production exception handling
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler(
+        "/Home/Error");
+
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
+
 app.UseRouting();
 
 app.UseAuthentication();
@@ -60,29 +97,51 @@ app.UseStatusCodePagesWithReExecute(
 
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+        name: "default",
+        pattern:
+            "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.MapRazorPages();
 
-using (var scope = app.Services.CreateScope())
+app.MapHealthChecks("/health");
+
+
+// Database migration + Identity seed
+using (IServiceScope scope =
+       app.Services.CreateScope())
 {
     IServiceProvider services =
         scope.ServiceProvider;
 
 
+    AppDbContext dbContext =
+        services.GetRequiredService<
+            AppDbContext>();
+
+    await dbContext.Database
+        .MigrateAsync();
+
+
     RoleManager<IdentityRole> roleManager =
-        services.GetRequiredService<RoleManager<IdentityRole>>();
+        services.GetRequiredService<
+            RoleManager<IdentityRole>>();
 
 
     UserManager<ApplicationUser> userManager =
-        services.GetRequiredService<UserManager<ApplicationUser>>();
+        services.GetRequiredService<
+            UserManager<ApplicationUser>>();
 
 
-    await IdentitySeeder.SeedRolesAsync(roleManager);
+    await IdentitySeeder
+        .SeedRolesAsync(roleManager);
 
-    await IdentitySeeder.SeedAdminUserAsync(userManager, builder.Configuration);
+
+    await IdentitySeeder
+        .SeedAdminUserAsync(
+            userManager,
+            builder.Configuration);
 }
+
 
 app.Run();
