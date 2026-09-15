@@ -14,15 +14,6 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<List<TaskItem>> GetAllAsync()
-    {
-        return await _context.Tasks
-        .Include(task => task.Project)
-        .Include(task => task.Category)
-        .AsNoTracking()
-        .ToListAsync();
-    }
-
     public async Task<TaskItem?> GetByIdAsync(
     int id,
     string userId)
