@@ -26,9 +26,21 @@ builder.Services.AddScoped<ActionLoggingFilter>();
 
 
 // Database
+string? connectionString =
+    builder.Configuration
+        .GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        options.UseSqlite(connectionString);
+    }
+    else{ 
+        
+        options.UseNpgsql(connectionString);
+    }
+});
 
 
 // Identity
@@ -121,8 +133,16 @@ using (IServiceScope scope =
         services.GetRequiredService<
             AppDbContext>();
 
-    await dbContext.Database
-        .MigrateAsync();
+    if (app.Environment.IsDevelopment())
+    {
+        await dbContext.Database
+            .EnsureCreatedAsync();
+    }
+    else
+    {
+        await dbContext.Database
+            .MigrateAsync();
+    }
 
 
     RoleManager<IdentityRole> roleManager =
