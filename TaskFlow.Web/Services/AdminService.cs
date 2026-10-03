@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
 using TaskFlow.Web.Models;
-using TaskFlow.Web.Models.Enums;
+using TaskFlow.Domain.Enums;
 using TaskFlow.Web.ViewModels.Admin;
 
 namespace TaskFlow.Web.Services;
@@ -37,7 +37,7 @@ public class AdminService : IAdminService
 
         int completedTasks =
             await _context.Tasks.CountAsync(
-                task => task.Status == Models.Enums.TaskStatus.Done);
+                task => task.Status == TaskFlow.Domain.Enums.TaskStatus.Done);
 
         return new AdminDashboardViewModel
         {
@@ -530,7 +530,7 @@ public class AdminService : IAdminService
 
     public async Task<int> UpdateTasksStatusAsync(
     IEnumerable<int> ids,
-    Models.Enums.TaskStatus status)
+    TaskFlow.Domain.Enums.TaskStatus status)
     {
         List<int> taskIds =
             ids

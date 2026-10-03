@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TaskFlow.Web.Models.Enums;
+using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Web.Models;
 
@@ -33,8 +33,8 @@ public class TaskItem
     public TaskPriority Priority { get; set; }
     = TaskPriority.Medium;
 
-    public Enums.TaskStatus Status { get; set; }
-        = Enums.TaskStatus.Todo;
+    public TaskFlow.Domain.Enums.TaskStatus Status { get; set; }
+    = TaskFlow.Domain.Enums.TaskStatus.Todo;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

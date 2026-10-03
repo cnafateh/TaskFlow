@@ -379,7 +379,7 @@ public class TaskServiceTests
 
 
         data.TaskA.Status =
-            TaskFlow.Web.Models.Enums.TaskStatus.InProgress;
+            TaskFlow.Domain.Enums.TaskStatus.InProgress;
 
 
         TaskItem completedTask = new()
@@ -392,7 +392,7 @@ public class TaskServiceTests
             CategoryId = data.CategoryA.Id,
 
             Status =
-                TaskFlow.Web.Models.Enums.TaskStatus.Done
+                TaskFlow.Domain.Enums.TaskStatus.Done
         };
 
 

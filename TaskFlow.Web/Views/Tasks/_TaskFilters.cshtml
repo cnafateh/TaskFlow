@@ -97,7 +97,7 @@
                 </label>
 
                 <select asp-for="Status"
-                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskStatus>()"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Domain.Enums.TaskStatus>()"
                         class="form-select">
 
                     <option value="">
@@ -119,7 +119,7 @@
                 </label>
 
                 <select asp-for="Priority"
-                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Domain.Enums.TaskPriority>()"
                         class="form-select">
 
                     <option value="">

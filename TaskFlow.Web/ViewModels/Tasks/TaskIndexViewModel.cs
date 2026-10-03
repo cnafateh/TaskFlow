@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using TaskFlow.Web.Models;
-using TaskFlow.Web.Models.Enums;
+using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Web.ViewModels.Tasks;
 
@@ -17,7 +17,7 @@ public class TaskIndexViewModel
 
     public TaskPriority? Priority { get; set; }
 
-    public Models.Enums.TaskStatus? Status { get; set; }
+    public TaskFlow.Domain.Enums.TaskStatus? Status { get; set; }
 
     public string? SortBy { get; set; }
 

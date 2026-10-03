@@ -246,12 +246,12 @@ public class TaskService : ITaskService
         int inProgressTasks =
             await query.CountAsync(
                 task =>
-                    task.Status == Models.Enums.TaskStatus.InProgress);
+                    task.Status == TaskFlow.Domain.Enums.TaskStatus.InProgress);
 
         int completedTasks =
             await query.CountAsync(
                 task =>
-                    task.Status == Models.Enums.TaskStatus.Done);
+                    task.Status == TaskFlow.Domain.Enums.TaskStatus.Done);
 
         return new TaskSummaryViewModel
         {

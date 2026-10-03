@@ -51,14 +51,14 @@
                     mb-2">
 
                     @if (Model.Status ==
-                        TaskFlow.Web.Models.Enums.TaskStatus.Done)
+                        TaskFlow.Domain.Enums.TaskStatus.Done)
                     {
                         <span class="tf-pill tf-pill-success">
                             Done
                         </span>
                     }
                     else if (Model.Status ==
-                             TaskFlow.Web.Models.Enums.TaskStatus.InProgress)
+                             TaskFlow.Domain.Enums.TaskStatus.InProgress)
                     {
                         <span class="tf-pill tf-pill-primary">
                             In progress
@@ -73,14 +73,14 @@
 
 
                     @if (Model.Priority ==
-                        TaskFlow.Web.Models.Enums.TaskPriority.High)
+                        TaskFlow.Domain.Enums.TaskPriority.High)
                     {
                         <span class="tf-pill tf-pill-danger">
                             High priority
                         </span>
                     }
                     else if (Model.Priority ==
-                             TaskFlow.Web.Models.Enums.TaskPriority.Medium)
+                             TaskFlow.Domain.Enums.TaskPriority.Medium)
                     {
                         <span class="tf-pill tf-pill-warning">
                             Medium priority

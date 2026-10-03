@@ -247,7 +247,7 @@ public class AdminController : Controller
                     await _adminService
                         .UpdateTasksStatusAsync(
                             selectedTaskIds,
-                            Models.Enums.TaskStatus.Todo);
+                            TaskFlow.Domain.Enums.TaskStatus.Todo);
 
                 TempData["SuccessMessage"] =
                     $"{affectedCount} task(s) marked as Todo.";
@@ -261,7 +261,7 @@ public class AdminController : Controller
                     await _adminService
                         .UpdateTasksStatusAsync(
                             selectedTaskIds,
-                            Models.Enums.TaskStatus.InProgress);
+                            TaskFlow.Domain.Enums.TaskStatus.InProgress);
 
                 TempData["SuccessMessage"] =
                     $"{affectedCount} task(s) marked as In Progress.";
@@ -275,7 +275,7 @@ public class AdminController : Controller
                     await _adminService
                         .UpdateTasksStatusAsync(
                             selectedTaskIds,
-                            Models.Enums.TaskStatus.Done);
+                            TaskFlow.Domain.Enums.TaskStatus.Done);
 
                 TempData["SuccessMessage"] =
                     $"{affectedCount} task(s) marked as Done.";

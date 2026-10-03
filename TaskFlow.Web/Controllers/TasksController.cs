@@ -122,7 +122,7 @@ public class TasksController : Controller
             ProjectId = model.ProjectId,
             CategoryId = model.CategoryId,
             Priority = model.Priority,
-            Status = Models.Enums.TaskStatus.Todo
+            Status = TaskFlow.Domain.Enums.TaskStatus.Todo
         };
 
         string? userId = GetCurrentUserId();

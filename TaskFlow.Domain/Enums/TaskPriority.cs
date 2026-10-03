@@ -1,4 +1,4 @@
-﻿namespace TaskFlow.Web.Models.Enums;
+﻿namespace TaskFlow.Domain.Enums;
 
 public enum TaskPriority
 {

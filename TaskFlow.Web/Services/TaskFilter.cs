@@ -1,4 +1,4 @@
-﻿using TaskFlow.Web.Models.Enums;
+﻿using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Web.Services;
 
@@ -12,7 +12,7 @@ public class TaskFilter
 
     public TaskPriority? Priority { get; set; }
 
-    public Models.Enums.TaskStatus? Status { get; set; }
+    public TaskFlow.Domain.Enums.TaskStatus? Status { get; set; }
 
     public string? SortBy { get; set; }
 

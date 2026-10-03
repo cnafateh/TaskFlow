@@ -27,7 +27,7 @@ public interface IAdminService
     Task<bool> DeleteTaskAsync(int id);
     Task<int> UpdateTasksStatusAsync(
         IEnumerable<int> ids,
-        TaskFlow.Web.Models.Enums.TaskStatus status);
+        TaskFlow.Domain.Enums.TaskStatus status);
 
     Task<int> DeleteTasksAsync(IEnumerable<int> ids);
 

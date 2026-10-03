@@ -26,4 +26,8 @@
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TaskFlow.Domain\TaskFlow.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

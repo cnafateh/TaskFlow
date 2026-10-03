@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
-using TaskFlow.Web.Models.Enums;
+using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Web.ViewModels.Tasks
 {
@@ -38,6 +38,6 @@ namespace TaskFlow.Web.ViewModels.Tasks
 
         public TaskPriority Priority { get; set; }
 
-        public Models.Enums.TaskStatus Status { get; set; }
+        public TaskFlow.Domain.Enums.TaskStatus Status { get; set; }
     }
 }
