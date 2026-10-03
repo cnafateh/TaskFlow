@@ -1,8 +1,11 @@
+using TaskFlow.Application.Categories;
+using TaskFlow.Application.Projects;
+using TaskFlow.Application.Tasks;
+using TaskFlow.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Tests.Infrastructure;
 using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.Domain.Entities;
-using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Tasks;
 
 namespace TaskFlow.Tests.Services;
@@ -18,8 +21,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskItem? result =
@@ -42,8 +44,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskItem? result =
@@ -65,8 +66,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskItem task = new()
@@ -104,8 +104,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskItem task = new()
@@ -144,8 +143,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskItem update = new()
@@ -197,8 +195,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskItem update = new()
@@ -247,8 +244,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         bool result =
@@ -275,8 +271,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         bool result =
@@ -302,8 +297,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskItem task = new()
@@ -340,8 +334,7 @@ public class TaskServiceTests
         TestData data =
             await SeedDataAsync(database.Context);
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskFilter filter = new()
@@ -401,8 +394,7 @@ public class TaskServiceTests
         await database.Context.SaveChangesAsync();
 
 
-        TaskService service =
-            new(database.Context);
+        TaskService service = CreateService(database.Context);
 
 
         TaskSummary result =
@@ -415,6 +407,26 @@ public class TaskServiceTests
         Assert.Equal(1, result.CompletedTasks);
     }
 
+
+
+    private static TaskService CreateService(
+        AppDbContext context)
+    {
+        ITaskRepository taskRepository =
+            new TaskRepository(context);
+
+        IProjectRepository projectRepository =
+            new ProjectRepository(context);
+
+        ICategoryRepository categoryRepository =
+            new CategoryRepository(context);
+
+
+        return new TaskService(
+            taskRepository,
+            projectRepository,
+            categoryRepository);
+    }
 
     private static async Task<TestData> SeedDataAsync(
         AppDbContext context)

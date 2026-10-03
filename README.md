@@ -1,37 +1,40 @@
 # TaskFlow
 
-TaskFlow is a task and project management application built with ASP.NET Core MVC, Entity Framework Core, ASP.NET Core Identity, and Docker.
+TaskFlow is a task and project management application built with ASP.NET Core, Entity Framework Core, ASP.NET Core Identity, PostgreSQL, SQLite, Docker, and automated testing.
 
-The project was developed as a practical software engineering project with an emphasis on application architecture, authentication and authorization, per-user data ownership, automated testing, containerized deployment, and production-oriented development practices.
+The project is developed as a practical software engineering project with a strong focus on architecture, dependency management, authentication and authorization, ownership enforcement, automated testing, and production-oriented deployment.
 
-TaskFlow uses SQLite for lightweight local development and PostgreSQL in production.
+The MVC application is complete for the current scope. Its shared application and persistence layers have been separated in preparation for introducing a dedicated REST API without duplicating business logic.
 
 ## Features
 
 - User registration, login, logout, and account management
-- Per-user project ownership
-- Per-user category ownership
-- Task management with project and category assignment
+- ASP.NET Core Identity
+- `Admin` and `User` roles
+- Per-user Projects
+- Per-user Categories
+- Task creation, editing, deletion, and details
 - Task priority and status tracking
 - Search, filtering, sorting, and pagination
-- Role-based authorization with `Admin` and `User` roles
+- Task summary statistics
 - Administrative dashboard
-- Admin user management and role changes
+- Admin user and role management
 - Admin task management across all users
-- Bulk task status updates and bulk deletion
+- Bulk task actions
 - Admin project and category management
-- Ownership enforcement for user resources
-- Custom access denied, 404, and error pages
-- Structured application logging
-- Request trace identifiers for error correlation
+- Server-side ownership enforcement
+- Custom Access Denied, 404, and error pages
+- Structured request logging
+- Request trace identifiers
 - Health check endpoint
-- Automated integration tests
-- SQLite development database
-- PostgreSQL production database
-- Persistent ASP.NET Core Data Protection keys
+- Automated tests
+- SQLite for local development
+- PostgreSQL for production
+- EF Core migrations
 - Docker deployment
+- Persistent ASP.NET Core Data Protection keys
 - GitHub Actions CI
-- Automated Docker image publishing to GitHub Container Registry
+- GitHub Container Registry publishing
 
 ## Technology Stack
 
@@ -46,107 +49,294 @@ TaskFlow uses SQLite for lightweight local development and PostgreSQL in product
 - Npgsql
 - xUnit
 - Bootstrap
-- Custom CSS
-- Docker / Docker Compose
+- Docker
+- Docker Compose
 - GitHub Actions
 - GitHub Container Registry
 - Nginx Proxy Manager
 
-## Architecture
+# Architecture
 
-TaskFlow currently follows a service-oriented MVC architecture:
+TaskFlow uses separate projects for Domain, Application, Infrastructure, and MVC presentation concerns.
 
 ```text
-HTTP Request
-     ↓
-Controller
-     ↓
-Service Interface
-     ↓
-Service Implementation
-     ↓
-Entity Framework Core / AppDbContext
-     ↓
+TaskFlow.Domain
+TaskFlow.Application
+TaskFlow.Infrastructure
+TaskFlow.Web
+TaskFlow.Tests
+```
+
+The important dependency rule is:
+
+```text
+                    Domain
+                      ▲
+                      │
+                 Application
+                  ▲        ▲
+                  │        │
+                Web   Infrastructure
+```
+
+The arrows represent source-code dependencies.
+
+Inner application layers do not depend on outer technical implementation details.
+
+## Domain
+
+`TaskFlow.Domain` contains the core business concepts.
+
+Current examples:
+
+```text
+TaskItem
+Project
+Category
+TaskPriority
+TaskStatus
+```
+
+Domain does not depend on:
+
+- ASP.NET Core MVC
+- Entity Framework Core
+- ASP.NET Core Identity
+- PostgreSQL
+- SQLite
+- Infrastructure
+- Web
+
+## Application
+
+`TaskFlow.Application` contains reusable application behavior and contracts.
+
+Examples:
+
+```text
+ITaskService
+TaskService
+
+IProjectService
+ProjectService
+
+ICategoryService
+CategoryService
+```
+
+Persistence contracts also belong to Application:
+
+```text
+ITaskRepository
+IProjectRepository
+ICategoryRepository
+```
+
+Application additionally contains reusable models such as:
+
+```text
+TaskFilter
+TaskSummary
+PagedResult<T>
+```
+
+Application depends on Domain but does not depend on Infrastructure, EF Core, or MVC.
+
+## Infrastructure
+
+`TaskFlow.Infrastructure` contains technical implementation details.
+
+```text
+TaskFlow.Infrastructure
+│
+├── Identity
+│   ├── ApplicationUser
+│   └── IdentitySeeder
+│
+└── Persistence
+    ├── AppDbContext
+    ├── Migrations
+    └── Repositories
+        ├── TaskRepository
+        ├── ProjectRepository
+        └── CategoryRepository
+```
+
+Infrastructure implements repository contracts defined by Application.
+
+Example:
+
+```text
+Application
+└── ITaskRepository
+        ▲
+        │ implements
+Infrastructure
+└── TaskRepository
+```
+
+`TaskRepository` may use EF Core and `AppDbContext`.
+
+`TaskService` does not.
+
+## Web
+
+`TaskFlow.Web` is the MVC presentation layer and the current application entry point.
+
+It contains:
+
+- Controllers
+- Razor Views
+- MVC ViewModels
+- Filters
+- HTTP-specific behavior
+- TempData
+- request pipeline configuration
+- dependency injection registration
+- startup configuration
+
+`Program.cs` acts as the MVC composition root.
+
+The reusable Task, Project, and Category services no longer live in the Web project.
+
+## Request Flow
+
+The main reusable request flow is now:
+
+```text
+Browser
+   ↓
+MVC Controller
+   ↓
+Application Service
+   ↓
+Repository Interface
+   ↓
+Infrastructure Repository
+   ↓
+AppDbContext
+   ↓
+EF Core
+   ↓
 Database
 ```
 
-Controllers handle HTTP and presentation concerns while application operations are delegated to services.
-
-User-facing services enforce ownership rules before accessing or modifying data. Administrative cross-user operations are isolated through `AdminService`.
-
-The application currently uses the same domain and service model for its MVC application. The architecture is being prepared for a separate REST API while keeping business rules shared between both entry points.
-
-See [Architecture](docs/ARCHITECTURE.md) for more detail.
-
-## Database Strategy
-
-TaskFlow uses different database providers depending on the environment.
-
-### Development
+For example:
 
 ```text
-ASP.NET Core
-     ↓
-Entity Framework Core
-     ↓
+TasksController
+   ↓
+ITaskService
+   ↓
+TaskService
+   ↓
+ITaskRepository
+   ↓
+TaskRepository
+   ↓
+AppDbContext
+```
+
+`TaskService` can also use:
+
+```text
+IProjectRepository
+ICategoryRepository
+```
+
+when a Task use case needs Project or Category ownership validation.
+
+## Dependency Inversion
+
+Application defines the persistence capability it requires:
+
+```csharp
+public interface ITaskRepository
+{
+    // persistence operations required by Task use cases
+}
+```
+
+Infrastructure implements that contract:
+
+```csharp
+public class TaskRepository : ITaskRepository
+{
+    // EF Core implementation
+}
+```
+
+This means Application does not need to reference Infrastructure.
+
+The ASP.NET Core DI container connects abstractions to concrete implementations at runtime.
+
+## MVC and Future API
+
+The architecture is now prepared for another presentation layer:
+
+```text
+              MVC Controllers
+                    │
+                    ▼
+               Application
+                    ▲
+                    │
+               API Controllers
+```
+
+The future API will not duplicate Task, Project, or Category business/application logic.
+
+Both MVC and API entry points will use the same Application layer.
+
+See:
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Dependency Flow](docs/DEPENDENCY_FLOW.md)
+- [Application Flow](docs/APPLICATION_FLOW.md)
+
+# Database Strategy
+
+TaskFlow uses different database providers depending on environment.
+
+## Development
+
+```text
+Application
+   ↓
+EF Core
+   ↓
 SQLite
 ```
 
-SQLite provides a lightweight local development environment without requiring a database server.
+SQLite keeps local development lightweight.
 
-The development database is created from the current EF Core model.
-
-### Production
+## Production
 
 ```text
-ASP.NET Core
-     ↓
-Entity Framework Core
-     ↓
+Application
+   ↓
+EF Core
+   ↓
 Npgsql
-     ↓
+   ↓
 PostgreSQL
 ```
 
-Production uses PostgreSQL with EF Core migrations.
+Production schema changes are managed through EF Core migrations.
 
-The application applies pending migrations during startup.
-
-This allows development to remain lightweight while production uses a dedicated relational database server.
-
-## Application Flow
-
-A normal user can:
+Migrations live in:
 
 ```text
-Register / Login
-      ↓
-Create Project
-      ↓
-Create Category
-      ↓
-Create Task
-      ↓
-Search / Filter / Edit / Track
+TaskFlow.Infrastructure/Persistence/Migrations
 ```
 
-An administrator can additionally:
+Pending migrations are applied during production startup.
 
-```text
-Admin Dashboard
-      ↓
-Users / Tasks / Projects / Categories
-      ↓
-Filter / Review / Change Roles / Bulk Actions
-```
-
-See [Application Flow](docs/APPLICATION_FLOW.md).
-
-## Authentication and Authorization
+# Authentication and Authorization
 
 TaskFlow uses ASP.NET Core Identity.
 
-Available roles:
+Roles:
 
 ```text
 Admin
@@ -155,72 +345,74 @@ User
 
 Authentication determines who the current user is.
 
-Authorization and ownership rules determine which resources that user may access.
+Authorization determines which functionality the user may access.
 
-For normal users:
+Normal application resources additionally enforce ownership.
+
+Project ownership:
 
 ```text
 Project.UserId == CurrentUserId
 ```
 
+Category ownership:
+
 ```text
 Category.UserId == CurrentUserId
 ```
 
-Task ownership is derived from the owning Project:
+Task ownership is derived through the Project:
 
 ```text
 Task.Project.UserId == CurrentUserId
 ```
 
-Administrative operations use a separate privileged service layer for cross-user management.
+Ownership is enforced server-side.
 
-## Local Development
+# Local Development
 
-### Requirements
+## Requirements
 
 - .NET 10 SDK
 - Git
 
-Docker Desktop is optional for normal local development.
-
-### Restore
+## Restore
 
 ```bash
-dotnet restore
+dotnet restore ./TaskFlow.slnx
 ```
 
-### Build
+When the official NuGet source is unavailable:
 
 ```bash
-dotnet build
+dotnet restore ./TaskFlow.slnx \
+  --source https://package-mirror.liara.ir/repository/nuget/index.json \
+  --disable-parallel
 ```
 
-### Run
+## Build
+
+```bash
+dotnet build ./TaskFlow.slnx
+```
+
+## Test
+
+```bash
+dotnet test ./TaskFlow.Tests/TaskFlow.Tests.csproj
+```
+
+## Run
 
 ```bash
 dotnet run --project TaskFlow.Web
 ```
 
-The Development environment uses SQLite automatically.
+Local development uses SQLite.
 
-The local connection string is configured through:
+# Development Administrator
 
-```text
-appsettings.Development.json
-```
-
-with a connection similar to:
-
-```text
-Data Source=taskflow.db
-```
-
-## Development Administrator
-
-TaskFlow uses .NET User Secrets for local bootstrap administrator credentials.
-
-Set them with:
+Development bootstrap administrator credentials use .NET User Secrets.
 
 ```bash
 dotnet user-secrets set "SeedAdmin:Email" "admin@example.com" --project TaskFlow.Web
@@ -230,50 +422,46 @@ dotnet user-secrets set "SeedAdmin:Email" "admin@example.com" --project TaskFlow
 dotnet user-secrets set "SeedAdmin:Password" "your-strong-password" --project TaskFlow.Web
 ```
 
-User Secrets are stored outside the repository and should not be committed to source control.
+`Program.cs` reads the configuration values and passes the required values to `IdentitySeeder`.
 
-## Automated Tests
+The Infrastructure seeder does not need to know how configuration is stored.
 
-TaskFlow includes an independent xUnit test project:
+# Automated Tests
+
+Automated tests live in:
 
 ```text
 TaskFlow.Tests
 ```
 
-The current automated test suite covers important service behavior including:
+The current suite contains 16 automated tests.
 
-- Per-user task ownership
-- Preventing access to another user's tasks
+Current coverage includes:
+
+- per-user Task ownership
+- preventing access to another user's Tasks
 - Task creation ownership validation
 - Task update ownership validation
 - Task deletion ownership validation
 - Task filtering
 - Task summary behavior
-- Administrative role-management rules
-- Protection against changing the current administrator's own role
-- Protection against removing the last administrator
-- Administrative bulk task deletion
-- Category deletion rules
+- administrator role safeguards
+- prevention of administrator self-demotion
+- last-administrator protection
+- bulk administrative Task deletion
+- Category deletion behavior
 
-The service integration tests use an isolated SQLite in-memory database.
+Service integration tests use an isolated SQLite in-memory database.
 
-This allows each test to run against a real relational database implementation without modifying development or production data.
+The test environment exercises real EF Core relational behavior without modifying development or production data.
 
-Run the test suite with:
-
-```bash
-dotnet test
-```
-
-The current test suite contains 16 automated tests.
-
-## CI
+# CI
 
 Pull requests targeting `main` are validated using GitHub Actions.
 
-The CI pipeline performs:
-
 ```text
+Checkout
+   ↓
 Restore
    ↓
 Build
@@ -281,82 +469,61 @@ Build
 Automated Tests
 ```
 
-Changes should pass both compilation and automated tests before being merged into `main`.
+Changes are expected to pass compilation and tests before merge.
 
-## Docker
+# Docker and Production
 
-TaskFlow is distributed as a Docker image.
-
-The production application container:
-
-- Runs ASP.NET Core
-- Connects to PostgreSQL
-- Stores Data Protection keys in a persistent Docker volume
-- Runs behind a reverse proxy
-- Does not store application data inside the application container
-
-The production container architecture is:
+Production topology:
 
 ```text
 Internet
+   ↓
+HTTPS
    ↓
 Nginx Proxy Manager
    ↓
 proxy Docker network
    ↓
-TaskFlow
+TaskFlow container
    ↓
 database Docker network
    ↓
 PostgreSQL
 ```
 
-The application and PostgreSQL containers communicate through an internal Docker network.
+The TaskFlow application container is disposable.
 
-PostgreSQL does not need to be exposed directly to the public internet.
+Database data is owned by PostgreSQL.
 
-## Health Check
+ASP.NET Core Data Protection keys are stored in a persistent Docker volume.
 
-TaskFlow exposes a health endpoint:
+# Health Check
+
+TaskFlow exposes:
 
 ```text
 /health
 ```
 
-For example:
+This can be used by deployment and monitoring systems.
 
-```text
-https://your-domain.example/health
-```
+# Container Registry
 
-This endpoint can be used by deployment and monitoring systems to verify that the application is running.
+Pushes to `main` can publish the application image to GitHub Container Registry.
 
-## Container Registry
-
-Every push to `main` triggers the Docker publishing workflow:
-
-```text
-.github/workflows/docker-publish.yml
-```
-
-The workflow builds the application image and publishes it to GitHub Container Registry.
-
-The primary image is:
+Primary image:
 
 ```text
 ghcr.io/cnafateh/taskflow:latest
 ```
 
-Commit-specific image tags are also generated.
+# Production Configuration
 
-## Production Configuration
-
-Production configuration is supplied using environment variables rather than storing secrets in source control.
-
-Typical production configuration includes:
+Typical production configuration:
 
 ```env
 ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
 ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=taskflow;Username=taskflow_app;Password=<database-password>
 
@@ -366,92 +533,38 @@ SeedAdmin__Email=admin@example.com
 SeedAdmin__Password=<strong-bootstrap-password>
 ```
 
-When Docker Compose variable substitution is used, the database password can instead be supplied through:
+Secrets must not be committed to source control.
 
-```env
-TASKFLOW_DB_PASSWORD=<database-password>
-```
-
-Secrets must not be committed to the repository.
-
-For deployment details, see [Deployment](docs/DEPLOYMENT.md).
-
-## Production Database
-
-The production deployment uses PostgreSQL.
-
-A dedicated database and application role are used:
-
-```text
-Database
-└── taskflow
-
-Application Role
-└── taskflow_app
-```
-
-The application account is separate from the PostgreSQL administrative account.
-
-EF Core migrations are used to manage the production schema.
-
-## Logging and Error Handling
-
-TaskFlow uses ASP.NET Core structured logging.
-
-Application actions include information such as:
-
-- Controller
-- Action
-- User identifier
-- Execution duration
-- HTTP status
-- Request trace identifier
-
-Unexpected production errors are handled through the global ASP.NET Core exception handler.
-
-Users receive a generic error page while technical information remains in application logs.
-
-Sensitive values such as passwords, cookies, authentication tokens, and secrets are not intentionally logged.
-
-## Security
-
-TaskFlow currently includes:
-
-- ASP.NET Core Identity authentication
-- Role-based authorization
-- Server-side ownership enforcement
-- Anti-forgery validation for destructive MVC operations
-- Admin self-role-change protection
-- Last-administrator protection
-- Configuration-based bootstrap credentials
-- .NET User Secrets for development credentials
-- Environment-based production secrets
-- Non-root Docker runtime
-- Persistent Data Protection keys
-- Database user isolation
-- Internal Docker database networking
-
-See [Security](docs/SECURITY.md).
-
-## Repository Structure
-
-The current solution contains:
+# Repository Structure
 
 ```text
 TaskFlow
 │
+├── TaskFlow.Domain
+│   ├── Entities
+│   └── Enums
+│
+├── TaskFlow.Application
+│   ├── Common
+│   ├── Tasks
+│   ├── Projects
+│   └── Categories
+│
+├── TaskFlow.Infrastructure
+│   ├── Identity
+│   └── Persistence
+│       ├── Migrations
+│       └── Repositories
+│
 ├── TaskFlow.Web
 │   ├── Controllers
-│   ├── Data
 │   ├── Filters
-│   ├── Models
 │   ├── Services
 │   ├── ViewModels
-│   └── Views
+│   ├── Views
+│   └── Program.cs
 │
 ├── TaskFlow.Tests
-│   ├── Infrastructure
-│   └── Services
 │
 ├── docs
 │
@@ -460,57 +573,52 @@ TaskFlow
 └── TaskFlow.slnx
 ```
 
-The architecture will evolve as the REST API is introduced so that reusable application and persistence concerns can be shared between the MVC and API entry points.
+`TaskFlow.Web/Services` still contains MVC-specific services such as administrative functionality where extraction would not currently provide a useful shared application boundary.
 
-## Documentation
+# Architecture Status
 
-Additional documentation is available in:
+```text
+MVC application                        ✅
+Authentication                         ✅
+Authorization                          ✅
+Per-user ownership                     ✅
+Administrative workflows               ✅
+Automated tests                        ✅
+SQLite development                     ✅
+PostgreSQL production                  ✅
+Docker deployment                      ✅
+CI                                     ✅
+
+Domain project                         ✅
+Application project                    ✅
+Infrastructure project                 ✅
+Domain entities extracted              ✅
+Application service contracts          ✅
+Application service implementations    ✅
+Repository contracts                   ✅
+Repository implementations             ✅
+AppDbContext in Infrastructure         ✅
+Identity in Infrastructure             ✅
+EF migrations in Infrastructure        ✅
+Application independent of EF Core     ✅
+Application independent of Web         ✅
+Application independent of Infrastructure ✅
+
+REST API                               ⏳
+```
+
+The next major phase is the introduction of `TaskFlow.Api`.
+
+# Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Dependency Flow](docs/DEPENDENCY_FLOW.md)
 - [Application Flow](docs/APPLICATION_FLOW.md)
 - [Deployment](docs/DEPLOYMENT.md)
 - [Security](docs/SECURITY.md)
 
-## Project Status
+# License
 
-The MVC application is feature-complete for the current project scope and is deployed using Docker with PostgreSQL in production.
-
-Current capabilities include:
-
-```text
-MVC Application              ✅
-Authentication               ✅
-Authorization                ✅
-Per-user ownership           ✅
-Administrative workflows     ✅
-SQLite local development     ✅
-PostgreSQL production        ✅
-Automated tests              ✅
-CI                           ✅
-Docker deployment            ✅
-GHCR image publishing        ✅
-Production health endpoint   ✅
-```
-
-The next major development phase is the introduction of a REST API.
-
-Planned work includes:
-
-- Refactoring shared application concerns out of the MVC project
-- Introducing clearer dependency boundaries
-- Adding a dedicated `TaskFlow.Api` project
-- RESTful endpoints
-- API DTOs
-- API validation
-- HTTP status-code handling
-- Bearer/JWT authentication
-- API authorization and ownership enforcement
-- OpenAPI documentation
-- API integration tests
-- Independent API deployment
-
-## License
-
-This project is licensed under the MIT License.
+TaskFlow is licensed under the MIT License.
 
 See [LICENSE](LICENSE).

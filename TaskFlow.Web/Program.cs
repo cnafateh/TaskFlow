@@ -1,3 +1,7 @@
+using TaskFlow.Application.Categories;
+using TaskFlow.Application.Projects;
+using TaskFlow.Application.Tasks;
+using TaskFlow.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +22,9 @@ builder.Services.AddRazorPages();
 
 
 // Application services
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
