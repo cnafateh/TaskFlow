@@ -1,127 +1,285 @@
 # TaskFlow Security
 
-## Authentication
+## 1. Authentication
 
 TaskFlow uses ASP.NET Core Identity.
 
-Authentication cookies use ASP.NET Core Data Protection. Production Data Protection keys are persisted outside the container so authentication remains stable across container recreation.
+Authentication answers:
 
-## Authorization
+```text
+Who is the current user?
+```
 
-Administrative functionality is restricted to the `Admin` role.
+The MVC application currently uses cookie authentication.
 
-Normal user operations also enforce ownership. Authentication alone does not authorize a user to access another user's data.
+---
 
-## Ownership Rules
+## 2. Authorization
 
-### Project
+Authorization answers:
+
+```text
+What is the current user allowed to do?
+```
+
+Roles:
+
+```text
+Admin
+User
+```
+
+Administrative functionality requires the `Admin` role.
+
+Authentication by itself does not authorize access to another user's data.
+
+---
+
+## 3. Ownership Rules
+
+Project ownership:
 
 ```text
 Project.UserId == CurrentUserId
 ```
 
-### Category
+Category ownership:
 
 ```text
 Category.UserId == CurrentUserId
 ```
 
-### Task
+Task ownership:
 
 ```text
 Task.Project.UserId == CurrentUserId
 ```
 
-## Overposting Protection
+Task ownership is derived through the Project instead of storing a second Task-level ownership value.
 
-Ownership values are assigned or validated server-side.
+---
+
+## 4. Server-Side Ownership Enforcement
+
+Ownership must never be trusted from client input.
 
 For Task creation and editing:
 
-- submitted `ProjectId` must belong to the current user
-- submitted `CategoryId` must belong to the current user
-- ownership must not be taken from arbitrary form values
+```text
+submitted ProjectId
+      ↓
+server-side ownership validation
 
-## Administrative Operations
+submitted CategoryId
+      ↓
+server-side ownership validation
+```
 
-Admin operations intentionally bypass normal per-user restrictions but require the Admin role.
+A user must not be able to access another user's data by modifying route, query, or form identifiers.
 
-Bulk actions accept IDs as selectors only. The server queries the actual entities from the database before changing or deleting them.
+---
 
-## Role Management
+## 5. Application Service Enforcement
 
-Role changes include safeguards:
+Ownership-sensitive use cases are implemented in Application services.
 
-- allowed role values are explicitly validated
-- an administrator cannot change their own role
-- the final administrator cannot be downgraded
-- the target role is added before old roles are removed
-- failed transitions attempt rollback
+Example:
 
-## Anti-Forgery
+```text
+TaskService
+      ↓
+IProjectRepository
+      ↓
+Project belongs to current user?
 
-Destructive POST operations use ASP.NET Core anti-forgery validation.
+TaskService
+      ↓
+ICategoryRepository
+      ↓
+Category belongs to current user?
+```
 
-GET requests are not used for destructive state changes.
+This behavior can be shared by MVC and the future REST API.
 
-## Secrets
+---
 
-Development uses .NET User Secrets.
+## 6. Identity Boundary
 
-Production should use:
+`ApplicationUser` belongs to Infrastructure because it derives from:
 
-- container environment variables
-- deployment-platform secrets
-- a dedicated secret store
+```text
+IdentityUser
+```
 
-Expected bootstrap settings:
+That makes it dependent on ASP.NET Core Identity.
+
+Domain entities therefore do not depend directly on `ApplicationUser`.
+
+---
+
+## 7. Role Management
+
+Role-management safeguards include:
+
+- explicit validation of allowed role values
+- prevention of administrator self-demotion
+- protection against removing the final administrator
+- server-side role transitions
+
+---
+
+## 8. Bootstrap Administrator
+
+Startup can create or ensure a configured administrator account.
+
+The bootstrap process:
+
+- creates the account only when needed
+- ensures the Admin role
+- does not reset an existing password
+- receives credentials from application configuration
+- does not store credentials in source control
+
+`Program.cs` reads configuration and passes only the required values to the Infrastructure seeder.
+
+---
+
+## 9. Development Secrets
+
+Development uses:
+
+```text
+.NET User Secrets
+```
+
+Examples:
 
 ```text
 SeedAdmin:Email
 SeedAdmin:Password
 ```
 
-Environment variable equivalents:
+These values are stored outside the repository.
+
+---
+
+## 10. Production Secrets
+
+Production should use deployment/environment secrets.
+
+Examples:
 
 ```text
 SeedAdmin__Email
 SeedAdmin__Password
+TASKFLOW_DB_PASSWORD
 ```
 
-## Bootstrap Administrator
+Secrets must not be committed to Git.
 
-The seeder:
+---
 
-- creates the configured admin only when missing
-- ensures the Admin role
-- does not reset an existing password on startup
+## 11. Anti-Forgery
 
-The bootstrap password should therefore be treated as initial provisioning data.
+MVC state-changing form operations use ASP.NET Core anti-forgery validation.
 
-## Docker Runtime
+Destructive state changes should not be performed through GET requests.
 
-The application runs under the non-root .NET container user.
+---
 
-Persistent writable locations are:
+## 12. Database Security
+
+Production uses a dedicated PostgreSQL application role.
+
+The TaskFlow application should not use the PostgreSQL administrative account.
+
+Database traffic occurs through an internal Docker network.
+
+---
+
+## 13. Data Protection
+
+ASP.NET Core Data Protection keys are persisted outside the disposable application container.
+
+Production path:
 
 ```text
-/app/data
 /app/keys
 ```
 
-## Error Handling
+This keeps authentication cookies valid across normal container recreation.
 
-Production mode uses a generic error page. Stack traces and development exception details should not be exposed publicly.
+---
 
-## Remaining Security Work
+## 14. Error Handling
 
-Before treating TaskFlow as production-hardened, complete:
+Production uses generic user-facing error pages.
 
-- systematic ownership audit of controller actions
-- rate limiting review
-- password and lockout policy review
-- security-header review
-- automated authorization tests
-- dependency vulnerability scanning
-- backup and recovery testing
-- reverse-proxy HTTPS hardening
+Detailed technical information belongs in logs rather than responses.
+
+Trace identifiers allow errors to be correlated with logs.
+
+Sensitive data such as the following should not intentionally be logged:
+
+- passwords
+- cookies
+- bearer tokens
+- secrets
+- database credentials
+
+---
+
+## 15. Administrative Operations
+
+Administrative operations intentionally support cross-user access but require the Admin role.
+
+Bulk operations treat submitted IDs only as selectors.
+
+The server loads the matching entities before modification or deletion.
+
+---
+
+## 16. Dependency Security
+
+The project uses NuGet packages for framework and infrastructure functionality.
+
+Dependency vulnerability checks should remain part of project maintenance.
+
+A NuGet vulnerability metadata warning caused by temporary inability to reach `api.nuget.org` does not by itself indicate a package vulnerability, but dependency metadata should be rechecked when network access is available.
+
+---
+
+## 17. REST API Security Roadmap
+
+The future REST API phase requires decisions around:
+
+- bearer authentication
+- JWT/token strategy
+- API authorization
+- ownership enforcement
+- API DTO validation
+- HTTP error responses
+- CORS
+- rate limiting
+- security headers
+- OpenAPI exposure
+- authentication integration tests
+
+API security will reuse shared Application ownership rules instead of reimplementing them in controllers.
+
+---
+
+## 18. Remaining Hardening Work
+
+Before treating TaskFlow as fully production-hardened:
+
+- perform a complete authorization audit
+- expand automated authorization tests
+- review Identity password policies
+- review account lockout behavior
+- review rate limiting
+- review security headers
+- automate dependency scanning
+- test backup restoration
+- review reverse-proxy TLS configuration
+- test API security once the API is introduced

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Web.Controllers;
 

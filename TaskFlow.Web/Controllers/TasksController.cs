@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Tasks;
 
@@ -122,7 +122,7 @@ public class TasksController : Controller
             ProjectId = model.ProjectId,
             CategoryId = model.CategoryId,
             Priority = model.Priority,
-            Status = Models.Enums.TaskStatus.Todo
+            Status = TaskFlow.Domain.Enums.TaskStatus.Todo
         };
 
         string? userId = GetCurrentUserId();

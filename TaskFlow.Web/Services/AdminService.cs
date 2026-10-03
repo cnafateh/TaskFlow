@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Web.Data;
-using TaskFlow.Web.Models;
-using TaskFlow.Web.Models.Enums;
+using TaskFlow.Infrastructure.Persistence;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Enums;
 using TaskFlow.Web.ViewModels.Admin;
 
 namespace TaskFlow.Web.Services;
@@ -37,7 +37,7 @@ public class AdminService : IAdminService
 
         int completedTasks =
             await _context.Tasks.CountAsync(
-                task => task.Status == Models.Enums.TaskStatus.Done);
+                task => task.Status == TaskFlow.Domain.Enums.TaskStatus.Done);
 
         return new AdminDashboardViewModel
         {
@@ -315,7 +315,6 @@ public class AdminService : IAdminService
         IQueryable<TaskItem> query =
             _context.Tasks
                 .Include(task => task.Project)
-                    .ThenInclude(project => project.User)
                 .Include(task => task.Category)
                 .AsNoTracking();
 
@@ -329,11 +328,10 @@ public class AdminService : IAdminService
                 task.Description.Contains(search) ||
                 task.Project.Name.Contains(search) ||
                 task.Category.Name.Contains(search) ||
-                (
-                    task.Project.User != null &&
-                    task.Project.User.Email != null &&
-                    task.Project.User.Email.Contains(search)
-                ));
+                _context.Users.Any(user =>
+                    user.Id == task.Project.UserId &&
+                    user.Email != null &&
+                    user.Email.Contains(search)));
         }
 
 
@@ -453,7 +451,6 @@ public class AdminService : IAdminService
         GetAllProjectsAsync()
     {
         return await _context.Project
-            .Include(project => project.User)
             .AsNoTracking()
             .OrderBy(project => project.Name)
             .ToListAsync();
@@ -464,7 +461,6 @@ public class AdminService : IAdminService
         GetAllCategoriesAsync()
     {
         return await _context.Categories
-            .Include(category => category.User)
             .AsNoTracking()
             .OrderBy(category => category.Name)
             .ToListAsync();
@@ -530,7 +526,7 @@ public class AdminService : IAdminService
 
     public async Task<int> UpdateTasksStatusAsync(
     IEnumerable<int> ids,
-    Models.Enums.TaskStatus status)
+    TaskFlow.Domain.Enums.TaskStatus status)
     {
         List<int> taskIds =
             ids
@@ -579,7 +575,6 @@ public class AdminService : IAdminService
     {
         IQueryable<Project> query =
             _context.Project
-                .Include(project => project.User)
                 .AsNoTracking();
 
 
@@ -594,11 +589,10 @@ public class AdminService : IAdminService
                     project.Description != null &&
                     project.Description.Contains(search)
                 ) ||
-                (
-                    project.User != null &&
-                    project.User.Email != null &&
-                    project.User.Email.Contains(search)
-                ));
+                _context.Users.Any(user =>
+                    user.Id == project.UserId &&
+                    user.Email != null &&
+                    user.Email.Contains(search)));
         }
 
 
@@ -673,9 +667,12 @@ public class AdminService : IAdminService
                             project.Description,
 
                         OwnerEmail =
-                            project.User != null
-                                ? project.User.Email ?? ""
-                                : "Unknown",
+                            _context.Users
+                                .Where(user =>
+                                    user.Id == project.UserId)
+                                .Select(user => user.Email)
+                                .FirstOrDefault()
+                            ?? "Unknown",
 
                         TaskCount =
                             project.Tasks.Count,
@@ -758,8 +755,6 @@ public class AdminService : IAdminService
     {
         IQueryable<Category> query =
             _context.Categories
-                .Include(category =>
-                    category.User)
                 .AsNoTracking();
 
 
@@ -771,11 +766,10 @@ public class AdminService : IAdminService
 
             query = query.Where(category =>
                 category.Name.Contains(search) ||
-                (
-                    category.User != null &&
-                    category.User.Email != null &&
-                    category.User.Email.Contains(search)
-                ));
+                _context.Users.Any(user =>
+                    user.Id == category.UserId &&
+                    user.Email != null &&
+                    user.Email.Contains(search)));
         }
 
 
@@ -841,9 +835,12 @@ public class AdminService : IAdminService
                             category.Name,
 
                         OwnerEmail =
-                            category.User != null
-                                ? category.User.Email ?? ""
-                                : "Unknown",
+                            _context.Users
+                                .Where(user =>
+                                    user.Id == category.UserId)
+                                .Select(user => user.Email)
+                                .FirstOrDefault()
+                            ?? "Unknown",
 
                         TaskCount =
                             category.Tasks.Count

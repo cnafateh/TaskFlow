@@ -1,87 +1,287 @@
 # TaskFlow Application Flow
 
-## Registration and Login
+## 1. MVC Request Entry
+
+A browser request enters TaskFlow through ASP.NET Core.
 
 ```text
-Register
-  ↓
-ASP.NET Core Identity
-  ↓
-ApplicationUser created
-  ↓
-Authentication cookie
-  ↓
-User workspace
+Browser
+   ↓
+Reverse Proxy (production)
+   ↓
+ASP.NET Core
+   ↓
+Middleware
+   ↓
+Routing
+   ↓
+Authentication
+   ↓
+Authorization
+   ↓
+Controller
 ```
 
-## Project Creation
+Controllers translate HTTP-specific input into Application operations.
+
+---
+
+## 2. Registration and Login
+
+```text
+Register / Login
+      ↓
+ASP.NET Core Identity
+      ↓
+ApplicationUser
+      ↓
+Authentication Cookie
+      ↓
+Authenticated Request
+```
+
+`ApplicationUser` belongs to Infrastructure because it derives from ASP.NET Core Identity's `IdentityUser`.
+
+---
+
+## 3. Project Creation
 
 ```text
 Authenticated User
-      ↓
-Projects/Create
       ↓
 ProjectsController
       ↓
+IProjectService
+      ↓
 ProjectService
       ↓
-Current UserId assigned server-side
+IProjectRepository
       ↓
-Project saved
+ProjectRepository
+      ↓
+AppDbContext
+      ↓
+Database
 ```
 
-Ownership is never trusted from client input.
+The current user's identifier is assigned server-side.
 
-## Category Creation
+Ownership is not trusted from client input.
+
+---
+
+## 4. Category Creation
 
 ```text
 Authenticated User
       ↓
-Categories/Create
-      ↓
 CategoriesController
+      ↓
+ICategoryService
       ↓
 CategoryService
       ↓
-Current UserId assigned server-side
+ICategoryRepository
       ↓
-Category saved
+CategoryRepository
+      ↓
+AppDbContext
+      ↓
+Database
 ```
 
-## Task Creation
+Category ownership is assigned server-side.
 
-A Task must reference a Project and Category owned by the current user.
+---
+
+## 5. Task Creation
+
+A Task must reference a Project and Category available to the authenticated user.
 
 ```text
 Create Task Form
       ↓
-ProjectId + CategoryId
+TasksController
+      ↓
+ITaskService
+      ↓
+TaskService
+```
+
+TaskService coordinates the use case:
+
+```text
+TaskService
+      ↓
+IProjectRepository
+      ↓
+Project belongs to current user?
+      ↓
+ICategoryRepository
+      ↓
+Category belongs to current user?
+      ↓
+ITaskRepository
+      ↓
+Add Task
+      ↓
+Save Changes
+```
+
+This prevents a user from assigning a Task to another user's resources by changing submitted identifiers.
+
+---
+
+## 6. Task Ownership
+
+Task ownership is derived through Project ownership.
+
+```text
+Task
+  ↓
+Project
+  ↓
+UserId
+```
+
+Rule:
+
+```text
+Task.Project.UserId == CurrentUserId
+```
+
+Task does not store a duplicate user ownership field.
+
+---
+
+## 7. Task Details
+
+```text
+TasksController
+      ↓
+ITaskService
       ↓
 TaskService
       ↓
-Validate Project ownership
+ITaskRepository
       ↓
-Validate Category ownership
+GetByIdForUserAsync
       ↓
-Create Task
+TaskRepository
+      ↓
+database query
 ```
 
-This prevents a user from assigning a Task to another user's resources by modifying the request.
+Read-only queries may use `AsNoTracking`.
 
-## Task Management
+---
+
+## 8. Task Update
+
+```text
+Edit Request
+      ↓
+TasksController
+      ↓
+TaskService
+      ↓
+load tracked Task for current user
+      ↓
+validate target Project
+      ↓
+validate target Category
+      ↓
+update Task fields
+      ↓
+SaveChanges
+```
+
+A Task owned by another user is not returned for modification.
+
+---
+
+## 9. Task Delete
+
+```text
+Delete Request
+      ↓
+TasksController
+      ↓
+TaskService
+      ↓
+load tracked Task for current user
+      ↓
+remove Task
+      ↓
+SaveChanges
+```
+
+---
+
+## 10. Task Filtering
 
 Users can:
 
-- create tasks
-- edit tasks
-- delete tasks
-- view task details
 - search
 - filter
 - sort
 - paginate
 
-Task status:
+Flow:
+
+```text
+HTTP Query Parameters
+      ↓
+TaskFilter
+      ↓
+TaskService
+      ↓
+ITaskRepository
+      ↓
+TaskRepository
+      ↓
+IQueryable
+      ↓
+Search
+      ↓
+Filters
+      ↓
+Sort
+      ↓
+Count
+      ↓
+Skip / Take
+      ↓
+PagedResult<TaskItem>
+```
+
+Filtering and pagination occur in the database rather than loading all Tasks into application memory.
+
+---
+
+## 11. Task Summary
+
+```text
+Controller / View Component
+      ↓
+ITaskService
+      ↓
+TaskService
+      ↓
+ITaskRepository
+      ↓
+TaskRepository
+      ↓
+database counts
+      ↓
+TaskSummary
+```
+
+Summary values are restricted to the current user's Tasks.
+
+---
+
+## 12. Task Status
 
 ```text
 Todo
@@ -89,7 +289,9 @@ InProgress
 Done
 ```
 
-Task priority:
+---
+
+## 13. Task Priority
 
 ```text
 Low
@@ -97,81 +299,205 @@ Medium
 High
 ```
 
-## Administration
+---
+
+## 14. Project Update
 
 ```text
-/Admin
-  ├── Users
-  ├── Tasks
-  ├── Projects
-  └── Categories
+ProjectsController
+      ↓
+ProjectService
+      ↓
+IProjectRepository
+      ↓
+tracked Project owned by current user
+      ↓
+modify fields
+      ↓
+SaveChanges
 ```
 
-### Users
+---
+
+## 15. Category Update
+
+```text
+CategoriesController
+      ↓
+CategoryService
+      ↓
+ICategoryRepository
+      ↓
+tracked Category owned by current user
+      ↓
+modify fields
+      ↓
+SaveChanges
+```
+
+---
+
+## 16. Category Delete Rule
+
+Before Category deletion, TaskFlow can determine whether the Category is currently used by Tasks.
+
+```text
+CategoryService
+      ↓
+ICategoryRepository
+      ↓
+HasTasksForUserAsync
+```
+
+A Category referenced by Tasks is protected from normal deletion.
+
+---
+
+## 17. Administration
+
+Administrative functionality includes:
+
+```text
+Admin
+├── Users
+├── Tasks
+├── Projects
+└── Categories
+```
+
+Admin operations intentionally support cross-user management and differ from normal user ownership-restricted flows.
+
+---
+
+## 18. Admin User Management
 
 Administrators can:
 
-- search by email
+- search users
 - filter by role
-- sort users
+- sort
 - paginate
 - change another user's role
 
 Safeguards include:
 
-- an admin cannot change their own role
-- the last administrator cannot be downgraded
-- allowed role values are validated server-side
+```text
+admin cannot change own role
+last administrator cannot be downgraded
+allowed role values are validated
+```
 
-### Tasks
+---
 
-Administrators can search and filter all tasks by:
+## 19. Admin Task Operations
 
-- owner
-- project
-- category
-- status
-- priority
-- search text
-- sort order
+Administrators can:
 
-Bulk actions:
+- search all Tasks
+- filter by owner
+- filter by Project
+- filter by Category
+- filter by status
+- filter by priority
+- sort
+- paginate
+- perform bulk operations
+
+Bulk actions include:
 
 ```text
-Mark as Todo
-Mark as In Progress
-Mark as Done
+Mark Todo
+Mark In Progress
+Mark Done
 Delete
 ```
 
-### Projects
+Posted identifiers are treated only as selectors.
 
-Administrators can search, filter, paginate, delete, and bulk-delete projects.
+The server loads the actual matching entities before modifying them.
 
-Deleting a project also deletes its tasks.
+---
 
-### Categories
+## 20. Error Handling
 
-Administrators can search, filter, paginate, and delete categories that are not currently in use.
+```text
+Unauthorized operation
+      ↓
+Access Denied
 
-## Error Handling
+Unknown route/resource
+      ↓
+Custom 404
 
-- unauthorized access → Access Denied
-- unknown route → custom 404
-- unexpected production exception → generic application error page
+Unexpected production exception
+      ↓
+Global exception handler
+      ↓
+Generic error page
+      ↓
+Trace identifier
+```
 
-## Startup
+---
+
+## 21. Startup Flow
+
+Production startup:
 
 ```text
 Application starts
       ↓
-Migrations applied
+configuration loaded
       ↓
-Roles ensured
+dependency registrations created
       ↓
-Bootstrap admin configuration checked
+request pipeline configured
       ↓
-Admin created if missing
+AppDbContext resolved
+      ↓
+pending EF migrations applied
+      ↓
+Identity roles ensured
+      ↓
+bootstrap admin values read
+      ↓
+IdentitySeeder invoked
+      ↓
+application begins serving requests
 ```
 
-An existing admin password is never reset automatically during startup.
+The bootstrap administrator's existing password is not reset automatically.
+
+---
+
+## 22. Development Database Startup
+
+Development uses SQLite.
+
+The local database can be created from the current EF Core model.
+
+Production instead uses PostgreSQL migrations.
+
+---
+
+## 23. Future API Flow
+
+The next phase introduces a second presentation entry point:
+
+```text
+REST Client
+      ↓
+API Controller
+      ↓
+Application Service
+      ↓
+Repository Contracts
+      ↓
+Infrastructure
+      ↓
+Database
+```
+
+The API will reuse the same Application services used by MVC.
+
+No duplicate Task, Project, or Category business/application workflows are required.

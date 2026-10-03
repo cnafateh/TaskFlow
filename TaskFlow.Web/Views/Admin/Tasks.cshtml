@@ -1,4 +1,4 @@
-﻿@model TaskFlow.Web.ViewModels.Admin.AdminTaskIndexViewModel
+@model TaskFlow.Web.ViewModels.Admin.AdminTaskIndexViewModel
 
 @{
     ViewData["Title"] = "Tasks";
@@ -102,7 +102,7 @@
                 </label>
 
                 <select asp-for="Status"
-                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskStatus>()"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Domain.Enums.TaskStatus>()"
                         class="form-select">
 
                     <option value="">
@@ -121,7 +121,7 @@
                 </label>
 
                 <select asp-for="Priority"
-                        asp-items="Html.GetEnumSelectList<TaskFlow.Web.Models.Enums.TaskPriority>()"
+                        asp-items="Html.GetEnumSelectList<TaskFlow.Domain.Enums.TaskPriority>()"
                         class="form-select">
 
                     <option value="">
@@ -429,7 +429,10 @@
 
                                 @{
                                     string ownerEmail =
-                                        task.Project?.User?.Email
+                                        Model.Owners
+                                            .FirstOrDefault(owner =>
+                                                owner.Id == task.Project?.UserId)
+                                            ?.Email
                                         ?? "?";
 
                                     string ownerInitial =
@@ -465,14 +468,14 @@
                             <td>
 
                                 @if (task.Priority ==
-                                    TaskFlow.Web.Models.Enums.TaskPriority.High)
+                                    TaskFlow.Domain.Enums.TaskPriority.High)
                                 {
                                     <span class="admin-badge admin-badge-danger">
                                         High
                                     </span>
                                 }
                                 else if (task.Priority ==
-                                         TaskFlow.Web.Models.Enums.TaskPriority.Medium)
+                                         TaskFlow.Domain.Enums.TaskPriority.Medium)
                                 {
                                     <span class="admin-badge admin-badge-warning">
                                         Medium
@@ -491,14 +494,14 @@
                             <td>
 
                                 @if (task.Status ==
-                                    TaskFlow.Web.Models.Enums.TaskStatus.Done)
+                                    TaskFlow.Domain.Enums.TaskStatus.Done)
                                 {
                                     <span class="admin-badge admin-badge-success">
                                         Done
                                     </span>
                                 }
                                 else if (task.Status ==
-                                         TaskFlow.Web.Models.Enums.TaskStatus.InProgress)
+                                         TaskFlow.Domain.Enums.TaskStatus.InProgress)
                                 {
                                     <span class="admin-badge admin-badge-primary">
                                         In progress

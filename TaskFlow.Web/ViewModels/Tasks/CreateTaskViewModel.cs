@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
-using TaskFlow.Web.Models.Enums;
+using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Web.ViewModels.Tasks;
 

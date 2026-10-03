@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Tests.Infrastructure;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Tests.Services;
 

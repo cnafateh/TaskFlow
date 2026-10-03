@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Web.Data;
+using TaskFlow.Infrastructure.Persistence;
 
 namespace TaskFlow.Tests.Infrastructure;
 

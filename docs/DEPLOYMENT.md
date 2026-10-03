@@ -1,18 +1,289 @@
 # TaskFlow Deployment
 
-## Deployment Model
+## 1. Production Model
 
-TaskFlow is designed to run as a Docker container while keeping persistent state outside the disposable container.
+TaskFlow runs as a Dockerized ASP.NET Core application.
+
+Production persistence uses PostgreSQL.
 
 ```text
-taskflow_data
-    → SQLite database
-
-taskflow_keys
-    → ASP.NET Core Data Protection keys
+Internet
+   ↓
+HTTPS
+   ↓
+Nginx Proxy Manager
+   ↓
+proxy Docker network
+   ↓
+TaskFlow container
+   ↓
+database Docker network
+   ↓
+PostgreSQL container
 ```
 
-## Build
+The application container is disposable.
+
+PostgreSQL data lives independently from the TaskFlow application container.
+
+---
+
+## 2. Docker Networks
+
+TaskFlow participates in:
+
+```text
+proxy
+database
+```
+
+The `proxy` network connects TaskFlow to Nginx Proxy Manager.
+
+The `database` network connects TaskFlow to PostgreSQL.
+
+The database does not need to be exposed to the public internet.
+
+---
+
+## 3. Production Database
+
+Production uses:
+
+```text
+PostgreSQL
+```
+
+Typical logical configuration:
+
+```text
+Database:
+taskflow
+
+Application role:
+taskflow_app
+```
+
+The application should use a dedicated PostgreSQL role rather than an administrative database account.
+
+---
+
+## 4. Production Connection String
+
+Example:
+
+```env
+ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=taskflow;Username=taskflow_app;Password=<database-password>
+```
+
+The actual password must be supplied through the deployment environment.
+
+---
+
+## 5. Environment Variables
+
+Typical production configuration:
+
+```env
+ASPNETCORE_ENVIRONMENT=Production
+
+ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+
+TASKFLOW_DB_PASSWORD=<database-password>
+
+DataProtection__KeysPath=/app/keys
+
+SeedAdmin__Email=admin@example.com
+SeedAdmin__Password=<strong-bootstrap-password>
+```
+
+Secrets must not be committed to Git.
+
+---
+
+## 6. Docker Compose
+
+The TaskFlow service is expected to:
+
+- run the published application image
+- expose port `8080` internally
+- connect to the `proxy` network
+- connect to the `database` network
+- receive production configuration through environment variables
+- persist Data Protection keys
+
+---
+
+## 7. Reverse Proxy
+
+TaskFlow listens internally on:
+
+```text
+8080
+```
+
+Nginx Proxy Manager can forward traffic to:
+
+```text
+http://taskflow:8080
+```
+
+Because the reverse proxy shares the Docker `proxy` network, the TaskFlow container does not require a public host port.
+
+---
+
+## 8. Data Protection
+
+ASP.NET Core authentication cookies depend on Data Protection keys.
+
+Production persists these keys outside the disposable application container.
+
+Application path:
+
+```text
+/app/keys
+```
+
+Without persistent Data Protection keys, authentication cookies can become invalid after container recreation.
+
+---
+
+## 9. Database Provider Strategy
+
+Development:
+
+```text
+ASP.NET Core
+   ↓
+EF Core
+   ↓
+SQLite
+```
+
+Production:
+
+```text
+ASP.NET Core
+   ↓
+EF Core
+   ↓
+Npgsql
+   ↓
+PostgreSQL
+```
+
+Provider selection occurs during application startup.
+
+---
+
+## 10. EF Core Migrations
+
+Production database schema is managed through EF Core migrations.
+
+Migrations live in:
+
+```text
+TaskFlow.Infrastructure/Persistence/Migrations
+```
+
+Production startup applies pending migrations.
+
+Development may use a disposable SQLite database created from the current model.
+
+---
+
+## 11. Docker Image
+
+The production application image is published to GitHub Container Registry.
+
+Primary image:
+
+```text
+ghcr.io/cnafateh/taskflow:latest
+```
+
+Commit-specific tags may also be produced.
+
+---
+
+## 12. CI Flow
+
+Pull requests targeting `main` run:
+
+```text
+Checkout
+   ↓
+Restore
+   ↓
+Build
+   ↓
+Tests
+```
+
+Only code that passes the required checks should be merged.
+
+---
+
+## 13. Deployment Flow
+
+```text
+Feature Branch
+      ↓
+Pull Request
+      ↓
+CI
+      ↓
+Merge to main
+      ↓
+Docker image build
+      ↓
+GHCR
+      ↓
+deployment platform pulls image
+      ↓
+TaskFlow container recreated
+```
+
+---
+
+## 14. Container Recreation
+
+When the application container is recreated:
+
+```text
+New TaskFlow container
+      ↓
+existing Data Protection volume mounted
+      ↓
+existing PostgreSQL database reused
+      ↓
+pending migrations applied
+      ↓
+application starts
+```
+
+Application data is not stored in the disposable TaskFlow container.
+
+---
+
+## 15. Health Check
+
+TaskFlow exposes:
+
+```text
+/health
+```
+
+Example:
+
+```bash
+curl https://your-domain.example/health
+```
+
+The endpoint can be used by deployment and monitoring systems.
+
+---
+
+## 16. Build
 
 From the repository root:
 
@@ -20,33 +291,17 @@ From the repository root:
 docker compose build
 ```
 
-The Docker build uses a configurable NuGet source. The current default is:
+The Docker build may use a configurable NuGet source.
+
+Current mirror:
 
 ```text
 https://package-mirror.liara.ir/repository/nuget/index.json
 ```
 
-It can be overridden using the `NUGET_SOURCE` Compose build argument.
+---
 
-## Environment File
-
-Copy:
-
-```bash
-cp .env.example .env
-```
-
-Configure real values:
-
-```env
-NUGET_SOURCE=https://package-mirror.liara.ir/repository/nuget/index.json
-SEED_ADMIN_EMAIL=admin@example.com
-SEED_ADMIN_PASSWORD=replace-with-a-strong-password
-```
-
-Never commit `.env`.
-
-## Run
+## 17. Run
 
 ```bash
 docker compose up -d
@@ -64,149 +319,42 @@ Logs:
 docker compose logs -f taskflow
 ```
 
-## Health Endpoint
+---
+
+## 18. Update
+
+Typical update process:
 
 ```text
-/health
-```
-
-Example:
-
-```bash
-curl http://localhost:8080/health
-```
-
-Expected:
-
-```text
-Healthy
-```
-
-## Database Initialization
-
-TaskFlow applies existing EF Core migrations on application startup.
-
-```text
-Empty persistent volume
-      ↓
-Application startup
-      ↓
-Migrations
-      ↓
-SQLite schema created
-      ↓
-Identity roles seeded
-      ↓
-Bootstrap admin created
-```
-
-## Persistent Volumes
-
-```text
-taskflow_data:/app/data
-taskflow_keys:/app/keys
-```
-
-Do not run:
-
-```bash
-docker compose down -v
-```
-
-unless removal of persistent data is intentional.
-
-## GitHub Container Registry
-
-The repository includes:
-
-```text
-.github/workflows/docker-publish.yml
-```
-
-Each push to `main` publishes:
-
-```text
-ghcr.io/<owner>/<repository>:latest
-```
-
-and a commit-specific:
-
-```text
-ghcr.io/<owner>/<repository>:sha-...
-```
-
-The workflow authenticates to GHCR with GitHub's built-in `GITHUB_TOKEN`.
-
-## Arcane Deployment
-
-Arcane should pull:
-
-```text
-ghcr.io/<owner>/<repository>:latest
-```
-
-Recommended production environment variables:
-
-```env
-ASPNETCORE_ENVIRONMENT=Production
-ConnectionStrings__DefaultConnection=Data Source=/app/data/taskflow.db
-DataProtection__KeysPath=/app/keys
-SeedAdmin__Email=admin@example.com
-SeedAdmin__Password=strong-bootstrap-password
-```
-
-Persistent mounts:
-
-```text
-/app/data
-/app/keys
-```
-
-Container port:
-
-```text
-8080
-```
-
-Typical public topology:
-
-```text
-Internet
-   ↓
-HTTPS reverse proxy
-   ↓
-taskflow.example.com
-   ↓
-TaskFlow container :8080
-```
-
-## Update Flow
-
-```text
-Push to main
-      ↓
-GitHub Actions
-      ↓
 New GHCR image
       ↓
-Arcane pulls/recreates container
+deployment pulls image
       ↓
-Existing volumes reused
+old TaskFlow container replaced
       ↓
-Migrations run
+PostgreSQL stays running
       ↓
-Updated version online
+Data Protection keys remain persistent
+      ↓
+application starts
 ```
 
-## Production Checklist
+---
 
-- use a strong bootstrap administrator password
-- keep `.env` out of Git
-- verify database persistence
-- verify Data Protection key persistence
-- publish only through the reverse proxy
-- configure HTTPS
-- verify `/health`
-- test login and logout
-- test persistence across container recreation
-- back up the SQLite volume
+## 19. Production Checklist
+
+Before deployment verify:
+
+- CI is green
+- PostgreSQL is available
+- dedicated application database role exists
+- database password is stored outside Git
+- Data Protection keys are persistent
+- HTTPS is enabled
+- reverse proxy routing is correct
+- forwarded headers are enabled
+- `/health` responds
+- login works
+- login survives container recreation
+- migrations apply successfully
+- database backups exist

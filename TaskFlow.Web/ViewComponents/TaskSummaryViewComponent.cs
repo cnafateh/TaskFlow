@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Tasks;
 
@@ -30,7 +30,7 @@ public class TaskSummaryViewComponent : ViewComponent
             return Content(string.Empty);
         }
 
-        TaskSummaryViewModel model =
+        TaskSummary model =
             await _taskService.GetSummaryAsync(userId);
 
         return View(model);
