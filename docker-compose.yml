@@ -1,26 +1,17 @@
 services:
-
   taskflow:
-
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NUGET_SOURCE: ${NUGET_SOURCE:-https://package-mirror.liara.ir/repository/nuget/index.json}
-
-    image: taskflow:latest
-
+    image: ghcr.io/cnafateh/taskflow:latest
     container_name: taskflow
-
     restart: unless-stopped
 
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
 
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
 
-      ConnectionStrings__DefaultConnection: "Data Source=/app/data/taskflow.db"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=taskflow;Username=taskflow_app;Password=${TASKFLOW_DB_PASSWORD}"
 
       DataProtection__KeysPath: "/app/keys"
 
@@ -28,10 +19,18 @@ services:
       SeedAdmin__Password: "${SEED_ADMIN_PASSWORD}"
 
     volumes:
-      - taskflow_data:/app/data
       - taskflow_keys:/app/keys
 
+    networks:
+      - proxy
+      - database
 
 volumes:
-  taskflow_data:
   taskflow_keys:
+
+networks:
+  proxy:
+    external: true
+
+  database:
+    external: true
