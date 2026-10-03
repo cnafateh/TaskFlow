@@ -16,22 +16,30 @@ ARG NUGET_SOURCE=https://package-mirror.liara.ir/repository/nuget/index.json
 
 WORKDIR /src
 
+
+# Copy project files first so Docker can cache the restore layer.
+# TaskFlow.Web references Domain, Application, and Infrastructure,
+# therefore all referenced project files must exist before restore.
+
+COPY ["TaskFlow.Domain/TaskFlow.Domain.csproj", "TaskFlow.Domain/"]
+COPY ["TaskFlow.Application/TaskFlow.Application.csproj", "TaskFlow.Application/"]
+COPY ["TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj", "TaskFlow.Infrastructure/"]
 COPY ["TaskFlow.Web/TaskFlow.Web.csproj", "TaskFlow.Web/"]
 
 
-# Restore only from the configured mirror.
-# --source overrides the NuGet sources for this restore.
+# Restoring the Web project also restores all referenced projects.
 RUN dotnet restore "TaskFlow.Web/TaskFlow.Web.csproj" \
     --source "$NUGET_SOURCE" \
     --disable-parallel
 
 
+# Copy the remaining source code only after restore.
 COPY . .
+
 
 WORKDIR "/src/TaskFlow.Web"
 
 
-# Restore has already been completed above.
 RUN dotnet publish "TaskFlow.Web.csproj" \
     -c $BUILD_CONFIGURATION \
     -o /app/publish \
