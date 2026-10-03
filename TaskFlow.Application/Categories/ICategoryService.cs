@@ -1,6 +1,6 @@
-﻿using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Entities;
 
-namespace TaskFlow.Web.Services;
+namespace TaskFlow.Application.Categories;
 
 public interface ICategoryService
 {

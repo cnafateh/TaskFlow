@@ -1,6 +1,6 @@
-﻿using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Entities;
 
-namespace TaskFlow.Web.Services
+namespace TaskFlow.Application.Projects
 {
     public interface IProjectService
     {
@@ -15,3 +15,4 @@ namespace TaskFlow.Web.Services
         Task<bool> DeleteAsync(int id, string userId);
     }
 }
+
