@@ -1,4 +1,4 @@
-﻿namespace TaskFlow.Web.Services;
+namespace TaskFlow.Application.Common;
 
 public class PagedResult<T>
 {

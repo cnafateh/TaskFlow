@@ -1,7 +1,6 @@
-﻿using TaskFlow.Domain.Entities;
-using TaskFlow.Web.ViewModels.Tasks;
-
-namespace TaskFlow.Web.Services;
+using TaskFlow.Application.Common;
+using TaskFlow.Domain.Entities;
+namespace TaskFlow.Application.Tasks;
 
 public interface ITaskService
 {
@@ -17,5 +16,5 @@ public interface ITaskService
         TaskFilter filter,
         string userId);
 
-    Task<TaskSummaryViewModel> GetSummaryAsync(string userId);
+    Task<TaskSummary> GetSummaryAsync(string userId);
 }

@@ -1,6 +1,6 @@
-﻿using TaskFlow.Domain.Enums;
+using TaskFlow.Domain.Enums;
 
-namespace TaskFlow.Web.Services;
+namespace TaskFlow.Application.Tasks;
 
 public class TaskFilter
 {

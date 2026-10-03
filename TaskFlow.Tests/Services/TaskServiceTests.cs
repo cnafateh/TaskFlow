@@ -405,7 +405,7 @@ public class TaskServiceTests
             new(database.Context);
 
 
-        TaskSummaryViewModel result =
+        TaskSummary result =
             await service.GetSummaryAsync(
                 data.UserA.Id);
 

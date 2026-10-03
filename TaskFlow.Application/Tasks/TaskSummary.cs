@@ -1,6 +1,6 @@
-﻿namespace TaskFlow.Web.ViewModels.Tasks;
+namespace TaskFlow.Application.Tasks;
 
-public class TaskSummaryViewModel
+public class TaskSummary
 {
     public int TotalTasks { get; set; }
 

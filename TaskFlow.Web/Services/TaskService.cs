@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Web.ViewModels.Tasks;
@@ -232,7 +232,7 @@ public class TaskService : ITaskService
         };
     }
 
-    public async Task<TaskSummaryViewModel> GetSummaryAsync(
+    public async Task<TaskSummary> GetSummaryAsync(
     string userId)
     {
         IQueryable<TaskItem> query =
@@ -253,7 +253,7 @@ public class TaskService : ITaskService
                 task =>
                     task.Status == TaskFlow.Domain.Enums.TaskStatus.Done);
 
-        return new TaskSummaryViewModel
+        return new TaskSummary
         {
             TotalTasks = totalTasks,
             InProgressTasks = inProgressTasks,
