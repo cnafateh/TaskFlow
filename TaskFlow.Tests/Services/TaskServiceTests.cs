@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Tests.Infrastructure;
-using TaskFlow.Web.Data;
+using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Tasks;

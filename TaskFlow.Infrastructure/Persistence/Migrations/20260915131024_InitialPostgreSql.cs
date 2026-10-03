@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace TaskFlow.Web.Migrations
+namespace TaskFlow.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class InitialPostgreSql : Migration

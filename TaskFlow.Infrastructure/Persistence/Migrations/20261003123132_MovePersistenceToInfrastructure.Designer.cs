@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TaskFlow.Web.Data;
+using TaskFlow.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace TaskFlow.Web.Migrations
+namespace TaskFlow.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261003123132_MovePersistenceToInfrastructure")]
+    partial class MovePersistenceToInfrastructure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,7 +263,7 @@ namespace TaskFlow.Web.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TaskFlow.Web.Models.ApplicationUser", b =>
+            modelBuilder.Entity("TaskFlow.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -335,7 +338,7 @@ namespace TaskFlow.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("TaskFlow.Web.Models.ApplicationUser", null)
+                    b.HasOne("TaskFlow.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -344,7 +347,7 @@ namespace TaskFlow.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("TaskFlow.Web.Models.ApplicationUser", null)
+                    b.HasOne("TaskFlow.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -359,7 +362,7 @@ namespace TaskFlow.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskFlow.Web.Models.ApplicationUser", null)
+                    b.HasOne("TaskFlow.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -368,7 +371,7 @@ namespace TaskFlow.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TaskFlow.Web.Models.ApplicationUser", null)
+                    b.HasOne("TaskFlow.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -377,7 +380,7 @@ namespace TaskFlow.Web.Migrations
 
             modelBuilder.Entity("TaskFlow.Domain.Entities.Category", b =>
                 {
-                    b.HasOne("TaskFlow.Web.Models.ApplicationUser", null)
+                    b.HasOne("TaskFlow.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany("Categories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -385,7 +388,7 @@ namespace TaskFlow.Web.Migrations
 
             modelBuilder.Entity("TaskFlow.Domain.Entities.Project", b =>
                 {
-                    b.HasOne("TaskFlow.Web.Models.ApplicationUser", null)
+                    b.HasOne("TaskFlow.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany("Projects")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -420,7 +423,7 @@ namespace TaskFlow.Web.Migrations
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("TaskFlow.Web.Models.ApplicationUser", b =>
+            modelBuilder.Entity("TaskFlow.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Navigation("Categories");
 

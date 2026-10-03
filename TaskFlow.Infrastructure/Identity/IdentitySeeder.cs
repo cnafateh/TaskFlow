@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using TaskFlow.Domain.Entities;
 
-namespace TaskFlow.Web.Data;
+namespace TaskFlow.Infrastructure.Identity;
 
 public static class IdentitySeeder
 {
@@ -27,13 +27,12 @@ public static class IdentitySeeder
 
     public static async Task SeedAdminUserAsync(
         UserManager<ApplicationUser> userManager,
-        IConfiguration configuration)
+        string? email,
+        string? password)
     {
-        string? email =
-            configuration["SeedAdmin:Email"];
+        
 
-        string? password =
-            configuration["SeedAdmin:Password"];
+        
 
 
         if (string.IsNullOrWhiteSpace(email) ||

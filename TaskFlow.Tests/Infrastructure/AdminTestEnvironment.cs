@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TaskFlow.Web.Data;
+using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
 

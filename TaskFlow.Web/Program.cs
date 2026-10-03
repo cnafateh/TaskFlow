@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Web.Data;
+using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.Web.Filters;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
@@ -34,17 +34,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        options.UseSqlite(
-            connectionString,
-            sqlite =>
-                sqlite.MigrationsAssembly("TaskFlow.Web"));
+        options.UseSqlite(connectionString);
     }
     else{ 
         
-        options.UseNpgsql(
-            connectionString,
-            npgsql =>
-                npgsql.MigrationsAssembly("TaskFlow.Web"));
+        options.UseNpgsql(connectionString);
     }
 });
 
@@ -165,10 +159,20 @@ using (IServiceScope scope =
         .SeedRolesAsync(roleManager);
 
 
+    string? seedAdminEmail =
+        builder.Configuration[
+            "SeedAdmin:Email"];
+
+    string? seedAdminPassword =
+        builder.Configuration[
+            "SeedAdmin:Password"];
+
+
     await IdentitySeeder
         .SeedAdminUserAsync(
             userManager,
-            builder.Configuration);
+            seedAdminEmail,
+            seedAdminPassword);
 }
 
 

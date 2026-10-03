@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Web.Data;
+using TaskFlow.Infrastructure.Persistence;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Domain.Enums;
 using TaskFlow.Web.ViewModels.Admin;

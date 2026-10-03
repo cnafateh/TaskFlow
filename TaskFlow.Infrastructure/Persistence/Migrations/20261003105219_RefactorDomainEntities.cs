@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TaskFlow.Web.Migrations
+namespace TaskFlow.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class RefactorDomainEntities : Migration
