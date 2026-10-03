@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using TaskFlow.Domain.Entities;
 
-namespace TaskFlow.Web.Models;
+namespace TaskFlow.Infrastructure.Identity;
 
 public class ApplicationUser : IdentityUser
 {

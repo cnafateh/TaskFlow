@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
@@ -34,11 +34,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        options.UseSqlite(connectionString);
+        options.UseSqlite(
+            connectionString,
+            sqlite =>
+                sqlite.MigrationsAssembly("TaskFlow.Web"));
     }
     else{ 
         
-        options.UseNpgsql(connectionString);
+        options.UseNpgsql(
+            connectionString,
+            npgsql =>
+                npgsql.MigrationsAssembly("TaskFlow.Web"));
     }
 });
 

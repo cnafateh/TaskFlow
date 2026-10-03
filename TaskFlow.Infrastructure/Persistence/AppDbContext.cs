@@ -1,6 +1,8 @@
+using TaskFlow.Infrastructure.Identity;
+using TaskFlow.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-namespace TaskFlow.Web.Data;
+namespace TaskFlow.Infrastructure.Persistence;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
