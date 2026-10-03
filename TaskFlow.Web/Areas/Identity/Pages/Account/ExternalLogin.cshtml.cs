@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Web.Areas.Identity.Pages.Account;
 

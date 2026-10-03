@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TaskFlow.Domain.Enums;
 
-namespace TaskFlow.Web.Models;
+namespace TaskFlow.Domain.Entities;
 
 public class TaskItem
 {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Web.Models;
 

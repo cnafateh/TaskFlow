@@ -1,4 +1,4 @@
-﻿@model TaskFlow.Web.ViewModels.Admin.AdminTaskIndexViewModel
+@model TaskFlow.Web.ViewModels.Admin.AdminTaskIndexViewModel
 
 @{
     ViewData["Title"] = "Tasks";
@@ -429,7 +429,10 @@
 
                                 @{
                                     string ownerEmail =
-                                        task.Project?.User?.Email
+                                        Model.Owners
+                                            .FirstOrDefault(owner =>
+                                                owner.Id == task.Project?.UserId)
+                                            ?.Email
                                         ?? "?";
 
                                     string ownerInitial =

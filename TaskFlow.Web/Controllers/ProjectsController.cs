@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Projects;
 

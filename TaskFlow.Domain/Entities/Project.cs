@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskFlow.Web.Models;
+namespace TaskFlow.Domain.Entities;
 
 public class Project
 {
@@ -23,6 +23,4 @@ public class Project
         = new List<TaskItem>();
 
     public string? UserId { get; set; }
-
-    public ApplicationUser? User { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskFlow.Web.Data;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Web.Services
 {

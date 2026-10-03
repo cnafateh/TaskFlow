@@ -3,7 +3,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TaskFlow.Web.Data;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
 
 namespace TaskFlow.Tests.Infrastructure;

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskFlow.Web.Models;
+namespace TaskFlow.Domain.Entities;
 
 public class Category
 {
@@ -11,8 +11,6 @@ public class Category
     public string Name { get; set; } = "";
 
     public string? UserId { get; set; }
-
-    public ApplicationUser? User { get; set; }
 
     public ICollection<TaskItem> Tasks { get; set; }
         = new List<TaskItem>();

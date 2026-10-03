@@ -1,4 +1,4 @@
-﻿using TaskFlow.Web.Models;
+﻿using TaskFlow.Domain.Entities;
 using TaskFlow.Web.ViewModels.Admin;
 
 namespace TaskFlow.Web.Services;

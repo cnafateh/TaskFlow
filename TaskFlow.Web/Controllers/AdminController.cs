@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TaskFlow.Web.Filters;
-using TaskFlow.Web.Models;
+using TaskFlow.Domain.Entities;
 using TaskFlow.Web.Services;
 using TaskFlow.Web.ViewModels.Admin;
 

@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Web.Models;
-
 namespace TaskFlow.Web.Data;
 
 public class AppDbContext : IdentityDbContext<ApplicationUser>
@@ -39,16 +37,16 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         // User -> Projects
         modelBuilder.Entity<Project>()
-            .HasOne(project => project.User)
-            .WithMany(user => user.Projects)
-            .HasForeignKey(project => project.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+    .HasOne<ApplicationUser>()
+    .WithMany(user => user.Projects)
+    .HasForeignKey(project => project.UserId)
+    .OnDelete(DeleteBehavior.Cascade);
 
         // User -> Categories
         modelBuilder.Entity<Category>()
-            .HasOne(category => category.User)
-            .WithMany(user => user.Categories)
-            .HasForeignKey(category => category.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+    .HasOne<ApplicationUser>()
+    .WithMany(user => user.Categories)
+    .HasForeignKey(category => category.UserId)
+    .OnDelete(DeleteBehavior.Cascade);
     }
 }
